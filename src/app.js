@@ -24,11 +24,12 @@ import allCourses from "./routes/course.route.js";
 import quizzesRoute from "./routes/quizzes.route.js";
 import questionRoute from "./routes/question.route.js";
 
-// ✅ Add CORS middleware here
-app.use(cors({
-  origin: "http://localhost:8080",
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  })
+);
 
 // middleware
 app.use(express.json({ limit: "16kb" }));
