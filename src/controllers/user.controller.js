@@ -123,4 +123,21 @@ const loginUser = asyncHandler(async (req, res) => {
   });
 });
 
-export { registerUser, loginUser };
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.findAll({
+    attributes: { exclude: ["password_hash", "course_id"] },
+    include: [
+      {
+        model: Course,
+        as: "Course", // alias, but only needed if you defined one
+        attributes: ["id", "name"], // choose what to expose
+      },
+    ],
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, users ?? [], "Users fetched successfully"));
+});
+
+export { registerUser, loginUser, getAllUsers };
