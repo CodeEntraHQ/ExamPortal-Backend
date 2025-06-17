@@ -57,6 +57,7 @@ app.get("/", (req, res) => {
 
 sequelize
   .sync()
+  // .sync({ force: true })
   .then(() => {
     app.on("error", (error) => {
       console.log("Error Event For App !!", error);
