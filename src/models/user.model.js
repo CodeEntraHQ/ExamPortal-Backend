@@ -2,41 +2,46 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../db/index.js";
 
-const User = sequelize.define("User", {
-  id: {
-    type: DataTypes.STRING,
-    primaryKey: true,
-  },
-  username: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-    validate: {
-      isEmail: true,
+const User = sequelize.define(
+  "User",
+  {
+    id: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
+
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+
+    entity_id: {
+      type: DataTypes.STRING,
+    },
+    password_hash: DataTypes.STRING,
+
+    role: {
+      type: DataTypes.ENUM("SUPERADMIN", "ADMIN", "STUDENT"),
+      defaultValue: "STUDENT",
+    },
+    active: DataTypes.BOOLEAN,
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
   },
-  password_hash: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  role: {
-    type: DataTypes.ENUM("admin", "student"),
-    defaultValue: "student",
-    allowNull: false,
-  },
-});
+  {
+    timestamps: false,
+  }
+);
 
-// Hook to auto-generate ID like ex001, ex002...
-User.beforeCreate(async (course) => {
+User.beforeCreate(async (user) => {
   const users = await User.findAll({ attributes: ["id"] });
 
   const numbers = users
@@ -46,7 +51,7 @@ User.beforeCreate(async (course) => {
   const maxId = numbers.length ? Math.max(...numbers) : 0;
   const newId = `usr${String(maxId + 1).padStart(3, "0")}`;
 
-  course.id = newId;
+  user.id = newId;
 });
 
 export default User;

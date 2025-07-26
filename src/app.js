@@ -12,17 +12,19 @@ const port = process.env.PORT;
 import sequelize from "./db/index.js";
 
 // import models
-import Course from "./models/courses.model.js";
+import Collage from "./models/collage.model.js";
 import User from "./models/user.model.js";
-import Quiz from "./models/quizzes.model.js";
+import Exam from "./models/exam.model.js";
 import Question from "./models/question.model.js";
-import Option from "./models/option.model.js";
+import Enrollment from "./models/enrollment.model.js";
+import Result from "./models/result.model.js";
+import Submission from "./models/submission.model.js";
 
 // routes import
 import userRouter from "./routes/user.route.js";
-import allCourses from "./routes/course.route.js";
-import quizzesRoute from "./routes/quizzes.route.js";
-import questionRoute from "./routes/question.route.js";
+import getAllCollage from "./routes/collage.route.js";
+import examAndQuestRouter from "./routes/exam.route.js";
+// import questionRoute from "./routes/question.route.js";
 
 app.use(
   cors({
@@ -36,24 +38,30 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 // database relation
-User.belongsTo(Course, { foreignKey: "course_id", onDelete: "CASCADE" });
-Course.hasMany(User, { foreignKey: "course_id" });
-Quiz.belongsTo(Course, { foreignKey: "course_id", onDelete: "CASCADE" });
-Question.belongsTo(Quiz, { foreignKey: "quiz_id" });
-Quiz.hasMany(Question, { foreignKey: "quiz_id" });
-
-Option.belongsTo(Question, { foreignKey: "question_id" });
-Question.hasMany(Option, { foreignKey: "question_id", as: "Options" });
+User.belongsTo(Collage, { foreignKey: "entity_id", onDelete: "CASCADE" });
+Exam.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
+Question.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
+Enrollment.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
+Enrollment.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
+Result.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
+Result.belongsTo(Exam, { foreignKey: "quiz_id", onDelete: "CASCADE" });
+Submission.belongsTo(User, {
+  foreignKey: "user_id",
+  onDelete: "CASCADE",
+});
+Submission.belongsTo(Exam, {
+  foreignKey: "quiz_id",
+  onDelete: "CASCADE",
+});
+Submission.belongsTo(Question, {
+  foreignKey: "question_id",
+  onDelete: "CASCADE",
+});
 
 // routes declaration
-app.use("/api/v1", allCourses);
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/user", quizzesRoute);
-app.use("/api/v1/quizze", questionRoute);
-
-app.get("/", (req, res) => {
-  res.send("Hello belal World!");
-});
+app.use("/v1", getAllCollage);
+app.use("/v1/users", userRouter);
+app.use("/v1/exam", examAndQuestRouter);
 
 sequelize
   .sync()

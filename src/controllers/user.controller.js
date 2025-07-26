@@ -1,143 +1,313 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
+import sequelize from "../db/index.js";
 import User from "../models/user.model.js";
-import Course from "../models/courses.model.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import Collage from "../models/collage.model.js";
+
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
 
 import jwt from "jsonwebtoken";
 
-function generateAccesKey(id, username, email) {
-  return jwt.sign({ id, username, email }, process.env.TOKEN_SECRET);
+function generateAccessToken(id, email) {
+  return jwt.sign({ id, email }, process.env.TOKEN_SECRET, {
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+  });
 }
 
-const registerUser = asyncHandler(async (req, res) => {
-  const { name, username, email, course_id, password } = req.body;
-  // console.log("email", email);
+// const registerUser = async (req, res) => {
+//   try {
+//     const { name, email, password, entity_id, role } = req.body;
 
-  if (
-    [name, username, email, course_id, password].some(
-      (field) => !field || String(field).trim() === ""
-    )
-  ) {
-    throw new ApiError(400, "All fields are required");
-  }
+//     if (
+//       [name, email, password, entity_id, role].some(
+//         (field) => !field || String(field).trim() === ""
+//       )
+//     ) {
+//       return res.status(409).json({
+//         status: "failure",
+//         responseMsg: "All fields are required",
+//       });
+//     }
 
-  const conditions = [{ email }];
-  if (username?.trim()) {
-    conditions.push({ username });
-  }
+//     // Check if email exists
+//     const existingUser = await User.findOne({ where: { email } });
+//     if (existingUser) {
+//       return res.status(409).json({
+//         status: "failure",
+//         responseMsg: "Email Already Exists",
+//       });
+//     }
 
-  // here we have to check user on basis of username or email
-  const existedUser = await User.findOne({
-    where: {
-      [Op.or]: conditions,
-    },
-  });
+//     // Hash password
+//     const password_hash = await bcrypt.hash(password, 10);
 
-  if (existedUser) {
-    throw new ApiError(409, "User with email or username already exist");
-  }
+//     // Create user
+//     const user = await User.create({
+//       name,
+//       email,
+//       password_hash,
+//       entity_id,
+//       role,
+//       active: true,
+//     });
 
-  const existedCourse = await Course.findOne({
-    where: {
-      id: course_id,
-    },
-  });
+//     return res.status(201).json({
+//       status: "Success",
+//       responseMsg: "Login Successful",
+//       payload: {
+//         user: {
+//           name: user.name,
+//           email: user.email,
+//           role: user.role,
+//         },
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Register error:", error);
+//     return res.status(500).json({
+//       status: "Failure",
+//       responseMsg: "Internal server Error",
+//     });
+//   }
+// };
 
-  if (!existedCourse) {
-    throw new ApiError(409, "Course with course_id is not exist");
-  }
+const onboardUsers = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { name, email, password, role, college_id } = req.body;
 
-  const hashedPassword = await bcrypt.hash(password, 10); // 10 = saltRounds
-
-  const role = username.toLowerCase().includes("admin") ? "admin" : "student";
-
-  const newUser = await User.create({
-    name,
-    email,
-    course_id,
-    username: (username || "").toLowerCase(),
-    password_hash: hashedPassword,
-    role,
-  });
-
-  return res
-    .status(201)
-    .json(new ApiResponse(200, {}, "User registerd Successfully"));
-});
-
-const loginUser = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
-
-  if (!(username || email)) {
-    throw new ApiError(400, "username or email is required");
-  }
-
-  const conditions = [];
-  if (email?.trim()) {
-    conditions.push({ email });
-  }
-  if (username?.trim()) {
-    conditions.push({ username });
-  }
-
-  // here we have to check user on basis of username or email
-  const existedUser = await User.findOne({
-    where: {
-      [Op.or]: conditions,
-    },
-  });
-
-  if (!existedUser) {
-    throw new ApiError(404, "User does not exist");
-  }
-
-  const isPasswordValid = existedUser.password_hash;
-
-  bcrypt.compare(password, isPasswordValid, async (err, result) => {
-    if (err) {
-      throw new Error("Password incorrect");
+    // Validate all fields
+    if (
+      [name, email, password, role, college_id].some(
+        (field) => !field || String(field).trim() === ""
+      )
+    ) {
+      return res.status(400).json({
+        status: "FAILURE",
+        responseMsg: "All_Feild are required",
+      });
     }
-    if (result == true) {
-      return res.status(200).json(
-        new ApiResponse(
-          200,
-          {
-            user: { name: existedUser.name, role: existedUser.role },
-            token: generateAccesKey(
-              existedUser.id,
-              existedUser.username,
-              existedUser.email
-            ),
-          },
-          "User logged In successfully"
-        )
-      );
+
+    // Check for existing email
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({
+        status: "FAILURE",
+        responseMsg: "USER_ALREADY_EXISTS",
+      });
+    }
+
+    // Check for existing email
+    const existingCollage = await Collage.findOne({
+      where: { id: college_id },
+    });
+    if (!existingCollage) {
+      return res.status(409).json({
+        status: "FAILURE",
+        responseMsg: "COLLAGE_dOES_NOT_EXISTS",
+      });
+    }
+
+    if (req.user.role === "SUPERADMIN") {
+      // Hash password
+      const password_hash = await bcrypt.hash(password, 10);
+
+      // Create user with entity_id from college_id
+      const user = await User.create({
+        name,
+        email,
+        password_hash,
+        entity_id: college_id,
+        role,
+        active: true,
+      });
+
+      await t.commit();
+      return res.status(201).json({
+        status: "SUCCESS",
+        responseMsg: "USER_ONBOARDED",
+        payload: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          active: user.active,
+        },
+      });
     } else {
-      return res
-        .status(400)
-        .json({ success: false, message: "Password incorrect" });
+      await t.rollback();
+      return res.status(401).json({
+        status: "FAILURE",
+        responseMsg: "Unauthorized request",
+      });
     }
-  });
-});
+  } catch (error) {
+    // console.error("Register error:", error);
+    await t.rollback();
+    return res.status(500).json({
+      status: "FAILURE",
+      responseMsg: "INTERNAL_SERVER_ERROR",
+    });
+  }
+};
 
-const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.findAll({
-    attributes: { exclude: ["password_hash", "course_id"] },
-    include: [
-      {
-        model: Course,
-        as: "Course", // alias, but only needed if you defined one
-        attributes: ["id", "name"], // choose what to expose
+const loginUser = async (req, res) => {
+  try {
+    const { email, username, password } = req.body;
+
+    if (!email && !username) {
+      return res.status(400).json({
+        status: "FAILURE",
+        responseMsg: "AUTHENTICATION_FAILED",
+      });
+    }
+
+    const conditions = [];
+    if (email?.trim()) conditions.push({ email });
+    if (username?.trim()) conditions.push({ username });
+
+    const user = await User.findOne({
+      where: {
+        [Op.or]: conditions,
       },
-    ],
-  });
+    });
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, users ?? [], "Users fetched successfully"));
-});
+    if (!user) {
+      return res.status(404).json({
+        status: "FAILURE",
+        responseMsg: "AUTHENTICATION_FAILED",
+      });
+    }
 
-export { registerUser, loginUser, getAllUsers };
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        status: "FAILURE",
+        responseMsg: "AUTHENTICATION_FAILED",
+      });
+    }
+
+    const token = generateAccessToken(user.id, user.email);
+
+    return res.status(200).json({
+      status: "SUCCESS",
+      responseMsg: "LOGIN_SUCCESSFUL",
+      payload: {
+        token,
+        user: {
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({
+      status: "FAILURE",
+      responseMsg: "INTERNAL_SERVER_ERROR",
+    });
+  }
+};
+
+const getAllAdmins = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const collegeId = req.query.college_id;
+    const role = (req.query.role).toUpperCase();
+
+    // Authorization check
+    if (req.user.role !== "SUPERADMIN") {
+      return res.status(401).json({
+        status: "FAILURE",
+        responseMsg: "Unauthorized request",
+      });
+    }
+
+    // Fetch all users with role = 'ADMIN'
+    const { rows: admins, count: total } = await User.findAndCountAll({
+      where: { role, entity_id: collegeId },
+      offset,
+      limit,
+      attributes: ["id", "name", "email", "role", "active"],
+      order: [["created_at", "ASC"]],
+    });
+
+    return res.status(200).json({
+      status: "SUCCESS",
+      responseMsg: "ADMINS_FETCHED",
+      payload: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        users: admins,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching admins:", error);
+    return res.status(500).json({
+      status: "FAILURE",
+      responseMsg: "INTERNAL_SERVER_ERROR",
+    });
+  }
+};
+
+const studentRegistration = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { name, email, password } = req.body;
+
+    // Validate all fields
+    if (
+      [name, email, password].some(
+        (field) => !field || String(field).trim() === ""
+      )
+    ) {
+      return res.status(400).json({
+        status: "FAILURE",
+        responseMsg: "All_Feild are required",
+      });
+    }
+
+    // Check for existing email
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({
+        status: "FAILURE",
+        responseMsg: "USER_ALREADY_EXISTS",
+      });
+    }
+
+    // Hashing Password
+    const password_hash = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      name,
+      email,
+      password_hash,
+      role: "STUDENT",
+      active: true
+    });
+
+    await t.commit();
+    return res.status(201).json({
+      status: "SUCCESS",
+      responseMsg: "STUDENT_REGISTERED",
+      payload: {
+        id: user.id,
+        role: user.role
+      },
+    });
+
+  } catch (error) {
+    await t.rollback();
+    return res.status(500).json({
+      status: "FAILURE",
+      responseMsg: "INTERNAL_SERVER_ERROR",
+    });
+  }
+}
+
+export { onboardUsers, loginUser, getAllAdmins, studentRegistration };
