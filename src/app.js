@@ -28,7 +28,7 @@ import examAndQuestRouter from "./routes/exam.route.js";
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.frontedURL,
     credentials: true,
   })
 );
