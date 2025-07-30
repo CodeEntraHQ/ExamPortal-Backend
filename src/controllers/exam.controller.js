@@ -171,11 +171,11 @@ const getQuestions = async (req, res) => {
 
 const inviteStudent  = async (req, res) => {
   const t = await sequelize.transaction();
+
   try {
-    const { exam_id, student_ids } = req.body;
+    const { exam_id, student_emails } = req.body; 
     const user = req.user;
 
-    // Role check
     if (!["ADMIN", "SUPERADMIN"].includes(user.role)) {
       return res.status(403).json({
         status: "FAILURE",
@@ -183,16 +183,20 @@ const inviteStudent  = async (req, res) => {
       });
     }
 
-    // Validation
-    if (!exam_id || !Array.isArray(student_ids) || student_ids.length === 0) {
+    // Field validation
+    if (
+      !exam_id ||
+      !Array.isArray(student_emails) ||
+      student_emails.length === 0
+    ) {
       return res.status(400).json({
         status: "FAILURE",
-        responseMsg: "exam_id and student_ids are required",
+        responseMsg: "exam_id and student_emails are required",
       });
     }
 
-    // Optional: check if exam exists
-    const exam = await Exam.findOne({ where: { id: exam_id } });
+    // Check if exam exists
+    const exam = await Exam.findByPk(exam_id);
     if (!exam) {
       return res.status(404).json({
         status: "FAILURE",
@@ -200,26 +204,67 @@ const inviteStudent  = async (req, res) => {
       });
     }
 
-    // Optional: filter valid student_ids
+    // Get valid students using email
     const validStudents = await User.findAll({
       where: {
-        id: student_ids,
+        email: student_emails,
         role: "STUDENT",
       },
     });
 
-    // Create enrollments
-    const enrollments = validStudents.map((student) => ({
-      exam_id,
-      user_id: student.id,
-    }));
+    // Check if some emails are invalid
+    const foundEmails = validStudents.map((s) => s.email);
+    const notFoundEmails = student_emails.filter(
+      (email) => !foundEmails.includes(email)
+    );
 
-    await Enrollment.bulkCreate(enrollments, { transaction: t });
+    // If all are invalid
+    if (validStudents.length === 0) {
+      return res.status(404).json({
+        status: "FAILURE",
+        responseMsg: `No students found for emails: ${student_emails.join(", ")}`,
+      });
+    }
 
+    // Prevent duplicate enrollments
+    const studentIds = validStudents.map((s) => s.id);
+    const existingEnrollments = await Enrollment.findAll({
+      where: {
+        exam_id,
+        user_id: studentIds,
+      },
+    });
+
+    const alreadyEnrolledIds = new Set(
+      existingEnrollments.map((e) => e.user_id)
+    );
+
+    const newEnrollments = validStudents
+      .filter((student) => !alreadyEnrolledIds.has(student.id))
+      .map((student) => ({
+        exam_id,
+        user_id: student.id,
+      }));
+
+    if (newEnrollments.length === 0) {
+      return res.status(400).json({
+        status: "FAILURE",
+        responseMsg: "STUDENTS_ALREADY_ENROLLED",
+      });
+    }
+
+    // Insert valid students
+    await Enrollment.bulkCreate(newEnrollments, { transaction: t });
     await t.commit();
+
+    // Response: Success + invalid emails (if any)
     return res.status(200).json({
       status: "SUCCESS",
       responseMsg: "STUDENT_INVITED",
+      payload: {
+        totalInvited: newEnrollments.length,
+        invalidEmails: notFoundEmails.length > 0 ? notFoundEmails : [],
+      },
     });
   } catch (error) {
     console.error("Invite error:", error);
