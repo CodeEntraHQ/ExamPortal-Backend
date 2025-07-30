@@ -216,7 +216,7 @@ const getAllAdmins = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const collegeId = req.query.college_id;
-    const role = (req.query.role).toUpperCase();
+    const role = req.query.role.toUpperCase();
 
     // Authorization check
     if (req.user.role !== "SUPERADMIN") {
@@ -288,7 +288,7 @@ const studentRegistration = async (req, res) => {
       email,
       password_hash,
       role: "STUDENT",
-      active: true
+      active: true,
     });
 
     await t.commit();
@@ -297,10 +297,9 @@ const studentRegistration = async (req, res) => {
       responseMsg: "STUDENT_REGISTERED",
       payload: {
         id: user.id,
-        role: user.role
+        role: user.role,
       },
     });
-
   } catch (error) {
     await t.rollback();
     return res.status(500).json({
@@ -308,6 +307,56 @@ const studentRegistration = async (req, res) => {
       responseMsg: "INTERNAL_SERVER_ERROR",
     });
   }
-}
+};
 
-export { onboardUsers, loginUser, getAllAdmins, studentRegistration };
+const getAllStudents = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+
+    // Authorization check
+    if (!(req.user.role === "ADMIN" || req.user.role === "SUPERADMIN")) {
+      return res.status(401).json({
+        status: "FAILURE",
+        responseMsg: "Unauthorized request",
+      });
+    }
+
+    // Fetch all users with role = 'ADMIN'
+    const { rows: students, count: total } = await User.findAndCountAll({
+      where: { role: "STUDENT" },
+      offset,
+      limit,
+      attributes: ["id", "name", "email", "role", "active"],
+      order: [["created_at", "ASC"]],
+    });
+
+    return res.status(200).json({
+      status: "SUCCESS",
+      responseMsg: "STUDENTS_FETCHED",
+      payload: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        users: students,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching admins:", error);
+    return res.status(500).json({
+      status: "FAILURE",
+      responseMsg: "INTERNAL_SERVER_ERROR",
+    });
+  }
+};
+
+export {
+  onboardUsers,
+  loginUser,
+  getAllAdmins,
+  studentRegistration,
+  getAllStudents,
+};
