@@ -13,63 +13,6 @@ function generateAccessToken(id, email) {
   });
 }
 
-// const registerUser = async (req, res) => {
-//   try {
-//     const { name, email, password, entity_id, role } = req.body;
-
-//     if (
-//       [name, email, password, entity_id, role].some(
-//         (field) => !field || String(field).trim() === ""
-//       )
-//     ) {
-//       return res.status(409).json({
-//         status: "failure",
-//         responseMsg: "All fields are required",
-//       });
-//     }
-
-//     // Check if email exists
-//     const existingUser = await User.findOne({ where: { email } });
-//     if (existingUser) {
-//       return res.status(409).json({
-//         status: "failure",
-//         responseMsg: "Email Already Exists",
-//       });
-//     }
-
-//     // Hash password
-//     const password_hash = await bcrypt.hash(password, 10);
-
-//     // Create user
-//     const user = await User.create({
-//       name,
-//       email,
-//       password_hash,
-//       entity_id,
-//       role,
-//       active: true,
-//     });
-
-//     return res.status(201).json({
-//       status: "Success",
-//       responseMsg: "Login Successful",
-//       payload: {
-//         user: {
-//           name: user.name,
-//           email: user.email,
-//           role: user.role,
-//         },
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Register error:", error);
-//     return res.status(500).json({
-//       status: "Failure",
-//       responseMsg: "Internal server Error",
-//     });
-//   }
-// };
-
 const onboardUsers = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -314,7 +257,6 @@ const getAllStudents = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-
 
     // Authorization check
     if (!(req.user.role === "ADMIN" || req.user.role === "SUPERADMIN")) {

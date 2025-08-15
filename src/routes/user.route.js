@@ -8,8 +8,6 @@ import {
   getAllStudents,
 } from "../controllers/user.controller.js";
 
-
-
 const router = Router();
 
 router.route("/").post(verifyJWT, onboardUsers);
