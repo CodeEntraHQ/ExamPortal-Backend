@@ -32,17 +32,18 @@ const Enrollment = sequelize.define(
   }
 );
 
-Enrollment.beforeCreate(async (enrol) => {
-  const enrolment = await Enrollment.findAll({ attributes: ["id"] });
+Enrollment.beforeBulkCreate(async (enrollments) => {
+  const existing = await Enrollment.findAll({ attributes: ["id"] });
 
-  const numbers = enrolment
+  const numbers = existing
     .map((c) => parseInt(c.id?.replace("enr", "")))
     .filter((num) => !isNaN(num));
 
-  const maxId = numbers.length ? Math.max(...numbers) : 0;
-  const newId = `enr${String(maxId + 1).padStart(3, "0")}`;
-
-  enrol.id = newId;
+  let maxId = numbers.length ? Math.max(...numbers) : 0;
+  enrollments.forEach((enrol) => {
+    maxId++;
+    enrol.id = `enr${String(maxId).padStart(3, "0")}`;
+  });
 });
 
 export default Enrollment;

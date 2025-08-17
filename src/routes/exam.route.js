@@ -4,8 +4,9 @@ import {
   createExam,
   createQuestion,
   getQuestions,
-  inviteStudent
 } from "../controllers/exam.controller.js";
+
+import { inviteStudent } from "../controllers/enrolled.controller.js";
 
 const router = Router();
 
