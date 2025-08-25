@@ -1,6 +1,6 @@
 import sequelize from "../db/index.js";
 import User from "../models/user.model.js";
-import Collage from "../models/collage.model.js";
+import College from "../models/college.model.js";
 
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
@@ -40,10 +40,10 @@ const onboardUsers = async (req, res) => {
     }
 
     // Check for existing email
-    const existingCollage = await Collage.findOne({
+    const existingCollege = await College.findOne({
       where: { id: college_id },
     });
-    if (!existingCollage) {
+    if (!existingCollege) {
       return res.status(409).json({
         status: "FAILURE",
         responseMsg: "COLLAGE_dOES_NOT_EXISTS",
