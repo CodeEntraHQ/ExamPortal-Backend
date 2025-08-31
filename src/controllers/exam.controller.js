@@ -111,6 +111,61 @@ const createQuestion = async (req, res) => {
   }
 };
 
+const getQuestionsByExamID = async (req, res) => {
+  try {
+    const { examId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    if (!["SUPERADMIN", "ADMIN", "STUDENT"].includes(req.user.role)) {
+      return res.status(401).json({
+        status: "FAILURE",
+        responseMsg: "AUTHENTICATION_FAILED",
+      });
+    }
+    const { rows, count: total } = await Question.findAndCountAll({
+      where: { exam_id: examId },
+      offset,
+      limit,
+      attributes: ["id", "question_text", "type", "metadata"],
+      order: [["created_at", "ASC"]],
+    });
+
+    const questions = rows.map((question) => {
+      const { id, question_text, type, metadata } = question;
+
+      const sanitizedMetadata = { ...metadata };
+      delete sanitizedMetadata.correct_answers;
+
+      return {
+        id,
+        question_text,
+        type,
+        metadata: sanitizedMetadata,
+      };
+    });
+
+    return res.json({
+      status: "success",
+      responseMsg: "QUESTIONS_FETCHED",
+      payload: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        questions,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    return res.status(500).json({
+      status: "FAILURE",
+      responseMsg: "INTERNAL_SERVER_ERROR",
+    });
+  }
+};
+
 const getQuestions = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -219,6 +274,12 @@ const fetchExams = async (req, res) => {
       responseMsg: "INTERNAL_SERVER_ERROR",
     });
   }
-}
+};
 
-export { createExam, createQuestion, getQuestions, fetchExams };
+export {
+  createExam,
+  createQuestion,
+  getQuestionsByExamID,
+  getQuestions,
+  fetchExams,
+};
