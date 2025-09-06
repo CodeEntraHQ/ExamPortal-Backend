@@ -1,5 +1,5 @@
 // import sequelize from "../db/index.js";
-import Collage from "../models/collage.model.js";
+import College from "../models/college.model.js";
 import sequelize from "../db/index.js";
 
 // const generateColleges = (count = 100) => {
@@ -23,7 +23,7 @@ import sequelize from "../db/index.js";
 //     await sequelize.sync(); // ensure tables exist
 //     const data = generateColleges(120);
 //     for (const item of data) {
-//       await Collage.create(item);
+//       await College.create(item);
 //     }
 //     console.log("Colleges inserted successfully");
 //     process.exit(0);
@@ -50,17 +50,17 @@ const onboardColleges = async (req, res) => {
     }
 
     // Check if email exists
-    const existingCollage = await Collage.findOne({ where: { name } });
-    if (existingCollage) {
+    const existingCollege = await College.findOne({ where: { name } });
+    if (existingCollege) {
       return res.status(409).json({
         status: "failure",
-        responseMsg: "Collage Already Exists",
+        responseMsg: "College Already Exists",
       });
     }
 
     if (req.user.role === "SUPERADMIN") {
       // Create user
-      const collage = await Collage.create({
+      const college = await College.create({
         name,
         address,
       });
@@ -72,9 +72,9 @@ const onboardColleges = async (req, res) => {
         responseMsg: "COLLEGE_ONBOARDED",
         payload: {
           user: {
-            id: collage.id,
-            name: collage.name,
-            address: collage.address,
+            id: college.id,
+            name: college.name,
+            address: college.address,
           },
         },
       });
@@ -102,7 +102,7 @@ const getColleges = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const { rows: colleges, count: total } = await Collage.findAndCountAll({
+    const { rows: colleges, count: total } = await College.findAndCountAll({
       offset,
       limit,
       attributes: ["id", "name", "address"],
