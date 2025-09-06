@@ -3,6 +3,9 @@ import cors from "cors";
 
 const app = express();
 
+// Disable ETag generation
+app.disable("etag");
+
 app.use(
   cors({
     origin: process.env.FRONTEND_HOST,
@@ -17,6 +20,10 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 // context middleware
 import contextMiddleware from "./middleware/context.middleware.js";
 app.use(contextMiddleware);
+
+// logger middleware
+import loggerMiddleware from "./middleware/logger.middleware.js";
+app.use(loggerMiddleware);
 
 // routes import
 import userRouter from "./routes/user.route.js";
