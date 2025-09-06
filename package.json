@@ -108,7 +108,7 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "dev": "nodemon -r dotenv/config --experimental-json-modules src/app.js",
+    "dev": "nodemon -r ./src/config/index.js --experimental-json-modules src/server.js",
     "test": "jest"
   },
   "author": "Mohd Belal",
@@ -122,6 +122,15 @@
   "jest": {
     "transform": {
       "^.+\\.js$": "babel-jest"
-    }
+    },
+    "setupFiles": [
+      "./src/config/index.js"
+    ],
+    "setupFilesAfterEnv": [
+      "./__tests__/setup.js"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.tests.js"
+    ]
   }
 }
