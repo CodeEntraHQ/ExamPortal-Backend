@@ -1,7 +1,17 @@
-const winston = require("winston");
+import winston from "winston";
+import asyncLocalStorage from "./context.js";
 
 const logger = winston.createLogger({
-  level: "info",
+  levels: {
+    error: 0,
+    warn: 1,
+    info: 2,
+    http: 3,
+    verbose: 4,
+    debug: 5,
+    storage: 6,
+  },
+  level: "storage",
   format: winston.format.json(),
   transports: [
     new winston.transports.Console({
@@ -14,25 +24,26 @@ const logger = winston.createLogger({
 });
 
 const log = (level, params) => {
+  const context = asyncLocalStorage.getStore();
   const logObject = {
     level,
-    request_id: params.request_id,
+    request_id: context?.request_id,
     timestamp: new Date().toISOString(),
-    api_name: params.api_name,
-    session_id: params.session_id,
-    user_id: params.user_id,
+    api_name: context?.api_name,
+    session_id: context?.session_id,
+    user_id: context?.user_id,
     action: params.action,
+    message: params.message,
     environment: process.env.NODE_ENV,
   };
-  logger.log(level, logObject);
+  if (logObject.environment != "test") {
+    logger.log(level, logObject);
+  }
 };
 
+const logError = (params) => log("error", params);
 const logInfo = (params) => log("info", params);
 const logDebug = (params) => log("debug", params);
-const logDB = (params) => log("db", params);
+const logStorage = (params) => log("storage", params);
 
-module.exports = {
-  logInfo,
-  logDebug,
-  logDB,
-};
+export { logError, logInfo, logDebug, logStorage };

@@ -1,6 +1,7 @@
 # inclusion list
 node_modules
 .env
+package-lock.json
 
 # exclusion list
 !bin/*

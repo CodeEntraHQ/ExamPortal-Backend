@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+import { logStorage } from "../utils/logger.js";
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -7,9 +8,17 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     dialect: "postgres",
-    logging: (msg) => {
-      if (msg.includes("ERROR")) console.log(msg);
+    logging: (msg, executionTime) => {
+      const query = msg.replace(/^Executed \(default\):\s*/, "");
+      logStorage({
+        action: query.split(" ")[0],
+        message: {
+          query,
+          latency: executionTime, // In ms
+        },
+      });
     },
+    benchmark: true, // enable benchmarking to get execution time
   }
 );
 
