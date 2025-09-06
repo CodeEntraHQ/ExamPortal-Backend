@@ -107,8 +107,25 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "dev": "nodemon -r dotenv/config --experimental-json-modules src/app.js"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/app.js",
+    "prepare": "husky",
+    "lint": "eslint . --ext .js --fix",
+    "format": "prettier --write ."
   },
   "author": "Mohd Belal",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "eslint": "^9.35.0",
+    "globals": "^16.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "prettier": "^3.6.2"
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
 }
