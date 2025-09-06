@@ -1,0 +1,51 @@
+import app from './app.js';
+import sequelize from "./db/index.js";
+
+// import models
+import College from "./models/college.model.js";
+import User from "./models/user.model.js";
+import Exam from "./models/exam.model.js";
+import Question from "./models/question.model.js";
+import Enrollment from "./models/enrollment.model.js";
+import Result from "./models/result.model.js";
+import Submission from "./models/submission.model.js";
+
+User.belongsTo(College, { foreignKey: "entity_id", onDelete: "CASCADE" });
+Exam.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
+Question.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
+Enrollment.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
+Enrollment.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
+Result.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
+Result.belongsTo(Exam, { foreignKey: "quiz_id", onDelete: "CASCADE" });
+Submission.belongsTo(User, {
+  foreignKey: "user_id",
+  onDelete: "CASCADE",
+});
+Submission.belongsTo(Exam, {
+  foreignKey: "quiz_id",
+  onDelete: "CASCADE",
+});
+Submission.belongsTo(Question, {
+  foreignKey: "question_id",
+  onDelete: "CASCADE",
+});
+
+const port = process.env.PORT || 8000;
+
+const startServer = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("Database connection has been established successfully.");
+    await sequelize.sync();
+    console.log("All models were synchronized successfully.");
+
+    app.listen(port, () => {
+      console.log(`app listening on port ${port}`);
+    });
+  } catch (error) {
+    console.error("Unable to start the server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

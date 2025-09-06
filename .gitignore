@@ -1,2 +1,6 @@
+# inclusion list
 node_modules
 .env
+
+# exclusion list
+!bin/*
