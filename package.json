@@ -95,6 +95,7 @@
     "side-channel-weakmap": "^1.0.2",
     "simple-update-notifier": "^2.0.0",
     "statuses": "^2.0.1",
+    "supertest": "^7.1.4",
     "supports-color": "^5.5.0",
     "to-regex-range": "^5.0.1",
     "toidentifier": "^1.0.1",
@@ -107,8 +108,20 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "dev": "nodemon -r dotenv/config --experimental-json-modules src/app.js"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/app.js",
+    "test": "jest"
   },
   "author": "Mohd Belal",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "babel-jest": "^30.0.5",
+    "jest": "^30.0.5"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  }
 }
