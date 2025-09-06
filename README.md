@@ -5,7 +5,6 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.x-blue?logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-ready-blue?logo=docker)
 
-
 ## How to Run the Backend
 
 ### 1. Prerequisites
@@ -16,11 +15,13 @@
 - Docker (optional)
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Configure Environment Variables
+
 Download from drive
 
 ### 4. Start the Server
@@ -31,10 +32,12 @@ npm run dev
 
 ## Contributing
 
+0. take a latest pull from git hub (`git pull origin main --rebase`)
 1. Create your feature branch (`git checkout -b feature/amazing-feature`)
 2. Commit your changes (`git commit -m 'Add some amazing feature'`)
 3. Push to the branch (`git push origin feature/amazing-feature`)
 4. Open a Pull Request
 
 ## License
+
 This project is licensed under the MIT License.
