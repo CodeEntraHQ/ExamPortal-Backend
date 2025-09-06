@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../db/index.js";
+import { generateUUID } from "../utils/utils.js";
 
 const Exam = sequelize.define(
   "Exam",
@@ -42,18 +43,9 @@ const Exam = sequelize.define(
   }
 );
 
-// Hook to auto-generate ID like ex001, ex002...
-Exam.beforeCreate(async (exam) => {
-  const exams = await Exam.findAll({ attributes: ["id"] });
-
-  const numbers = exams
-    .map((c) => parseInt(c.id?.replace("exa", "")))
-    .filter((num) => !isNaN(num));
-
-  const maxId = numbers.length ? Math.max(...numbers) : 0;
-  const newId = `exa${String(maxId + 1).padStart(3, "0")}`;
-
-  exam.id = newId;
+// Hook to auto-generate ID using UUID
+Exam.beforeCreate((exam) => {
+  exam.id = generateUUID();
 });
 
 export default Exam;

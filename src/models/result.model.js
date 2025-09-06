@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../db/index.js";
+import { generateUUID } from "../utils/utils.js";
 
 const Result = sequelize.define(
   "Result",
@@ -39,17 +40,8 @@ const Result = sequelize.define(
   }
 );
 
-Result.beforeCreate(async (result) => {
-  const results = await Result.findAll({ attributes: ["id"] });
-
-  const numbers = results
-    .map((c) => parseInt(c.id?.replace("res", "")))
-    .filter((num) => !isNaN(num));
-
-  const maxId = numbers.length ? Math.max(...numbers) : 0;
-  const newId = `res${String(maxId + 1).padStart(3, "0")}`;
-
-  result.id = newId;
+Result.beforeCreate((result) => {
+  result.id = generateUUID();
 });
 
 export default Result;

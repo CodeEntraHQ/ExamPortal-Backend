@@ -1,6 +1,7 @@
 // models/User.js
 import { DataTypes } from "sequelize";
 import sequelize from "../db/index.js";
+import { generateUUID } from "../utils/utils.js";
 
 const User = sequelize.define(
   "User",
@@ -41,17 +42,8 @@ const User = sequelize.define(
   }
 );
 
-User.beforeCreate(async (user) => {
-  const users = await User.findAll({ attributes: ["id"] });
-
-  const numbers = users
-    .map((u) => parseInt(u.id?.replace("usr", "")))
-    .filter((num) => !isNaN(num));
-
-  const maxId = numbers.length ? Math.max(...numbers) : 0;
-  const newId = `usr${String(maxId + 1).padStart(3, "0")}`;
-
-  user.id = newId;
+User.beforeCreate((user) => {
+  user.id = generateUUID();
 });
 
 export default User;

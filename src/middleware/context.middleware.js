@@ -1,11 +1,11 @@
-import { v4 as uuidv4 } from "uuid";
 import asyncLocalStorage from "../utils/context.js";
+import { generateUUID } from "../utils/utils.js";
 
 const contextMiddleware = (req, res, next) => {
   const store = {
-    request_id: req.headers["x-request-id"] || uuidv4(),
+    request_id: req.headers["x-request-id"] || generateUUID(),
     api_name: `${req.method}-${req.originalUrl}`,
-    session_id: req.headers["x-session-id"] || uuidv4(),
+    session_id: req.headers["x-session-id"] || generateUUID(),
   };
 
   asyncLocalStorage.run(store, () => {
