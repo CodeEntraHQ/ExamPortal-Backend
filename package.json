@@ -95,6 +95,7 @@
     "side-channel-weakmap": "^1.0.2",
     "simple-update-notifier": "^2.0.0",
     "statuses": "^2.0.1",
+    "supertest": "^7.1.4",
     "supports-color": "^5.5.0",
     "to-regex-range": "^5.0.1",
     "toidentifier": "^1.0.1",
@@ -107,7 +108,8 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "dev": "nodemon -r dotenv/config --experimental-json-modules src/app.js",
+    "dev": "nodemon -r ./src/config/index.js --experimental-json-modules src/server.js",
+    "test": "jest",
     "prepare": "husky",
     "lint": "eslint . --ext .js --fix",
     "format": "prettier --write ."
@@ -115,12 +117,30 @@
   "author": "Mohd Belal",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "babel-jest": "^30.0.5",
+    "jest": "^30.0.5",
     "@eslint/js": "^9.35.0",
     "eslint": "^9.35.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "setupFiles": [
+      "./src/config/index.js"
+    ],
+    "setupFilesAfterEnv": [
+      "./__tests__/setup.js"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.tests.js"
+    ]
   },
   "lint-staged": {
     "**/*.js": [

@@ -20,14 +20,16 @@
 npm install
 ```
 
-### 3. Configure Environment Variables
-
-Download from drive
-
-### 4. Start the Server
+### 3. Start the Server
 
 ```bash
 npm run dev
+```
+
+### 4. Running tests
+
+```bash
+npm test
 ```
 
 ## Contributing
