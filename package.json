@@ -105,11 +105,12 @@
     "unpipe": "^1.0.0",
     "uuid": "^11.1.0",
     "vary": "^1.1.2",
+    "winston": "^3.17.0",
     "wrappy": "^1.0.2"
   },
   "scripts": {
     "dev": "nodemon -r ./src/config/index.js --experimental-json-modules src/server.js",
-    "test": "jest",
+    "test": "cross-env NODE_ENV=test jest",
     "prepare": "husky",
     "lint": "eslint . --ext .js --fix",
     "format": "prettier --write ."
@@ -119,12 +120,13 @@
   "devDependencies": {
     "@babel/core": "^7.28.3",
     "@babel/preset-env": "^7.28.3",
-    "babel-jest": "^30.0.5",
-    "jest": "^30.0.5",
     "@eslint/js": "^9.35.0",
+    "babel-jest": "^30.0.5",
+    "cross-env": "^10.0.0",
     "eslint": "^9.35.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
+    "jest": "^30.0.5",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"
   },
