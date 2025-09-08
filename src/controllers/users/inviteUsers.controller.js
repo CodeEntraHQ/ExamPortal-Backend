@@ -5,6 +5,7 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 import { sendInvitationEmail } from "#utils/email-handler/triggerEmail.js";
 import asyncLocalStorage from "#utils/context.js";
 import jwt from "jsonwebtoken";
+import { generateUUID } from "#utils/utils.js";
 
 export const inviteUser = ApiHandler(async (req, res) => {
   // Parsing request
@@ -46,7 +47,7 @@ export const inviteUser = ApiHandler(async (req, res) => {
 
   if (["INACTIVE", "ACTIVATION_PENDING"].includes(existingUser?.status)) {
     // Initiate activation process
-    let invitationLink = getRegistrationLink(email); // get invitation link
+    let invitationLink = getRegistrationLink(email, existingUser?.id); // get invitation link
     let emailSent = await sendInvitationEmail(email, invitationLink); // trigger email
     // if email was sent update the status
     if (emailSent === true) {
@@ -70,12 +71,13 @@ export const inviteUser = ApiHandler(async (req, res) => {
   }
 
   // Procced with new user registration
-  let invitationLink = getRegistrationLink(email); // get invitation link
+  const user_id = generateUUID();
+  let invitationLink = getRegistrationLink(email, user_id); // get invitation link
   let emailSent = await sendInvitationEmail(email, invitationLink); // trigger email
   if (emailSent === true) {
     // Create user
-
     const user = await User.create({
+      id: user_id,
       name: null,
       email,
       password_hash: null,
@@ -99,10 +101,10 @@ export const inviteUser = ApiHandler(async (req, res) => {
 });
 
 // TODO: unify all jwt token generation
-const getRegistrationLink = (email) => {
+const getRegistrationLink = (email, user_id) => {
   const { session_id } = asyncLocalStorage.getStore();
   let registrationToken = jwt.sign(
-    { email, session_id },
+    { user_id, email, session_id },
     process.env.INVITATION_TOKEN_SECRET,
     {
       expiresIn: process.env.INVITATION_TOKEN_EXPIRY,
