@@ -21,7 +21,7 @@ export const createCollege = ApiHandler(async (req, res) => {
   const existingCollege = await College.findOne({ where: { name } });
   if (existingCollege) {
     throw new ApiError(
-      400,
+      409,
       "COLLEGE_ALREADY_EXISTS",
       "College with this name already exists"
     );
