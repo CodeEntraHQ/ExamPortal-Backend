@@ -4,7 +4,7 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 
 export const createExam = ApiHandler(async (req, res) => {
-  // Check if user is SUPERADMIN
+  // Check user role
   if (req.user.role !== "ADMIN" && req.user.role !== "SUPERADMIN") {
     throw new ApiError(403, "AUTHORIZATION_FAILED");
   }
