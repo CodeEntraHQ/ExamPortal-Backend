@@ -6,7 +6,11 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 export const createExam = ApiHandler(async (req, res) => {
   // Check user role
   if (req.user.role !== "ADMIN" && req.user.role !== "SUPERADMIN") {
-    throw new ApiError(403, "AUTHORIZATION_FAILED");
+    throw new ApiError(
+      403,
+      "AUTHORIZATION_FAILED",
+      "User is not an ADMIN or SUPERADMIN"
+    );
   }
 
   // Parsing request
@@ -14,7 +18,7 @@ export const createExam = ApiHandler(async (req, res) => {
 
   // Request assertion
   if ([title, type].some((field) => !field || String(field).trim() === "")) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(400, "BAD_REQUEST", "title and type are required");
   }
 
   // Create college

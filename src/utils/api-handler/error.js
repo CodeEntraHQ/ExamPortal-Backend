@@ -1,8 +1,10 @@
+import { logError } from "../logger.js";
+
 export class ApiError extends Error {
   constructor(
     statusCode,
     message = "Something went wrong",
-    errors = [],
+    description,
     stack = ""
   ) {
     super(message);
@@ -10,7 +12,11 @@ export class ApiError extends Error {
     this.data = null;
     this.message = message;
     this.success = false;
-    this.errors = errors;
+
+    logError({
+      action: statusCode + "-" + this.message,
+      message: description || this.message,
+    });
 
     if (stack) {
       this.stack = stack;

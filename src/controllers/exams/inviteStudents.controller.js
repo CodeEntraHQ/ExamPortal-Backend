@@ -9,7 +9,11 @@ export const inviteStudent = ApiHandler(async (req, res) => {
   const { exam_id, student_emails } = req.body;
 
   if (!["ADMIN", "SUPERADMIN"].includes(req.user.role)) {
-    throw new ApiError(403, "AUTHORIZATION_FAILED");
+    throw new ApiError(
+      403,
+      "AUTHORIZATION_FAILED",
+      "User is not an ADMIN or SUPERADMIN"
+    );
   }
 
   // request assertion
@@ -18,12 +22,16 @@ export const inviteStudent = ApiHandler(async (req, res) => {
     !Array.isArray(student_emails) ||
     student_emails.length === 0
   ) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(
+      400,
+      "BAD_REQUEST",
+      "exam_id and student_emails are required"
+    );
   }
 
   const exam = await Exam.findByPk(exam_id);
   if (!exam) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(400, "BAD_REQUEST", "Exam not found");
   }
 
   // Get valid students using email
@@ -40,7 +48,7 @@ export const inviteStudent = ApiHandler(async (req, res) => {
   );
 
   if (validStudents.length === 0) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(400, "BAD_REQUEST", "No valid students found");
   }
 
   const studentIds = validStudents.map((s) => s.id);
@@ -63,7 +71,7 @@ export const inviteStudent = ApiHandler(async (req, res) => {
   );
 
   if (newEnrollments.length === 0) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(400, "BAD_REQUEST", "All students are already enrolled");
   }
 
   await Enrollment.bulkCreate(newEnrollments, {

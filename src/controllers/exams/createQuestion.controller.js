@@ -6,7 +6,11 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 export const createQuestion = ApiHandler(async (req, res) => {
   // Check user role
   if (req.user.role !== "ADMIN" && !req.user.role === "SUPERADMIN") {
-    throw new ApiError(403, "AUTHORIZATION_FAILED");
+    throw new ApiError(
+      403,
+      "AUTHORIZATION_FAILED",
+      "User is not an ADMIN or SUPERADMIN"
+    );
   }
 
   // Parsing request
@@ -18,7 +22,11 @@ export const createQuestion = ApiHandler(async (req, res) => {
       (field) => !field || String(field).trim() === ""
     )
   ) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(
+      400,
+      "BAD_REQUEST",
+      "exam_id, question_text and type are required"
+    );
   }
 
   // Request assertion
@@ -29,7 +37,11 @@ export const createQuestion = ApiHandler(async (req, res) => {
       metadata.options.length < 2 ||
       !Array.isArray(metadata.correct_answers))
   ) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(
+      400,
+      "BAD_REQUEST",
+      "MCQ questions must have options and correct_answers"
+    );
   }
 
   const question = await Question.create({

@@ -100,7 +100,11 @@ const loginUser = ApiHandler(async (req, res) => {
   const { email, username, password } = req.body;
 
   if (!email && !username) {
-    throw new ApiError(400, "AUTHENTICATION_FAILED");
+    throw new ApiError(
+      400,
+      "AUTHENTICATION_FAILED",
+      "email or username is required"
+    );
   }
 
   const conditions = [];
@@ -114,13 +118,13 @@ const loginUser = ApiHandler(async (req, res) => {
   });
 
   if (!user) {
-    throw new ApiError(404, "AUTHENTICATION_FAILED");
+    throw new ApiError(404, "AUTHENTICATION_FAILED", "User not found");
   }
 
   const isMatch = await bcrypt.compare(password, user.password_hash);
 
   if (!isMatch) {
-    throw new ApiError(400, "AUTHENTICATION_FAILED");
+    throw new ApiError(400, "AUTHENTICATION_FAILED", "Invalid credentials");
   }
 
   const token = generateAccessToken(user.id, user.email);

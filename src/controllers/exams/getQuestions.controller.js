@@ -10,7 +10,7 @@ export const getQuestions = ApiHandler(async (req, res) => {
   const offset = (page - 1) * limit;
 
   if (!exam_id) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(400, "BAD_REQUEST", "Exam ID is required");
   }
 
   const { rows, count: total } = await Question.findAndCountAll({

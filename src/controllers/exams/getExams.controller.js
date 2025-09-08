@@ -16,7 +16,11 @@ export const getExams = ApiHandler(async (req, res) => {
     (req.user.role === "SUPERADMIN" && !entity_id) ||
     (req.user.role !== "SUPERADMIN" && entity_id)
   ) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(
+      400,
+      "BAD_REQUEST",
+      "entity_id is required for SUPERADMIN"
+    );
   }
 
   // Prepare the query

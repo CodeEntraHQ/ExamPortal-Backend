@@ -6,7 +6,7 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 export const updateCollege = ApiHandler(async (req, res) => {
   // Check if user is SUPERADMIN
   if (req.user.role !== "SUPERADMIN") {
-    throw new ApiError(403, "AUTHORIZATION_FAILED");
+    throw new ApiError(403, "AUTHORIZATION_FAILED", "User is not a SUPERADMIN");
   }
 
   // Parsing request
@@ -14,7 +14,11 @@ export const updateCollege = ApiHandler(async (req, res) => {
 
   // Request assertion
   if (!college_id || (!name && !address)) {
-    throw new ApiError(400, "BAD_REQUEST");
+    throw new ApiError(
+      400,
+      "BAD_REQUEST",
+      "college_id and either name or address is required"
+    );
   }
 
   const updateData = {
@@ -30,7 +34,7 @@ export const updateCollege = ApiHandler(async (req, res) => {
 
   // Check if no college is updated
   if (updatedCount === 0) {
-    throw new ApiError(404, "COLLEGE_NOT_FOUND");
+    throw new ApiError(400, "COLLEGE_NOT_FOUND", "College not found");
   }
 
   // Send response
