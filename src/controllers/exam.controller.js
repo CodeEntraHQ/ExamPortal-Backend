@@ -1,5 +1,4 @@
 import sequelize from "#db/index.js";
-import Exam from "#models/exam.model.js";
 import Question from "#models/question.model.js";
 
 const createQuestion = async (req, res) => {
@@ -174,58 +173,4 @@ const getQuestions = async (req, res) => {
   }
 };
 
-const fetchExams = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-
-    if (!["SUPERADMIN", "ADMIN", "STUDENT"].includes(req.user.role)) {
-      return res.status(401).json({
-        status: "FAILURE",
-        responseMsg: "AUTHENTICATION_FAILED",
-      });
-    }
-
-    const { rows, count: total } = await Exam.findAndCountAll({
-      offset,
-      limit,
-      order: [["created_at", "ASC"]],
-    });
-
-    // Sanitize questions (remove correct_answers from metadata)
-    const exams = rows.map((exam) => {
-      return {
-        id: exam.id,
-        title: exam.title,
-        metadata: exam.metadata,
-        type: exam.type,
-        user_id: exam.user_id,
-        entity_id: exam.entity_id,
-        active: exam.active,
-        created_at: exam.created_at,
-      };
-    });
-
-    // ✅ Response
-    return res.json({
-      status: "SUCCESS",
-      responseMsg: "EXAMS_FETCHED",
-      payload: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-        exams,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching questions:", error);
-    return res.status(500).json({
-      status: "FAILURE",
-      responseMsg: "INTERNAL_SERVER_ERROR",
-    });
-  }
-};
-
-export { createQuestion, getQuestionsByExamID, getQuestions, fetchExams };
+export { createQuestion, getQuestionsByExamID, getQuestions };

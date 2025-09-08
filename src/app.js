@@ -25,10 +25,6 @@ app.use(contextMiddleware);
 import loggerMiddleware from "#middleware/logger.middleware.js";
 app.use(loggerMiddleware);
 
-// error handler middleware
-import { errorHandler } from "#middleware/error.middleware.js";
-app.use(errorHandler);
-
 // routes import
 import userRouter from "#routes/user.route.js";
 import getAllCollege from "#routes/college.route.js";
@@ -40,6 +36,10 @@ app.use("/v1", getAllCollege);
 app.use("/v1/users", userRouter);
 app.use("/v1/exams", examAndQuestRouter);
 app.use("/v1/checks", healthcheckRouter);
+
+// error handler middleware
+import { errorHandler } from "#middleware/error.middleware.js";
+app.use(errorHandler);
 
 // export app for testing
 export default app;
