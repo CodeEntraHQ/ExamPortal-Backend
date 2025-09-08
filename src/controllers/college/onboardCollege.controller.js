@@ -6,7 +6,7 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 export const onboardCollege = ApiHandler(async (req, res) => {
   // Check if user is SUPERADMIN
   if (req.user.role !== "SUPERADMIN") {
-    throw new ApiError(401, "AUTHENTICATION_FAILED");
+    throw new ApiError(403, "AUTHORIZATION_FAILED");
   }
 
   // Parsing request

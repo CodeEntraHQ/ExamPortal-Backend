@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "#middleware/auth.middleware.js";
 import {
-  createExam,
   createQuestion,
   getQuestionsByExamID,
   fetchExams,
@@ -9,6 +8,7 @@ import {
 } from "#controllers/exam.controller.js";
 
 import { inviteStudent } from "#controllers/enrolled.controller.js";
+import { createExam } from "#controllers/exam/createExam.controller.js";
 
 const router = Router();
 

@@ -38,7 +38,7 @@ import healthcheckRouter from "#routes/healthcheck.route.js";
 // routes declaration
 app.use("/v1", getAllCollege);
 app.use("/v1/users", userRouter);
-app.use("/v1/exam", examAndQuestRouter);
+app.use("/v1/exams", examAndQuestRouter);
 app.use("/v1/checks", healthcheckRouter);
 
 // export app for testing

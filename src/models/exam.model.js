@@ -18,12 +18,10 @@ const Exam = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-
     entity_id: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-
     type: {
       type: DataTypes.ENUM("QUIZ", "OTHER"),
       allowNull: false,
