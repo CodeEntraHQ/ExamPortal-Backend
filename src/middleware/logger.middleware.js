@@ -41,7 +41,7 @@ const loggerMiddleware = (req, res, next) => {
       message: {
         request,
         response,
-        latency: `${latency}ms`,
+        latency: `${latency}`,
       },
     });
   });

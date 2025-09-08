@@ -13,7 +13,6 @@ const User = sequelize.define(
 
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
 
     email: {
@@ -24,17 +23,29 @@ const User = sequelize.define(
 
     entity_id: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
-    password_hash: DataTypes.STRING,
+
+    password_hash: {
+      type: DataTypes.STRING,
+    },
 
     role: {
       type: DataTypes.ENUM("SUPERADMIN", "ADMIN", "STUDENT"),
       defaultValue: "STUDENT",
+      allowNull: false,
     },
-    active: DataTypes.BOOLEAN,
+
+    status: {
+      type: DataTypes.ENUM("ACTIVE", "INACTIVE", "ACTIVATION_PENDING"),
+      defaultValue: "INACTIVE",
+      allowNull: false,
+    },
+
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+      allowNull: false,
     },
   },
   {
