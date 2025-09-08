@@ -4,6 +4,9 @@
   "description": "these for oure exam portal",
   "type": "module",
   "main": "src/app.js",
+  "imports": {
+    "#*": "./src/*"
+  },
   "dependencies": {
     "accepts": "^2.0.0",
     "anymatch": "^3.1.3",

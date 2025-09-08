@@ -1,5 +1,5 @@
 import onFinished from "on-finished";
-import { logInfo } from "../utils/logger.js";
+import { logInfo } from "#utils/logger.js";
 
 const loggerMiddleware = (req, res, next) => {
   const startTime = Date.now();

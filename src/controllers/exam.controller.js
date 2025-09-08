@@ -1,6 +1,6 @@
-import sequelize from "../db/index.js";
-import Exam from "../models/exam.model.js";
-import Question from "../models/question.model.js";
+import sequelize from "#db/index.js";
+import Exam from "#models/exam.model.js";
+import Question from "#models/question.model.js";
 
 const createExam = async (req, res) => {
   const t = await sequelize.transaction();

@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { verifyJWT } from "../middleware/auth.middleware.js";
+import { verifyJWT } from "#middleware/auth.middleware.js";
 import {
   onboardUsers,
   loginUser,
   getAllAdmins,
   studentRegistration,
   getAllStudents,
-} from "../controllers/user.controller.js";
+} from "#controllers/user.controller.js";
 
 const router = Router();
 

@@ -18,22 +18,22 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 // context middleware
-import contextMiddleware from "./middleware/context.middleware.js";
+import contextMiddleware from "#middleware/context.middleware.js";
 app.use(contextMiddleware);
 
 // logger middleware
-import loggerMiddleware from "./middleware/logger.middleware.js";
+import loggerMiddleware from "#middleware/logger.middleware.js";
 app.use(loggerMiddleware);
 
 // error handler middleware
-import { errorHandler } from "./middleware/error.middleware.js";
+import { errorHandler } from "#middleware/error.middleware.js";
 app.use(errorHandler);
 
 // routes import
-import userRouter from "./routes/user.route.js";
-import getAllCollege from "./routes/college.route.js";
-import examAndQuestRouter from "./routes/exam.route.js";
-import healthcheckRouter from "./routes/healthcheck.route.js";
+import userRouter from "#routes/user.route.js";
+import getAllCollege from "#routes/college.route.js";
+import examAndQuestRouter from "#routes/exam.route.js";
+import healthcheckRouter from "#routes/healthcheck.route.js";
 
 // routes declaration
 app.use("/v1", getAllCollege);

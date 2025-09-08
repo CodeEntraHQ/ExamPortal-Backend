@@ -1,4 +1,4 @@
-import sequelize from "../../db/index.js";
+import sequelize from "#db/index.js";
 
 export const getDBHealth = async (_req, res) => {
   try {

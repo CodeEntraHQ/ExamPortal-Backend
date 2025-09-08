@@ -1,8 +1,7 @@
-import sequelize from "../db/index.js";
-import User from "../models/user.model.js";
-import Exam from "../models/exam.model.js";
-import Enrollment from "../models/enrollment.model.js";
-import Question from "../models/question.model.js";
+import sequelize from "#db/index.js";
+import User from "#models/user.model.js";
+import Exam from "#models/exam.model.js";
+import Enrollment from "#models/enrollment.model.js";
 
 const inviteStudent = async (req, res) => {
   const t = await sequelize.transaction();

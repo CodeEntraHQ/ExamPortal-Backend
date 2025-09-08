@@ -1,9 +1,9 @@
-import sequelize from "../db/index.js";
-import User from "../models/user.model.js";
-import College from "../models/college.model.js";
-import { ApiError } from "../utils/api-handler/error.js";
-import { ApiResponse } from "../utils/api-handler/response.js";
-import { ApiHandler } from "../utils/api-handler/handler.js";
+import sequelize from "#db/index.js";
+import User from "#models/user.model.js";
+import College from "#models/college.model.js";
+import { ApiError } from "#utils/api-handler/error.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
+import { ApiHandler } from "#utils/api-handler/handler.js";
 
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";

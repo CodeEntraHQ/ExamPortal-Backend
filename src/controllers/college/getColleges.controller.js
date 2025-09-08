@@ -1,7 +1,7 @@
-import College from "../../models/college.model.js";
-import { ApiError } from "../../utils/api-handler/error.js";
-import { ApiResponse } from "../../utils/api-handler/response.js";
-import { ApiHandler } from "../../utils/api-handler/handler.js";
+import College from "#models/college.model.js";
+import { ApiError } from "#utils/api-handler/error.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
+import { ApiHandler } from "#utils/api-handler/handler.js";
 
 export const getColleges = ApiHandler(async (req, res) => {
   // Check if user is SUPERADMIN
