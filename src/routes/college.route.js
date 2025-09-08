@@ -5,7 +5,7 @@ import { getColleges } from "#controllers/colleges/getColleges.controller.js";
 
 const router = Router();
 
-router.route("/colleges").post(verifyJWT, onboardCollege);
-router.route("/colleges").get(verifyJWT, getColleges);
+router.route("/").post(verifyJWT, onboardCollege);
+router.route("/").get(verifyJWT, getColleges);
 
 export default router;
