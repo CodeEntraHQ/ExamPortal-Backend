@@ -111,6 +111,6 @@ const getRegistrationLink = (email, user_id) => {
     }
   );
   let registrationLink =
-    process.env.APP_HOST + "/v1/users/register?token=" + registrationToken;
+    process.env.USER_INVITATION_ENDPOINT + "?token=" + registrationToken;
   return registrationLink;
 };
