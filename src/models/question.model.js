@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../db/index.js";
-import { generateUUID } from "../utils/utils.js";
+import sequelize from "#db/index.js";
+import { generateUUID } from "#utils/utils.js";
 
 const Question = sequelize.define(
   "Question",

@@ -1,7 +1,7 @@
 // models/User.js
 import { DataTypes } from "sequelize";
-import sequelize from "../db/index.js";
-import { generateUUID } from "../utils/utils.js";
+import sequelize from "#db/index.js";
+import { generateUUID } from "#utils/utils.js";
 
 const User = sequelize.define(
   "User",

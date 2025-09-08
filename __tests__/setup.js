@@ -1,8 +1,8 @@
 import http from "http";
 import bcrypt from "bcrypt";
-import app from "../src/app.js";
-import sequelize from "../src/db/index.js";
-import User from "../src/models/user.model.js";
+import app from "#app.js";
+import sequelize from "#db/index.js";
+import User from "#models/user.model.js";
 
 let server;
 

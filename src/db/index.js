@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { logStorage } from "../utils/logger.js";
+import { logStorage } from "#utils/logger.js";
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
