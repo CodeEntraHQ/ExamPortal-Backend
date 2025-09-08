@@ -1,12 +1,24 @@
 import asyncLocalStorage from "#utils/context.js";
 import { generateUUID } from "#utils/utils.js";
+import jwt from "jsonwebtoken";
 
 const contextMiddleware = (req, res, next) => {
   const store = {
     request_id: req.headers["x-request-id"] || generateUUID(),
     api_name: `${req.method}-${req.originalUrl}`,
-    session_id: req.headers["x-session-id"] || generateUUID(),
   };
+
+  const token =
+    req.cookies?.accessToken ||
+    req.header("Authorization")?.replace("Bearer ", "");
+
+  if (token) {
+    store.session_id = jwt.decode(token)?.session_id;
+  }
+
+  if (!store.session_id) {
+    store.session_id = req.headers["x-session-id"] || generateUUID();
+  }
 
   asyncLocalStorage.run(store, () => {
     next();

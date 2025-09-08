@@ -4,14 +4,16 @@ import College from "#models/college.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
+import asyncLocalStorage from "#utils/context.js";
 
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
 
 import jwt from "jsonwebtoken";
 
-function generateAccessToken(id, email) {
-  return jwt.sign({ id, email }, process.env.TOKEN_SECRET, {
+function generateAccessToken(user_id, email) {
+  const { session_id } = asyncLocalStorage.getStore();
+  return jwt.sign({ user_id, email, session_id }, process.env.TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
   });
 }

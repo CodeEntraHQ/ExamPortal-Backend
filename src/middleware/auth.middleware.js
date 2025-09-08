@@ -14,7 +14,7 @@ export const verifyJWT = async (req, res, next) => {
     }
 
     const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
-    const user = await User.findOne({ where: { id: decodedToken.id } });
+    const user = await User.findOne({ where: { id: decodedToken.user_id } });
     if (!user) {
       return res.status(401).json({
         status: "FAILURE",
