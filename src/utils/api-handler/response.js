@@ -1,4 +1,4 @@
-class ApiResponse {
+export class ApiResponse {
   constructor(code, message, data) {
     if (code === 200) {
       this.status = "SUCCESS";
@@ -10,5 +10,3 @@ class ApiResponse {
     }
   }
 }
-
-export { ApiResponse };

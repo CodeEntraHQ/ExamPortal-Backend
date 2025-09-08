@@ -1,9 +1,9 @@
 import College from "../../models/college.model.js";
 import { ApiError } from "../../utils/api-handler/error.js";
-import { ApiResponse } from "../utils/api-handler/response.js";
-import { ApiHandler } from "../utils/api-handler/handler.js";
+import { ApiResponse } from "../../utils/api-handler/response.js";
+import { ApiHandler } from "../../utils/api-handler/handler.js";
 
-const onboardColleges = ApiHandler(async (req, res) => {
+export const onboardCollege = ApiHandler(async (req, res) => {
   // Check if user is SUPERADMIN
   if (req.user.role !== "SUPERADMIN") {
     throw new ApiError(401, "AUTHENTICATION_FAILED");
@@ -38,5 +38,3 @@ const onboardColleges = ApiHandler(async (req, res) => {
     })
   );
 });
-
-export { onboardColleges };
