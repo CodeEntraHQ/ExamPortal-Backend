@@ -37,22 +37,22 @@ const Submission = sequelize.define(
     indexes: [
       { fields: ["quiz_id"] },
       { fields: ["user_id"] },
-      { fields: ["question_id"] },
+      { unique: true, fields: ["user_id", "quiz_id", "question_id"] },
     ],
   }
 );
 
-Submission.beforeCreate(async (sub) => {
-  const submit = await Submission.findAll({ attributes: ["id"] });
-
-  const numbers = submit
+Submission.beforeBulkCreate(async (submiss) => {
+  const existing = await Submission.findAll({ attributes: ["id"] });
+  const numbers = existing
     .map((c) => parseInt(c.id?.replace("sub", "")))
     .filter((num) => !isNaN(num));
 
-  const maxId = numbers.length ? Math.max(...numbers) : 0;
-  const newId = `sub${String(maxId + 1).padStart(3, "0")}`;
-
-  sub.id = newId;
+  let maxId = numbers.length ? Math.max(...numbers) : 0;
+  submiss.forEach((subm) => {
+    maxId++;
+    subm.id = `sub${String(maxId).padStart(3, "0")}`;
+  });
 });
 
 export default Submission;
