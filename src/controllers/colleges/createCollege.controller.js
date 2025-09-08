@@ -3,7 +3,7 @@ import { ApiError } from "#utils/api-handler/error.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 
-export const onboardCollege = ApiHandler(async (req, res) => {
+export const createCollege = ApiHandler(async (req, res) => {
   // Check if user is SUPERADMIN
   if (req.user.role !== "SUPERADMIN") {
     throw new ApiError(403, "AUTHORIZATION_FAILED");
@@ -17,7 +17,7 @@ export const onboardCollege = ApiHandler(async (req, res) => {
     throw new ApiError(400, "BAD_REQUEST");
   }
 
-  // Check if email exists
+  // Check if college exists
   const existingCollege = await College.findOne({ where: { name } });
   if (existingCollege) {
     throw new ApiError(400, "COLLEGE_ALREADY_EXISTS");

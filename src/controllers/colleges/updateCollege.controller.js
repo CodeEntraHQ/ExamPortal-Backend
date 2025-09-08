@@ -1,0 +1,44 @@
+import College from "#models/college.model.js";
+import { ApiError } from "#utils/api-handler/error.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
+import { ApiHandler } from "#utils/api-handler/handler.js";
+
+export const updateCollege = ApiHandler(async (req, res) => {
+  // Check if user is SUPERADMIN
+  if (req.user.role !== "SUPERADMIN") {
+    throw new ApiError(403, "AUTHORIZATION_FAILED");
+  }
+
+  // Parsing request
+  const { college_id, name, address } = req.body;
+
+  // Request assertion
+  if (!college_id || (!name && !address)) {
+    throw new ApiError(400, "BAD_REQUEST");
+  }
+
+  const updateData = {
+    ...(name && { name }),
+    ...(address && { address }),
+  };
+
+  // Update college
+  const [updatedCount, updatedCollege] = await College.update(updateData, {
+    where: { id: college_id },
+    returning: true,
+  });
+
+  // Check if no college is updated
+  if (updatedCount === 0) {
+    throw new ApiError(404, "COLLEGE_NOT_FOUND");
+  }
+
+  // Send response
+  return res.status(200).json(
+    new ApiResponse("COLLEGE_UPDATED", {
+      id: updatedCollege[0].id,
+      name: updatedCollege[0].name,
+      address: updatedCollege[0].address,
+    })
+  );
+});
