@@ -9,7 +9,7 @@ export const verifyJWT = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         status: "FAILURE",
-        responseMsg: "Unauthorized request",
+        responseMsg: "AUTHENTICATION_FAILED",
       });
     }
 
@@ -18,17 +18,16 @@ export const verifyJWT = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({
         status: "FAILURE",
-        responseMsg: "Invalid access token",
+        responseMsg: "AUTHENTICATION_FAILED",
       });
     }
 
     req.user = user;
     next();
-  } catch (error) {
-    // console.error("JWT Verification Error:", error);
+  } catch {
     return res.status(401).json({
       status: "FAILURE",
-      responseMsg: error.message || "Invalid access token",
+      responseMsg: "AUTHENTICATION_FAILED",
     });
   }
 };

@@ -1,5 +1,4 @@
 import sequelize from "../db/index.js";
-import User from "../models/user.model.js";
 import Exam from "../models/exam.model.js";
 import Question from "../models/question.model.js";
 
@@ -32,7 +31,7 @@ const createExam = async (req, res) => {
       active: true,
     });
     await t.commit();
-    return res.status(201).json({
+    return res.status(200).json({
       status: "SUCCESS",
       responseMsg: "EXAM_CREATED",
       payload: {
@@ -94,8 +93,8 @@ const createQuestion = async (req, res) => {
       metadata,
     });
     await t.commit();
-    return res.status(201).json({
-      status: "success",
+    return res.status(200).json({
+      status: "SUCCESS",
       responseMsg: "QUESTION_CREATED",
       payload: {
         question_id: question.id,
@@ -147,7 +146,7 @@ const getQuestionsByExamID = async (req, res) => {
     });
 
     return res.json({
-      status: "success",
+      status: "SUCCESS",
       responseMsg: "QUESTIONS_FETCHED",
       payload: {
         total,
@@ -203,7 +202,7 @@ const getQuestions = async (req, res) => {
     });
 
     return res.json({
-      status: "success",
+      status: "SUCCESS",
       responseMsg: "QUESTIONS_FETCHED",
       payload: {
         total,
@@ -257,7 +256,7 @@ const fetchExams = async (req, res) => {
 
     // ✅ Response
     return res.json({
-      status: "success",
+      status: "SUCCESS",
       responseMsg: "EXAMS_FETCHED",
       payload: {
         total,

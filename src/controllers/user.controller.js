@@ -1,6 +1,9 @@
 import sequelize from "../db/index.js";
 import User from "../models/user.model.js";
 import College from "../models/college.model.js";
+import { ApiError } from "../utils/api-handler/error.js";
+import { ApiResponse } from "../utils/api-handler/response.js";
+import { ApiHandler } from "../utils/api-handler/handler.js";
 
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
@@ -65,7 +68,7 @@ const onboardUsers = async (req, res) => {
       });
 
       await t.commit();
-      return res.status(201).json({
+      return res.status(200).json({
         status: "SUCCESS",
         responseMsg: "USER_ONBOARDED",
         payload: {
@@ -83,7 +86,7 @@ const onboardUsers = async (req, res) => {
         responseMsg: "Unauthorized request",
       });
     }
-  } catch (error) {
+  } catch {
     // console.error("Register error:", error);
     await t.rollback();
     return res.status(500).json({
@@ -93,65 +96,46 @@ const onboardUsers = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
-  try {
-    const { email, username, password } = req.body;
+const loginUser = ApiHandler(async (req, res) => {
+  const { email, username, password } = req.body;
 
-    if (!email && !username) {
-      return res.status(400).json({
-        status: "FAILURE",
-        responseMsg: "AUTHENTICATION_FAILED",
-      });
-    }
-
-    const conditions = [];
-    if (email?.trim()) conditions.push({ email });
-    if (username?.trim()) conditions.push({ username });
-
-    const user = await User.findOne({
-      where: {
-        [Op.or]: conditions,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        status: "FAILURE",
-        responseMsg: "AUTHENTICATION_FAILED",
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-
-    if (!isMatch) {
-      return res.status(400).json({
-        status: "FAILURE",
-        responseMsg: "AUTHENTICATION_FAILED",
-      });
-    }
-
-    const token = generateAccessToken(user.id, user.email);
-
-    return res.status(200).json({
-      status: "SUCCESS",
-      responseMsg: "LOGIN_SUCCESSFUL",
-      payload: {
-        token,
-        user: {
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      },
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    return res.status(500).json({
-      status: "FAILURE",
-      responseMsg: "INTERNAL_SERVER_ERROR",
-    });
+  if (!email && !username) {
+    throw new ApiError(400, "AUTHENTICATION_FAILED");
   }
-};
+
+  const conditions = [];
+  if (email?.trim()) conditions.push({ email });
+  if (username?.trim()) conditions.push({ username });
+
+  const user = await User.findOne({
+    where: {
+      [Op.or]: conditions,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, "AUTHENTICATION_FAILED");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password_hash);
+
+  if (!isMatch) {
+    throw new ApiError(400, "AUTHENTICATION_FAILED");
+  }
+
+  const token = generateAccessToken(user.id, user.email);
+
+  return res.status(200).json(
+    new ApiResponse("LOGIN_SUCCESSFUL", {
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    })
+  );
+});
 
 const getAllAdmins = async (req, res) => {
   try {
@@ -235,7 +219,7 @@ const studentRegistration = async (req, res) => {
     });
 
     await t.commit();
-    return res.status(201).json({
+    return res.status(200).json({
       status: "SUCCESS",
       responseMsg: "STUDENT_REGISTERED",
       payload: {
@@ -243,7 +227,7 @@ const studentRegistration = async (req, res) => {
         role: user.role,
       },
     });
-  } catch (error) {
+  } catch {
     await t.rollback();
     return res.status(500).json({
       status: "FAILURE",
