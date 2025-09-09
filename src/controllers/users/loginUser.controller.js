@@ -25,6 +25,7 @@ export const loginUser = ApiHandler(async (req, res) => {
   const user = await User.findOne({
     where: {
       email: email,
+      status: "ACTIVE",
     },
   });
 
