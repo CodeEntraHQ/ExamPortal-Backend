@@ -14,7 +14,11 @@ export const verifyJWT = async (req, res, next) => {
     }
 
     const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
-    const user = await User.findOne({ where: { id: decodedToken.user_id } });
+    const userStatus =
+      req.originalUrl == "/v1/users/register" ? "ACTIVATION_PENDING" : "ACTIVE";
+    const user = await User.findOne({
+      where: { id: decodedToken.user_id, status: userStatus },
+    });
     if (!user) {
       return res.status(401).json({
         status: "FAILURE",

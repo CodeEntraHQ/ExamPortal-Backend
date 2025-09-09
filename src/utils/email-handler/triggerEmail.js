@@ -21,7 +21,6 @@ const sendEmail = async (mailOptions) => {
     triggerEmailSuccess = false;
     response = error.message;
   }
-  console.log(triggerEmailSuccess);
   const latency = Date.now() - startTime;
   logInfo({
     action: "TRIGGER_EMAIL",
