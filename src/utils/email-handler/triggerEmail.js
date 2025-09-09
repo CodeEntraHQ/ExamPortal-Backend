@@ -33,7 +33,7 @@ const sendEmail = async (mailOptions) => {
   return triggerEmailSuccess;
 };
 
-export const sendInvitationEmail = async (to, role, resetLink) => {
+const sendInvitationEmail = async (to, role, resetLink) => {
   const emailExpiry = process.env.INVITATION_TOKEN_EXPIRY;
   const formattedRole = role.charAt(0) + role.slice(1).toLowerCase();
   const mailOptions = {
@@ -96,3 +96,73 @@ export const sendInvitationEmail = async (to, role, resetLink) => {
   const emailSent = await sendEmail(mailOptions);
   return emailSent;
 };
+
+const sendPasswordResetEmail = async (to, name, resetLink) => {
+  const tokenExpiry = process.env.RESET_PASSWORD_TOKEN_EXPIRY;
+  const mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to: to,
+    subject: "ExamEntra Password Reset",
+    html: `
+      <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 40px;">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+            
+            <!-- Header / Logo -->
+            <tr>
+              <td align="center" style="background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); padding: 20px;">
+                <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">Reset Your Password</h1>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 40px; color: #333333;">
+                <p style="font-size: 16px; line-height: 1.6;">
+                  Hello ${name},
+                </p>
+                <p style="font-size: 16px; line-height: 1.6;">
+                  We received a request to reset your password for your <strong>ExamEntra</strong> account.
+                  If you made this request, click the button below to reset your password.
+                </p>
+
+                <p style="text-align: center; margin: 30px 0;">
+                  <a href="${resetLink}" style="
+                    background: linear-gradient(90deg, #00c6ff, #0072ff);
+                    color: #ffffff;
+                    padding: 14px 28px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 30px;
+                    display: inline-block;
+                    font-size: 16px;
+                    box-shadow: 0 4px 14px rgba(0, 114, 255, 0.3);
+                  ">
+                    Reset Password 🔐
+                  </a>
+                </p>
+
+                <p style="font-size: 14px; color: #777777; text-align: center;">
+                  This link will expire in <strong>${tokenExpiry}inutes</strong> for your security.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="background-color: #f8f8f8; padding: 20px; color: #aaaaaa; font-size: 12px;">
+                &copy; ${new Date().getFullYear()} CodeEntra. All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    `,
+  };
+  const emailSent = await sendEmail(mailOptions);
+  return emailSent;
+};
+
+export { sendInvitationEmail, sendPasswordResetEmail };

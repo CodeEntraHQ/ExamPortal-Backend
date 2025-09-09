@@ -6,10 +6,14 @@ import { inviteUser } from "#controllers/users/inviteUser.controller.js";
 import { getUsers } from "#controllers/users/getUsers.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
 import { renewLogin } from "#controllers/users/renewLogin.controller.js";
+import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
+import { resetPassword } from "#controllers/users/resetPassword.controller.js";
 
 const router = Router();
 
 router.route("/login").post(loginUser);
+router.route("/forgot-password").post(forgotPassword);
+router.route("/reset-password").post(verifyJWT, resetPassword);
 router.route("/renew").post(verifyJWT, renewLogin);
 router.route("/invite").post(verifyJWT, inviteUser);
 router.route("/register").post(verifyJWT, registerUser);
