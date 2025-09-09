@@ -48,7 +48,7 @@ export const inviteUser = ApiHandler(async (req, res) => {
   if (["INACTIVE", "ACTIVATION_PENDING"].includes(existingUser?.status)) {
     // Initiate activation process
     let invitationLink = getRegistrationLink(email, existingUser?.id); // get invitation link
-    let emailSent = await sendInvitationEmail(email, invitationLink); // trigger email
+    let emailSent = await sendInvitationEmail(email, role, invitationLink); // trigger email
     // if email was sent update the status
     if (emailSent === true) {
       const user = await existingUser.update({
@@ -73,7 +73,7 @@ export const inviteUser = ApiHandler(async (req, res) => {
   // Procced with new user registration
   const user_id = generateUUID();
   let invitationLink = getRegistrationLink(email, user_id); // get invitation link
-  let emailSent = await sendInvitationEmail(email, invitationLink); // trigger email
+  let emailSent = await sendInvitationEmail(email, role, invitationLink); // trigger email
   if (emailSent === true) {
     // Create user
     const user = await User.create({
