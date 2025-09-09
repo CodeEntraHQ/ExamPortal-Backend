@@ -16,22 +16,15 @@ export const inviteUser = ApiHandler(async (req, res) => {
     throw new ApiError(400, "BAD_REQUEST", "Missing required fields");
   }
 
-  if (role === "ADMIN" && !college_id) {
-    throw new ApiError(400, "BAD_REQUEST", "college_id is required");
-  }
-
-  if (role === "STUDENT" && college_id) {
-    throw new ApiError(400, "BAD_REQUEST", "college_id is not required");
-  }
-
   // STUDENT can be invited by SUPERADMIN / ADMIN
   // ADMIN can only be invited by SUPERADMIN
   // SUPERADMIN cannot be invited
-  let inviterRole = req.user.role;
+  const inviterRole = req.user.role;
   if (
     role === "SUPERADMIN" ||
     (role === "ADMIN" && inviterRole !== "SUPERADMIN") ||
-    (role === "STUDENT" && !["ADMIN", "SUPERADMIN"].includes(inviterRole))
+    (role === "STUDENT" && !["ADMIN", "SUPERADMIN"].includes(inviterRole)) ||
+    inviterRole === "STUDENT"
   ) {
     throw new ApiError(
       403,
@@ -40,10 +33,24 @@ export const inviteUser = ApiHandler(async (req, res) => {
     );
   }
 
+  if (inviterRole === "SUPERADMIN" && !college_id) {
+    throw new ApiError(
+      400,
+      "BAD_REQUEST",
+      "college_id is required for SUPERADMIN"
+    );
+  }
+
+  const resolvedCollegeId = college_id || req.user.entity_id;
+
   // Check for duplicate email
   const existingUser = await User.findOne({
-    where: { email: email, entity_id: req.user.entity_id },
+    where: { email: email },
   });
+
+  if (existingUser && resolvedCollegeId !== existingUser.entity_id) {
+    throw new ApiError(400, "BAD_REQUEST", "user is already registered");
+  }
 
   if (["INACTIVE", "ACTIVATION_PENDING"].includes(existingUser?.status)) {
     // Initiate activation process
