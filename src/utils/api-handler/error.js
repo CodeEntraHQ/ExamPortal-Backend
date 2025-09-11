@@ -9,13 +9,12 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.statusCode = statusCode;
-    this.data = null;
     this.message = message;
-    this.success = false;
+    this.description = description;
 
     logError({
-      action: statusCode + "-" + this.message,
-      message: description || this.message,
+      action: statusCode + "-" + message,
+      message: description || message,
     });
 
     if (stack) {

@@ -4,13 +4,15 @@ const errorHandler = (err, _req, res, _next) => {
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
       status: "FAILURE",
-      responseMsg: err.message,
+      responseCode: err.message,
+      responseMessage: err.description,
     });
   }
 
   return res.status(500).json({
     status: "FAILURE",
-    responseMsg: "INTERNAL_SERVER_ERROR",
+    responseCode: "INTERNAL_SERVER_ERROR",
+    responseMessage: "Something went wrong",
   });
 };
 
