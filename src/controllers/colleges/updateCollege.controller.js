@@ -4,11 +4,6 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 
 export const updateCollege = ApiHandler(async (req, res) => {
-  // Check if user is SUPERADMIN
-  if (req.user.role !== "SUPERADMIN") {
-    throw new ApiError(403, "AUTHORIZATION_FAILED", "User is not a SUPERADMIN");
-  }
-
   // Parsing request
   const { college_id, name, address } = req.body;
 

@@ -3,11 +3,21 @@ import { verifyJWT } from "#middleware/auth.middleware.js";
 import { createCollege } from "#controllers/colleges/createCollege.controller.js";
 import { updateCollege } from "#controllers/colleges/updateCollege.controller.js";
 import { getColleges } from "#controllers/colleges/getColleges.controller.js";
+import { USER_ROLES } from "#utils/constant.util.js";
+import { checkAuthorization } from "#middleware/authorization.middleware.js";
 
 const router = Router();
 
-router.route("/").get(verifyJWT, getColleges);
-router.route("/").post(verifyJWT, createCollege);
-router.route("/").patch(verifyJWT, updateCollege);
+router
+  .route("/")
+  .get(verifyJWT, checkAuthorization(USER_ROLES.SUPERADMIN), getColleges);
+
+router
+  .route("/")
+  .post(verifyJWT, checkAuthorization(USER_ROLES.SUPERADMIN), createCollege);
+
+router
+  .route("/")
+  .patch(verifyJWT, checkAuthorization(USER_ROLES.SUPERADMIN), updateCollege);
 
 export default router;

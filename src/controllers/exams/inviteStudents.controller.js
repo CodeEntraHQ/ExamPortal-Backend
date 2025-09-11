@@ -6,15 +6,8 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 
 export const inviteStudent = ApiHandler(async (req, res) => {
+  // Parsing request
   const { exam_id, student_emails } = req.body;
-
-  if (!["ADMIN", "SUPERADMIN"].includes(req.user.role)) {
-    throw new ApiError(
-      403,
-      "AUTHORIZATION_FAILED",
-      "User is not an ADMIN or SUPERADMIN"
-    );
-  }
 
   // request assertion
   if (

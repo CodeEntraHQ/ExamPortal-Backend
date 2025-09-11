@@ -22,15 +22,6 @@ export const getUsers = ApiHandler(async (req, res) => {
     throw new ApiError(400, "BAD_REQUEST", "superadmin is not allowed");
   }
 
-  // Authorization check
-  if (!(req.user.role === "ADMIN" || req.user.role === "SUPERADMIN")) {
-    throw new ApiError(
-      403,
-      "AUTHORIZATION_FAILED",
-      "Student is not allowed to list users"
-    );
-  }
-
   // Fetch users
   const { rows, count: total } = await User.findAndCountAll({
     where: { role: role, entity_id: college_id },

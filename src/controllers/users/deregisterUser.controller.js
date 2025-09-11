@@ -14,7 +14,7 @@ export const deregisterUser = ApiHandler(async (req, res) => {
       throw new ApiError(
         403,
         "AUTHORIZATION_FAILED",
-        "SUPERADMIN cannot deactivate themselves."
+        "User has insufficient permissions"
       );
     }
     userToDeactivate = req.user;
@@ -26,7 +26,7 @@ export const deregisterUser = ApiHandler(async (req, res) => {
       throw new ApiError(
         403,
         "AUTHORIZATION_FAILED",
-        "Students are not authorized to perform this action."
+        "User has insufficient permissions"
       );
     }
 
@@ -50,7 +50,7 @@ export const deregisterUser = ApiHandler(async (req, res) => {
       throw new ApiError(
         403,
         "AUTHORIZATION_FAILED",
-        "You are not authorized to perform this action."
+        "User has insufficient permissions"
       );
     }
   }

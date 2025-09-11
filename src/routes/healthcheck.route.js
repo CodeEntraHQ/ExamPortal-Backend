@@ -4,7 +4,8 @@ import { getDBHealth } from "#controllers/healthcheck/dbHealthCheck.controller.j
 
 const router = Router();
 
-router.get("/app", getAppHealth);
-router.get("/db", getDBHealth);
+router.route("/app").get(getAppHealth);
+
+router.route("/db").get(getDBHealth);
 
 export default router;
