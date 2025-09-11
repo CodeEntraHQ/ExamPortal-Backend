@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "#middleware/auth.middleware.js";
+import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { createExam } from "#controllers/exams/createExam.controller.js";
 import { getExams } from "#controllers/exams/getExams.controller.js";
 import { createQuestion } from "#controllers/exams/createQuestion.controller.js";

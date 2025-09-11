@@ -8,9 +8,7 @@ const contextMiddleware = (req, res, next) => {
     api_name: `${req.method}-${req.originalUrl}`,
   };
 
-  const token =
-    req.cookies?.accessToken ||
-    req.header("Authorization")?.replace("Bearer ", "");
+  const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (token) {
     store.session_id = jwt.decode(token)?.session_id;

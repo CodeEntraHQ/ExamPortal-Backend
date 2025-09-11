@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { verifyJWT } from "#middleware/auth.middleware.js";
+import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { createCollege } from "#controllers/colleges/createCollege.controller.js";
 import { updateCollege } from "#controllers/colleges/updateCollege.controller.js";
 import { getColleges } from "#controllers/colleges/getColleges.controller.js";
-import { USER_ROLES } from "#utils/constant.util.js";
+import { USER_ROLES } from "#utils/constants.util.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
 
 const router = Router();

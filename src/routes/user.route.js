@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "#middleware/auth.middleware.js";
+import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { registerUser } from "#controllers/users/registerUser.controller.js";
 import { loginUser } from "#controllers/users/loginUser.controller.js";
 import { inviteUser } from "#controllers/users/inviteUser.controller.js";

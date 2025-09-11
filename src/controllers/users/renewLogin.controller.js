@@ -1,11 +1,10 @@
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
-import asyncLocalStorage from "#utils/context.js";
-import jwt from "jsonwebtoken";
+import { generateUserSessionToken } from "#utils/crypto.util.js";
 
 export const renewLogin = ApiHandler(async (req, res) => {
   // Generate session token
-  const token = generateAccessToken(req.user.id, req.user.email);
+  const token = generateUserSessionToken(req.user.id);
 
   // Send response
   return res.status(200).json(
@@ -14,10 +13,3 @@ export const renewLogin = ApiHandler(async (req, res) => {
     })
   );
 });
-
-const generateAccessToken = (user_id, email) => {
-  const { session_id } = asyncLocalStorage.getStore();
-  return jwt.sign({ user_id, email, session_id }, process.env.TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-  });
-};
