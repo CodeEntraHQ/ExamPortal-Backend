@@ -1,5 +1,6 @@
-import http from "http";
 import bcrypt from "bcrypt";
+import http from "http";
+
 import app from "#app.js";
 import sequelize from "#db/index.js";
 import User from "#models/user.model.js";

@@ -1,4 +1,5 @@
 import onFinished from "on-finished";
+
 import { logInfo } from "#utils/logger.js";
 
 const loggerMiddleware = (req, res, next) => {

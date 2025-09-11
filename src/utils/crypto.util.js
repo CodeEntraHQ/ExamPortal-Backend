@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
-import asyncLocalStorage from "#utils/context.js";
+
 import { TOKEN_TYPES } from "#utils/constants.util.js";
+import asyncLocalStorage from "#utils/context.js";
 
 const getJwtToken = (payload, expiry) => {
   return jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: expiry });

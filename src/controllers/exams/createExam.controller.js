@@ -1,7 +1,7 @@
 import Exam from "#models/exam.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
-import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const createExam = ApiHandler(async (req, res) => {
   // Parsing request

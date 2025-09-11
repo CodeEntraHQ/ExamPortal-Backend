@@ -1,4 +1,5 @@
 import request from "supertest";
+
 import { server } from "../setup.js";
 
 describe("Health check Routes", () => {

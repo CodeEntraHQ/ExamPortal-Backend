@@ -1,15 +1,16 @@
 import { Router } from "express";
-import { verifyJWT } from "#middleware/authentication.middleware.js";
-import { registerUser } from "#controllers/users/registerUser.controller.js";
-import { loginUser } from "#controllers/users/loginUser.controller.js";
-import { inviteUser } from "#controllers/users/inviteUser.controller.js";
-import { getUsers } from "#controllers/users/getUsers.controller.js";
+
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
-import { renewLogin } from "#controllers/users/renewLogin.controller.js";
 import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
+import { getUsers } from "#controllers/users/getUsers.controller.js";
+import { inviteUser } from "#controllers/users/inviteUser.controller.js";
+import { loginUser } from "#controllers/users/loginUser.controller.js";
+import { registerUser } from "#controllers/users/registerUser.controller.js";
+import { renewLogin } from "#controllers/users/renewLogin.controller.js";
 import { resetPassword } from "#controllers/users/resetPassword.controller.js";
-import { USER_ROLES } from "#utils/constants.util.js";
+import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
+import { USER_ROLES } from "#utils/constants.util.js";
 
 const router = Router();
 

@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+
 import { logInfo } from "#utils/logger.js";
 
 const transporter = nodemailer.createTransport({

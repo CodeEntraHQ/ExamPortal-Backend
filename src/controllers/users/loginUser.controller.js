@@ -1,8 +1,9 @@
+import bcrypt from "bcrypt";
+
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
-import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
-import bcrypt from "bcrypt";
+import { ApiResponse } from "#utils/api-handler/response.js";
 import { generateUserSessionToken } from "#utils/crypto.util.js";
 
 export const loginUser = ApiHandler(async (req, res) => {

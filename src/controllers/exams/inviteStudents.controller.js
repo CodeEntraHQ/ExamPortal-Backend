@@ -1,9 +1,9 @@
-import User from "#models/user.model.js";
-import Exam from "#models/exam.model.js";
 import Enrollment from "#models/enrollment.model.js";
+import Exam from "#models/exam.model.js";
+import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
-import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const inviteStudent = ApiHandler(async (req, res) => {
   // Parsing request

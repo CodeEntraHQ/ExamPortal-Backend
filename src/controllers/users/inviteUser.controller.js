@@ -1,10 +1,10 @@
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
-import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
+import { getUserInvitationLink } from "#utils/crypto.util.js";
 import { sendInvitationEmail } from "#utils/email-handler/triggerEmail.js";
 import { generateUUID } from "#utils/utils.js";
-import { getUserInvitationLink } from "#utils/crypto.util.js";
 
 export const inviteUser = ApiHandler(async (req, res) => {
   // Parsing request

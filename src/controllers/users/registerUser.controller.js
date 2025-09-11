@@ -1,7 +1,8 @@
-import { ApiError } from "#utils/api-handler/error.js";
-import { ApiResponse } from "#utils/api-handler/response.js";
-import { ApiHandler } from "#utils/api-handler/handler.js";
 import bcrypt from "bcrypt";
+
+import { ApiError } from "#utils/api-handler/error.js";
+import { ApiHandler } from "#utils/api-handler/handler.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const registerUser = ApiHandler(async (req, res) => {
   // Parsing request

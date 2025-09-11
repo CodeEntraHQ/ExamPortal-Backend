@@ -1,5 +1,5 @@
-import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
 import { generateUserSessionToken } from "#utils/crypto.util.js";
 
 export const renewLogin = ApiHandler(async (req, res) => {

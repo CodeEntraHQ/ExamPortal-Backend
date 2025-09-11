@@ -1,9 +1,9 @@
+import User from "#models/user.model.js";
+import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
-import { ApiError } from "#utils/api-handler/error.js";
-import User from "#models/user.model.js";
-import { sendPasswordResetEmail } from "#utils/email-handler/triggerEmail.js";
 import { getResetPasswordLink } from "#utils/crypto.util.js";
+import { sendPasswordResetEmail } from "#utils/email-handler/triggerEmail.js";
 
 export const forgotPassword = ApiHandler(async (req, res) => {
   const { email } = req.body;

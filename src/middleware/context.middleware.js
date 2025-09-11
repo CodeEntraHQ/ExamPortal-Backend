@@ -1,6 +1,7 @@
+import jwt from "jsonwebtoken";
+
 import asyncLocalStorage from "#utils/context.js";
 import { generateUUID } from "#utils/utils.js";
-import jwt from "jsonwebtoken";
 
 const contextMiddleware = (req, res, next) => {
   const store = {

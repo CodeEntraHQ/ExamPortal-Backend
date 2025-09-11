@@ -1,7 +1,7 @@
 import Question from "#models/question.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
-import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const getQuestions = ApiHandler(async (req, res) => {
   const exam_id = req.query.exam_id;

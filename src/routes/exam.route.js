@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { verifyJWT } from "#middleware/authentication.middleware.js";
+
 import { createExam } from "#controllers/exams/createExam.controller.js";
-import { getExams } from "#controllers/exams/getExams.controller.js";
 import { createQuestion } from "#controllers/exams/createQuestion.controller.js";
+import { getExams } from "#controllers/exams/getExams.controller.js";
 import { getQuestions } from "#controllers/exams/getQuestions.controller.js";
 import { inviteStudent } from "#controllers/exams/inviteStudents.controller.js";
-import { USER_ROLES } from "#utils/constants.util.js";
+import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
+import { USER_ROLES } from "#utils/constants.util.js";
 
 const router = Router();
 

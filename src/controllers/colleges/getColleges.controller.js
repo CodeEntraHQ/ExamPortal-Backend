@@ -1,6 +1,6 @@
 import College from "#models/college.model.js";
-import { ApiResponse } from "#utils/api-handler/response.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
+import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const getColleges = ApiHandler(async (req, res) => {
   // Parsing request

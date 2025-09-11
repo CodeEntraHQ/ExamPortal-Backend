@@ -1,5 +1,6 @@
 // models/User.js
 import { DataTypes } from "sequelize";
+
 import sequelize from "#db/index.js";
 import { USER_ROLES } from "#utils/constants.util.js";
 

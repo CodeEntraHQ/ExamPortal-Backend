@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { TOKEN_TYPES } from "#utils/constants.util.js";
