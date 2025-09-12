@@ -14,11 +14,7 @@ export const loginUser = ApiHandler(async (req, res) => {
   if (
     [email, password].some((field) => !field || String(field).trim() === "")
   ) {
-    throw new ApiError(
-      400,
-      "AUTHENTICATION_FAILED",
-      "email and password is required"
-    );
+    throw new ApiError(400, "BAD_REQUEST", "email and password is required");
   }
 
   // Find user
@@ -30,13 +26,13 @@ export const loginUser = ApiHandler(async (req, res) => {
   });
 
   if (!user) {
-    throw new ApiError(400, "AUTHENTICATION_FAILED", "User not found");
+    throw new ApiError(401, "AUTHENTICATION_FAILED", "User not found");
   }
 
   const isMatch = await bcrypt.compare(password, user.password_hash);
 
   if (!isMatch) {
-    throw new ApiError(400, "AUTHENTICATION_FAILED", "Invalid credentials");
+    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid credentials");
   }
 
   // Generate session token
@@ -47,6 +43,7 @@ export const loginUser = ApiHandler(async (req, res) => {
     new ApiResponse("LOGIN_SUCCESSFUL", {
       token,
       user: {
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
