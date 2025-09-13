@@ -116,6 +116,7 @@
   "scripts": {
     "dev": "nodemon -r ./src/config/index.js --experimental-json-modules src/server.js",
     "test": "cross-env NODE_ENV=test DB_NAME=examentra-test jest",
+    "coverage": "cross-env NODE_ENV=test DB_NAME=examentra-test jest --coverage",
     "prepare": "husky",
     "lint": "eslint . --ext .js --fix",
     "format": "prettier --write ."

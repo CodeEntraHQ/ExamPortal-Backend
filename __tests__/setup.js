@@ -4,6 +4,7 @@ import http from "http";
 import app from "#app.js";
 import sequelize from "#db/index.js";
 import User from "#models/user.model.js";
+import { generateUUID } from "#utils/utils.js";
 
 let server;
 
@@ -15,22 +16,31 @@ beforeAll(async () => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash("password", salt);
 
-  await User.create({
-    name: "Super Admin",
-    email: "superadmin@example.com",
-    password_hash: hashedPassword,
-    role: "SUPERADMIN",
-    active: true,
-  });
+  await User.bulkCreate([
+    {
+      id: generateUUID(),
+      name: "Super Admin",
+      email: "superadmin@example.com",
+      password_hash: hashedPassword,
+      role: "SUPERADMIN",
+      status: "ACTIVE",
+      entity_id: generateUUID(),
+    },
+    {
+      id: generateUUID(),
+      name: "Student User",
+      email: "student@example.com",
+      password_hash: hashedPassword,
+      role: "STUDENT",
+      status: "ACTIVE",
+      entity_id: generateUUID(),
+    },
+  ]);
 });
 
 afterAll(async () => {
   await new Promise((resolve) => server.close(resolve));
   await sequelize.close();
-});
-
-afterEach(async () => {
-  await sequelize.truncate({ cascade: true });
 });
 
 export { server };

@@ -1,9 +1,9 @@
 import request from "supertest";
 
-import app from "../src/app";
+import { server } from "./setup.js";
 
-export const login = async (email, password) => {
-  const res = await request(app).post("/v1/users/login").send({
+export const getAuthToken = async (email, password) => {
+  const res = await request(server).post("/v1/users/login").send({
     email,
     password,
   });
