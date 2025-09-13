@@ -11,7 +11,7 @@ import { resetPassword } from "#controllers/users/resetPassword.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
 import { validate } from "#middleware/validation.middleware.js";
-import { USER_ROLES } from "#utils/constants.util.js";
+import { USER_ROLES } from "#utils/constants/model.constant.js";
 import {
   loginUserSchema,
   forgotPasswordSchema,

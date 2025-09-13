@@ -4,7 +4,7 @@ import sequelize from "#db/index.js";
 import { generateUUID } from "#utils/utils.js";
 
 const College = sequelize.define(
-  "College",
+  "Colleges",
   {
     id: {
       type: DataTypes.STRING,

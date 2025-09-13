@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const integerValidation = (keyName, minValue, maxValue) => {
+export const integerValidation = (keyName, minValue, maxValue) => {
   let rule = z.coerce
     .number({
       error: `${keyName} must be a number`,
@@ -21,7 +21,7 @@ const integerValidation = (keyName, minValue, maxValue) => {
   return rule;
 };
 
-const stringValidation = (keyName) =>
+export const stringValidation = (keyName) =>
   z
     .string({
       error: `${keyName} is required`,
@@ -34,7 +34,7 @@ const stringValidation = (keyName) =>
       error: `${keyName} must have length less than 255`,
     });
 
-const uuidValidation = (keyName) =>
+export const uuidValidation = (keyName) =>
   z
     .string({
       error: `${keyName} is required`,
@@ -43,7 +43,7 @@ const uuidValidation = (keyName) =>
       error: `${keyName} must be a valid UUID`,
     });
 
-const authorizationValidation = () =>
+export const authorizationValidation = () =>
   z.object({
     authorization: z
       .string({
@@ -54,7 +54,7 @@ const authorizationValidation = () =>
       }),
   });
 
-const emailValidation = () =>
+export const emailValidation = () =>
   z
     .string({
       error: "email is required",
@@ -63,7 +63,7 @@ const emailValidation = () =>
       error: "email must be a valid",
     });
 
-const arrayValidation = (keyName, itemSchema) =>
+export const arrayValidation = (keyName, itemSchema) =>
   z
     .array(itemSchema, {
       error: `Invalid ${keyName} array`,
@@ -71,12 +71,3 @@ const arrayValidation = (keyName, itemSchema) =>
     .min(1, {
       error: `${keyName} must have size greater than 1`,
     });
-
-export {
-  integerValidation,
-  stringValidation,
-  uuidValidation,
-  authorizationValidation,
-  emailValidation,
-  arrayValidation,
-};
