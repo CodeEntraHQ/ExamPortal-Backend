@@ -3,8 +3,8 @@
 
 ## JIRA
 
-https://www.atlassian.com/software/jira/TIC-XXXXX
-- [ ] I have changed the JIRA no. Above 👆
+https://github.com/CodeEntraHQ/ExamPortal-Backend/issues/XX
+- [ ] I have changed the Issue no. Above 👆
 
 ## Type of Change
 - [ ] Tested in local
