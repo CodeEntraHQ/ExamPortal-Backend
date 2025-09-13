@@ -5,12 +5,8 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const createCollege = ApiHandler(async (req, res) => {
   // Parsing request
-  const { name, address } = req.body;
-
-  // Request assertion
-  if ([name, address].some((field) => !field || String(field).trim() === "")) {
-    throw new ApiError(400, "BAD_REQUEST", "Name and address are required");
-  }
+  const name = req.body.name?.trim();
+  const address = req.body.address?.trim();
 
   // Check if college exists
   const existingCollege = await College.findOne({ where: { name } });

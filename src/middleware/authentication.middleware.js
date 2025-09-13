@@ -16,26 +16,19 @@ const getUserStatusAndTokenType = (url) => {
 
 export const verifyJWT = async (req, _res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
-  if (!token) {
-    throw new ApiError(
-      401,
-      "AUTHENTICATION_FAILED",
-      "Authorization header is missing"
-    );
-  }
 
   let decodedToken;
   try {
     decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
   } catch {
-    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token");
+    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token details");
   }
   const [userStatus, expectedTokenType] = getUserStatusAndTokenType(
     req.originalUrl
   );
 
   if (expectedTokenType !== decodedToken.type) {
-    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token");
+    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token type");
   }
 
   const user = await User.findOne({

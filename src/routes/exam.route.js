@@ -7,33 +7,46 @@ import { getQuestions } from "#controllers/exams/getQuestions.controller.js";
 import { inviteStudent } from "#controllers/exams/inviteStudents.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
+import { validate } from "#middleware/validation.middleware.js";
 import { USER_ROLES } from "#utils/constants.util.js";
+import {
+  createExamSchema,
+  getExamsSchema,
+  createQuestionSchema,
+  getQuestionsSchema,
+  inviteStudentSchema,
+} from "#validations/exam.validation.js";
 
 const router = Router();
 
 router
   .route("/")
   .post(
+    validate(createExamSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     createExam
   );
 
-router.route("/").get(verifyJWT, getExams);
+router.route("/").get(validate(getExamsSchema), verifyJWT, getExams);
 
 router
   .route("/question")
   .post(
+    validate(createQuestionSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     createQuestion
   );
 
-router.route("/question").get(verifyJWT, getQuestions);
+router
+  .route("/question")
+  .get(validate(getQuestionsSchema), verifyJWT, getQuestions);
 
 router
   .route("/invite")
   .post(
+    validate(inviteStudentSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     inviteStudent

@@ -10,11 +10,6 @@ export const inviteUser = ApiHandler(async (req, res) => {
   // Parsing request
   const { email, role, college_id } = req.body;
 
-  // Request assertion
-  if ([email, role].some((field) => !field || String(field).trim() === "")) {
-    throw new ApiError(400, "BAD_REQUEST", "Missing required fields");
-  }
-
   // STUDENT can be invited by SUPERADMIN / ADMIN
   // ADMIN can only be invited by SUPERADMIN
   // SUPERADMIN cannot be invited

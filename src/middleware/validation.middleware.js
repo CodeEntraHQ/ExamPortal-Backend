@@ -7,7 +7,10 @@ export const validate = (schema) =>
       schema.parse(req);
       next();
     } catch (error) {
-      console.log(error);
-      throw new ApiError(400, "BAD_REQUEST", error.issues[0].message);
+      throw new ApiError(
+        400,
+        "BAD_REQUEST",
+        error.issues[0].message.replace(/"([^"]+)"/g, "$1")
+      );
     }
   });

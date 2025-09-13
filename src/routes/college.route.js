@@ -10,6 +10,7 @@ import { USER_ROLES } from "#utils/constants.util.js";
 import {
   getCollegesSchema,
   createCollegeSchema,
+  updateCollegeSchema,
 } from "#validations/college.validation.js";
 
 const router = Router();
@@ -34,6 +35,11 @@ router
 
 router
   .route("/")
-  .patch(verifyJWT, checkAuthorization(USER_ROLES.SUPERADMIN), updateCollege);
+  .patch(
+    validate(updateCollegeSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN),
+    updateCollege
+  );
 
 export default router;

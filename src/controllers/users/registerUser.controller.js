@@ -1,17 +1,12 @@
 import bcrypt from "bcrypt";
 
-import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const registerUser = ApiHandler(async (req, res) => {
   // Parsing request
-  const { name, password } = req.body;
-
-  // Request assertion
-  if ([name, password].some((field) => !field || String(field).trim() === "")) {
-    throw new ApiError(400, "BAD_REQUEST", "Missing required fields");
-  }
+  const name = req.body.name?.trim();
+  const password = req.body.password?.trim();
 
   // Hashing Password
   const password_hash = await bcrypt.hash(password, 10);

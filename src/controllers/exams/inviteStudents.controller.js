@@ -7,20 +7,8 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const inviteStudent = ApiHandler(async (req, res) => {
   // Parsing request
-  const { exam_id, student_emails } = req.body;
-
-  // request assertion
-  if (
-    !exam_id ||
-    !Array.isArray(student_emails) ||
-    student_emails.length === 0
-  ) {
-    throw new ApiError(
-      400,
-      "BAD_REQUEST",
-      "exam_id and student_emails are required"
-    );
-  }
+  const exam_id = req.body.exam_id?.trim();
+  const student_emails = req.body.student_emails;
 
   const exam = await Exam.findByPk(exam_id);
   if (!exam) {

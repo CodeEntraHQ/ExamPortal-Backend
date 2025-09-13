@@ -10,10 +10,7 @@ const contextMiddleware = (req, res, next) => {
   };
 
   const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (token) {
-    store.session_id = jwt.decode(token)?.session_id;
-  }
+  store.session_id = jwt.decode(token)?.session_id;
 
   if (!store.session_id) {
     store.session_id = req.headers["x-session-id"] || generateUUID();

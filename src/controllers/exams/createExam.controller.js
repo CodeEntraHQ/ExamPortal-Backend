@@ -1,16 +1,11 @@
 import Exam from "#models/exam.model.js";
-import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const createExam = ApiHandler(async (req, res) => {
   // Parsing request
-  const { title, type } = req.body;
-
-  // Request assertion
-  if ([title, type].some((field) => !field || String(field).trim() === "")) {
-    throw new ApiError(400, "BAD_REQUEST", "title and type are required");
-  }
+  const title = req.body.title?.trim();
+  const type = req.body.type?.trim();
 
   // Create college
   const newExam = await Exam.create({

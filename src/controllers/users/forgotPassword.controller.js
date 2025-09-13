@@ -6,11 +6,7 @@ import { getResetPasswordLink } from "#utils/crypto.util.js";
 import { sendPasswordResetEmail } from "#utils/email-handler/triggerEmail.js";
 
 export const forgotPassword = ApiHandler(async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    throw new ApiError(400, "BAD_REQUEST", "Email is required");
-  }
+  const email = req.body.email?.trim();
 
   const user = await User.findOne({ where: { email } });
 

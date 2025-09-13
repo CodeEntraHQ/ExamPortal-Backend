@@ -5,20 +5,10 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const createQuestion = ApiHandler(async (req, res) => {
   // Parsing request
-  const { exam_id, question_text, type, metadata } = req.body;
-
-  // Request assertion
-  if (
-    [exam_id, question_text, type].some(
-      (field) => !field || String(field).trim() === ""
-    )
-  ) {
-    throw new ApiError(
-      400,
-      "BAD_REQUEST",
-      "exam_id, question_text and type are required"
-    );
-  }
+  const exam_id = req.body.exam_id?.trim();
+  const question_text = req.body.question_text?.trim();
+  const type = req.body.type?.trim();
+  const metadata = req.body.metadata?.trim();
 
   // Request assertion
   if (
@@ -35,6 +25,7 @@ export const createQuestion = ApiHandler(async (req, res) => {
     );
   }
 
+  // Create question
   const question = await Question.create({
     exam_id,
     question_text,

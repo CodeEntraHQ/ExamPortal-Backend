@@ -1,15 +1,10 @@
 import bcrypt from "bcrypt";
 
-import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const resetPassword = ApiHandler(async (req, res) => {
-  const { password } = req.body || {};
-
-  if (!password) {
-    throw new ApiError(400, "BAD_REQUEST", "Password is required");
-  }
+  const password = req.body.password?.trmi();
 
   // Hashing Password
   const password_hash = await bcrypt.hash(password, 10);

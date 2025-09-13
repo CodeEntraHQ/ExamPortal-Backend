@@ -21,16 +21,62 @@ const integerValidation = (keyName, minValue, maxValue) => {
   return rule;
 };
 
-const stringValidation = (keyName) => {
-  let rule = z
-    .string()
-    .min(1, {
+const stringValidation = (keyName) =>
+  z
+    .string({
+      error: `${keyName} is required`,
+    })
+    .transform((str) => str.trim())
+    .refine((str) => str.length >= 1, {
       error: `${keyName} must have length greater than 1`,
     })
-    .max(255, {
+    .refine((str) => str.length <= 255, {
       error: `${keyName} must have length less than 255`,
     });
-  return rule;
-};
 
-export { integerValidation, stringValidation };
+const uuidValidation = (keyName) =>
+  z
+    .string({
+      error: `${keyName} is required`,
+    })
+    .uuid({
+      error: `${keyName} must be a valid UUID`,
+    });
+
+const authorizationValidation = () =>
+  z.object({
+    authorization: z
+      .string({
+        error: "authorization header is required",
+      })
+      .regex(/^Bearer\s([A-Za-z0-9-_]+\.){2}[A-Za-z0-9-_]+$/, {
+        error: "Invalid authorization header",
+      }),
+  });
+
+const emailValidation = () =>
+  z
+    .string({
+      error: "email is required",
+    })
+    .email({
+      error: "email must be a valid",
+    });
+
+const arrayValidation = (keyName, itemSchema) =>
+  z
+    .array(itemSchema, {
+      error: `Invalid ${keyName} array`,
+    })
+    .min(1, {
+      error: `${keyName} must have size greater than 1`,
+    });
+
+export {
+  integerValidation,
+  stringValidation,
+  uuidValidation,
+  authorizationValidation,
+  emailValidation,
+  arrayValidation,
+};

@@ -1,17 +1,12 @@
 import Question from "#models/question.model.js";
-import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const getQuestions = ApiHandler(async (req, res) => {
-  const exam_id = req.query.exam_id;
+  const exam_id = req.query.exam_id?.trim();
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
-
-  if (!exam_id) {
-    throw new ApiError(400, "BAD_REQUEST", "Exam ID is required");
-  }
 
   const { rows, count: total } = await Question.findAndCountAll({
     where: { exam_id: exam_id },
