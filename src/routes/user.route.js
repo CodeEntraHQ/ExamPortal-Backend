@@ -1,18 +1,45 @@
 import { Router } from "express";
-import { verifyJWT } from "../middleware/auth.middleware.js";
-import {
-  onboardUsers,
-  loginUser,
-  getAllAdmins,
-  studentRegistration,
-  getAllStudents,
-} from "../controllers/user.controller.js";
+
+import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
+import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
+import { getUsers } from "#controllers/users/getUsers.controller.js";
+import { inviteUser } from "#controllers/users/inviteUser.controller.js";
+import { loginUser } from "#controllers/users/loginUser.controller.js";
+import { registerUser } from "#controllers/users/registerUser.controller.js";
+import { renewLogin } from "#controllers/users/renewLogin.controller.js";
+import { resetPassword } from "#controllers/users/resetPassword.controller.js";
+import { verifyJWT } from "#middleware/authentication.middleware.js";
+import { checkAuthorization } from "#middleware/authorization.middleware.js";
+import { USER_ROLES } from "#utils/constants.util.js";
 
 const router = Router();
 
-router.route("/").post(verifyJWT, onboardUsers);
 router.route("/login").post(loginUser);
-router.route("/register").post(studentRegistration);
-router.route("/").get(verifyJWT, getAllAdmins);
-router.route("/students").get(verifyJWT, getAllStudents);
+
+router.route("/password/forgot").post(forgotPassword);
+
+router.route("/password/reset").post(verifyJWT, resetPassword);
+
+router.route("/renew").post(verifyJWT, renewLogin);
+
+router
+  .route("/invite")
+  .post(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    inviteUser
+  );
+
+router.route("/register").post(verifyJWT, registerUser);
+
+router.route("/deregister").patch(verifyJWT, deregisterUser);
+
+router
+  .route("/")
+  .get(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getUsers
+  );
+
 export default router;

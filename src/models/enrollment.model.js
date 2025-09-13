@@ -1,5 +1,7 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../db/index.js";
+
+import sequelize from "#db/index.js";
+import { generateUUID } from "#utils/utils.js";
 
 const Enrollment = sequelize.define(
   "Enrollment",
@@ -32,17 +34,13 @@ const Enrollment = sequelize.define(
   }
 );
 
-Enrollment.beforeBulkCreate(async (enrollments) => {
-  const existing = await Enrollment.findAll({ attributes: ["id"] });
+Enrollment.beforeCreate((enrollment) => {
+  enrollment.id = generateUUID();
+});
 
-  const numbers = existing
-    .map((c) => parseInt(c.id?.replace("enr", "")))
-    .filter((num) => !isNaN(num));
-
-  let maxId = numbers.length ? Math.max(...numbers) : 0;
-  enrollments.forEach((enrol) => {
-    maxId++;
-    enrol.id = `enr${String(maxId).padStart(3, "0")}`;
+Enrollment.beforeBulkCreate((enrollments) => {
+  enrollments.forEach((enrollment) => {
+    enrollment.id = generateUUID();
   });
 });
 

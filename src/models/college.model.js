@@ -1,5 +1,7 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../db/index.js";
+
+import sequelize from "#db/index.js";
+import { generateUUID } from "#utils/utils.js";
 
 const College = sequelize.define(
   "College",
@@ -16,7 +18,7 @@ const College = sequelize.define(
     address: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: false,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -28,17 +30,8 @@ const College = sequelize.define(
   }
 );
 
-College.beforeCreate(async (college) => {
-  const collegeId = await College.findAll({ attributes: ["id"] });
-
-  const numbers = collegeId
-    .map((c) => parseInt(c.id?.replace("col", "")))
-    .filter((num) => !isNaN(num));
-
-  const maxId = numbers.length ? Math.max(...numbers) : 0;
-  const newId = `col${String(maxId + 1).padStart(3, "0")}`;
-
-  college.id = newId;
+College.beforeCreate((college) => {
+  college.id = generateUUID();
 });
 
 export default College;

@@ -1,5 +1,6 @@
 import onFinished from "on-finished";
-import { logInfo } from "../utils/logger.js";
+
+import { logInfo } from "#utils/logger.js";
 
 const loggerMiddleware = (req, res, next) => {
   const startTime = Date.now();
@@ -41,7 +42,7 @@ const loggerMiddleware = (req, res, next) => {
       message: {
         request,
         response,
-        latency: `${latency}ms`,
+        latency: `${latency}`,
       },
     });
   });

@@ -1,20 +1,33 @@
 import winston from "winston";
+
 import asyncLocalStorage from "./context.js";
 
-const logger = winston.createLogger({
+const myLevels = {
   levels: {
     error: 0,
     storage: 1,
     info: 2,
     debug: 3,
   },
+  colors: {
+    error: "red",
+    storage: "blue",
+    info: "green",
+    debug: "yellow",
+  },
+};
+
+winston.addColors(myLevels.colors);
+
+const logger = winston.createLogger({
+  levels: myLevels.levels,
   level: process.env.LOG_LEVEL,
   format: winston.format.json(),
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
+        winston.format.colorize({ all: true }),
+        winston.format.timestamp()
       ),
     }),
   ],
@@ -32,7 +45,7 @@ const log = (level, params) => {
     message: params.message,
     environment: process.env.NODE_ENV,
   };
-  if (logObject.environment != "test") {
+  if (process.env.NODE_ENV !== "test") {
     logger.log(level, logObject);
   }
 };

@@ -1,6 +1,8 @@
 // models/User.js
 import { DataTypes } from "sequelize";
-import sequelize from "../db/index.js";
+
+import sequelize from "#db/index.js";
+import { USER_ROLES } from "#utils/constants.util.js";
 
 const User = sequelize.define(
   "User",
@@ -12,7 +14,6 @@ const User = sequelize.define(
 
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
 
     email: {
@@ -23,35 +24,38 @@ const User = sequelize.define(
 
     entity_id: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
-    password_hash: DataTypes.STRING,
+
+    password_hash: {
+      type: DataTypes.STRING,
+    },
 
     role: {
-      type: DataTypes.ENUM("SUPERADMIN", "ADMIN", "STUDENT"),
+      type: DataTypes.ENUM(
+        USER_ROLES.SUPERADMIN,
+        USER_ROLES.ADMIN,
+        USER_ROLES.STUDENT
+      ),
       defaultValue: "STUDENT",
+      allowNull: false,
     },
-    active: DataTypes.BOOLEAN,
+
+    status: {
+      type: DataTypes.ENUM("ACTIVE", "INACTIVE", "ACTIVATION_PENDING"),
+      defaultValue: "INACTIVE",
+      allowNull: false,
+    },
+
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+      allowNull: false,
     },
   },
   {
     timestamps: false,
   }
 );
-
-User.beforeCreate(async (user) => {
-  const users = await User.findAll({ attributes: ["id"] });
-
-  const numbers = users
-    .map((u) => parseInt(u.id?.replace("usr", "")))
-    .filter((num) => !isNaN(num));
-
-  const maxId = numbers.length ? Math.max(...numbers) : 0;
-  const newId = `usr${String(maxId + 1).padStart(3, "0")}`;
-
-  user.id = newId;
-});
 
 export default User;
