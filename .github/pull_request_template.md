@@ -1,9 +1,9 @@
 ## Description
 <-- Please include a summary of the changes. -->
 
-## JIRA
+## Issue Number
 
-https://www.atlassian.com/software/jira/TIC-XXXXX
+https://github.com/CodeEntraHQ/ExamPortal-Backend/issues/XX
 - [ ] I have changed the JIRA no. Above 👆
 
 ## Type of Change
