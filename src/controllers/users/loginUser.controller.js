@@ -8,14 +8,8 @@ import { generateUserSessionToken } from "#utils/crypto.util.js";
 
 export const loginUser = ApiHandler(async (req, res) => {
   // Parsing request
-  const { email, password } = req.body;
-
-  // Request assertion
-  if (
-    [email, password].some((field) => !field || String(field).trim() === "")
-  ) {
-    throw new ApiError(400, "BAD_REQUEST", "email and password is required");
-  }
+  const email = req.body.email?.trim();
+  const password = req.body.password?.trim();
 
   // Find user
   const user = await User.findOne({

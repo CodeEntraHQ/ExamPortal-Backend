@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
-import { TOKEN_TYPES } from "#utils/constants.util.js";
+import { TOKEN_TYPES } from "#utils/constants/meta.constant.js";
 
 const getUserStatusAndTokenType = (url) => {
   if (url === "/v1/users/register") {
@@ -16,26 +16,19 @@ const getUserStatusAndTokenType = (url) => {
 
 export const verifyJWT = async (req, _res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
-  if (!token) {
-    throw new ApiError(
-      401,
-      "AUTHENTICATION_FAILED",
-      "Authorization header is missing"
-    );
-  }
 
   let decodedToken;
   try {
     decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
   } catch {
-    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token");
+    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token details");
   }
   const [userStatus, expectedTokenType] = getUserStatusAndTokenType(
     req.originalUrl
   );
 
   if (expectedTokenType !== decodedToken.type) {
-    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token");
+    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token type");
   }
 
   const user = await User.findOne({

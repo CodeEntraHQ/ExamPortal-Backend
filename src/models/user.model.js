@@ -2,7 +2,7 @@
 import { DataTypes } from "sequelize";
 
 import sequelize from "#db/index.js";
-import { USER_ROLES } from "#utils/constants.util.js";
+import { USER_ROLES, USER_STATUS } from "#utils/constants/model.constant.js";
 
 const User = sequelize.define(
   "User",
@@ -37,13 +37,17 @@ const User = sequelize.define(
         USER_ROLES.ADMIN,
         USER_ROLES.STUDENT
       ),
-      defaultValue: "STUDENT",
+      defaultValue: USER_ROLES.STUDENT,
       allowNull: false,
     },
 
     status: {
-      type: DataTypes.ENUM("ACTIVE", "INACTIVE", "ACTIVATION_PENDING"),
-      defaultValue: "INACTIVE",
+      type: DataTypes.ENUM(
+        USER_STATUS.ACTIVE,
+        USER_STATUS.INACTIVE,
+        USER_STATUS.ACTIVATION_PENDING
+      ),
+      defaultValue: USER_STATUS.INACTIVE,
       allowNull: false,
     },
 

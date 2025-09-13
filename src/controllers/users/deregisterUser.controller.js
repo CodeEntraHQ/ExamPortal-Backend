@@ -4,7 +4,7 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const deregisterUser = ApiHandler(async (req, res) => {
-  const { user_id } = req.body || {};
+  const user_id = req.body.user_id?.trim();
 
   let userToDeactivate;
 

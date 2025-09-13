@@ -10,33 +10,54 @@ import { renewLogin } from "#controllers/users/renewLogin.controller.js";
 import { resetPassword } from "#controllers/users/resetPassword.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
-import { USER_ROLES } from "#utils/constants.util.js";
+import { validate } from "#middleware/validation.middleware.js";
+import { USER_ROLES } from "#utils/constants/model.constant.js";
+import {
+  loginUserSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  renewLoginSchema,
+  inviteUserSchema,
+  registerUserSchema,
+  deregisterUserSchema,
+  getUsersSchema,
+} from "#validations/user.validation.js";
 
 const router = Router();
 
-router.route("/login").post(loginUser);
+router.route("/login").post(validate(loginUserSchema), loginUser);
 
-router.route("/password/forgot").post(forgotPassword);
+router
+  .route("/password/forgot")
+  .post(validate(forgotPasswordSchema), forgotPassword);
 
-router.route("/password/reset").post(verifyJWT, resetPassword);
+router
+  .route("/password/reset")
+  .post(validate(resetPasswordSchema), verifyJWT, resetPassword);
 
-router.route("/renew").post(verifyJWT, renewLogin);
+router.route("/renew").post(validate(renewLoginSchema), verifyJWT, renewLogin);
 
 router
   .route("/invite")
   .post(
+    validate(inviteUserSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     inviteUser
   );
 
-router.route("/register").post(verifyJWT, registerUser);
+router
+  .route("/register")
+  .post(validate(registerUserSchema), verifyJWT, registerUser);
 
-router.route("/deregister").patch(verifyJWT, deregisterUser);
+router
+  .route("/deregister")
+  .patch(validate(deregisterUserSchema), verifyJWT, deregisterUser);
 
 router
   .route("/")
   .get(
+    validate(getUsersSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     getUsers

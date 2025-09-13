@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-import { TOKEN_TYPES } from "#utils/constants.util.js";
+import { TOKEN_TYPES } from "#utils/constants/meta.constant.js";
 import asyncLocalStorage from "#utils/context.js";
 
 const getJwtToken = (payload, expiry) => {

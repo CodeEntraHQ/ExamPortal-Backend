@@ -1,10 +1,11 @@
 import { DataTypes } from "sequelize";
 
 import sequelize from "#db/index.js";
+import { EXAM_TYPE } from "#utils/constants/model.constant.js";
 import { generateUUID } from "#utils/utils.js";
 
 const Exam = sequelize.define(
-  "Exam",
+  "Exams",
   {
     id: {
       type: DataTypes.STRING,
@@ -24,7 +25,7 @@ const Exam = sequelize.define(
       allowNull: false,
     },
     type: {
-      type: DataTypes.ENUM("QUIZ", "OTHER"),
+      type: DataTypes.ENUM(EXAM_TYPE.QUIZ, EXAM_TYPE.OTHER),
       allowNull: false,
     },
     active: {

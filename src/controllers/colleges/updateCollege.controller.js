@@ -5,23 +5,15 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const updateCollege = ApiHandler(async (req, res) => {
   // Parsing request
-  const { college_id, name, address } = req.body;
+  const college_id = req.body.college_id?.trim();
+  const name = req.body.name?.trim();
+  const address = req.body.address?.trim();
 
-  // Request assertion
-  if (!college_id || (!name && !address)) {
-    throw new ApiError(
-      400,
-      "BAD_REQUEST",
-      "college_id and either name or address is required"
-    );
-  }
-
+  // Update college
   const updateData = {
     ...(name && { name }),
     ...(address && { address }),
   };
-
-  // Update college
   const [updatedCount, updatedCollege] = await College.update(updateData, {
     where: { id: college_id },
     returning: true,

@@ -1,0 +1,21 @@
+export const EXAM_TYPE = {
+  QUIZ: "QUIZ",
+  OTHER: "OTHER",
+};
+
+export const QUESTION_TYPE = {
+  MCQ: "MCQ",
+  OTHER: "OTHER",
+};
+
+export const USER_ROLES = {
+  ADMIN: "ADMIN",
+  SUPERADMIN: "SUPERADMIN",
+  STUDENT: "STUDENT",
+};
+
+export const USER_STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+  ACTIVATION_PENDING: "ACTIVATION_PENDING",
+};
