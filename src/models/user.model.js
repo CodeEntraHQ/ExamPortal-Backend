@@ -24,7 +24,7 @@ const User = sequelize.define(
 
     entity_id: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
 
     password_hash: {

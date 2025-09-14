@@ -34,7 +34,7 @@ export const getQuestions = ApiHandler(async (req, res) => {
 
   // Send response
   return res.status(200).json(
-    new ApiResponse("EXAMS_FETCHED", {
+    new ApiResponse("QUESTIONS_FETCHED", {
       total,
       page,
       limit,

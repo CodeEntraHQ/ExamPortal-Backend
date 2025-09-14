@@ -4,7 +4,7 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const resetPassword = ApiHandler(async (req, res) => {
-  const password = req.body.password?.trmi();
+  const password = req.body.password?.trim();
 
   // Hashing Password
   const password_hash = await bcrypt.hash(password, 10);
