@@ -115,8 +115,8 @@
   },
   "scripts": {
     "dev": "nodemon -r ./src/config/index.js --experimental-json-modules src/server.js",
-    "test": "cross-env NODE_ENV=test DB_NAME=examentra-test jest",
-    "coverage": "cross-env NODE_ENV=test DB_NAME=examentra-test jest --coverage",
+    "test": "cross-env NODE_ENV=test DB_NAME=examentra-test jest --runInBand",
+    "coverage": "cross-env NODE_ENV=test DB_NAME=examentra-test jest --runInBand --coverage",
     "prepare": "husky",
     "lint": "eslint . --ext .js --fix",
     "format": "prettier --write ."
@@ -149,10 +149,19 @@
     ],
     "testMatch": [
       "**/__tests__/**/*.tests.js"
-    ]
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 95,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    }
   },
   "lint-staged": {
     "**/*.js": [
+      "npm run coverage",
       "eslint --fix",
       "prettier --write"
     ]

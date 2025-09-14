@@ -55,7 +55,8 @@ export const deregisterUserSchema = z.object({
     .object({
       user_id: uuidValidation("user_id").optional(),
     })
-    .strict(),
+    .strict()
+    .optional(),
   headers: authorizationValidation(),
 });
 

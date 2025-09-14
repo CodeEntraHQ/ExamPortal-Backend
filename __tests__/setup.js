@@ -28,6 +28,15 @@ beforeAll(async () => {
     },
     {
       id: generateUUID(),
+      name: "Admin User",
+      email: "admin@example.com",
+      password_hash: hashedPassword,
+      role: "ADMIN",
+      status: "ACTIVE",
+      entity_id: generateUUID(),
+    },
+    {
+      id: generateUUID(),
       name: "Student User",
       email: "student@example.com",
       password_hash: hashedPassword,

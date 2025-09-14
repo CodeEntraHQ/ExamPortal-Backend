@@ -32,6 +32,12 @@ npm run dev
 npm test
 ```
 
+### 5. Running coverage
+
+```bash
+npm run coverage
+```
+
 ## Contributing
 
 0. take a latest pull from git hub (`git pull origin main --rebase`)

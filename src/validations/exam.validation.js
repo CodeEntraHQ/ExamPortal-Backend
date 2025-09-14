@@ -14,6 +14,7 @@ export const createExamSchema = z.object({
     .object({
       title: stringValidation("title"),
       type: stringValidation("type"),
+      entity_id: uuidValidation("entity_id").optional(),
     })
     .strict(),
   headers: authorizationValidation(),
@@ -35,7 +36,7 @@ export const createQuestionSchema = z.object({
     .object({
       exam_id: uuidValidation("exam_id"),
       question_text: stringValidation("question_text"),
-      type: z.enum(["MCQ", "CODING"]),
+      type: z.enum(["MCQ"]),
       metadata: z.any(),
     })
     .strict(),

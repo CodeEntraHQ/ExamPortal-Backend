@@ -20,6 +20,10 @@ describe("College Routes", () => {
     collegeId = college.id;
   });
 
+  afterAll(async () => {
+    await College.destroy({ where: {} });
+  });
+
   describe("POST /v1/colleges", () => {
     it("should onboard a new college", async () => {
       const res = await request(server)
@@ -30,11 +34,11 @@ describe("College Routes", () => {
           address: "New Test Address",
         });
       expect(res.statusCode).toEqual(200);
-      expect(res.body.status).toBe("SUCCESS");
-      expect(res.body.responseCode).toBe("COLLEGE_ONBOARDED");
+      expect(res.body.status).toEqual("SUCCESS");
+      expect(res.body.responseCode).toEqual("COLLEGE_ONBOARDED");
       expect(res.body.payload).toHaveProperty("id");
-      expect(res.body.payload.name).toBe("New Test College");
-      expect(res.body.payload.address).toBe("New Test Address");
+      expect(res.body.payload.name).toEqual("New Test College");
+      expect(res.body.payload.address).toEqual("New Test Address");
     });
 
     it("should fail if name is not provided", async () => {
@@ -145,14 +149,14 @@ describe("College Routes", () => {
         .get("/v1/colleges")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
-      expect(res.body.status).toBe("SUCCESS");
-      expect(res.body.responseCode).toBe("COLLEGES_FETCHED");
+      expect(res.body.status).toEqual("SUCCESS");
+      expect(res.body.responseCode).toEqual("COLLEGES_FETCHED");
       expect(res.body.payload).toHaveProperty("total");
       expect(res.body.payload).toHaveProperty("page");
       expect(res.body.payload).toHaveProperty("limit");
       expect(res.body.payload).toHaveProperty("totalPages");
       expect(res.body.payload.colleges).toBeInstanceOf(Array);
-      expect(res.body.payload.colleges.length).toBe(1);
+      expect(res.body.payload.colleges.length).toEqual(1);
       expect(res.body.payload.colleges[0]).toHaveProperty("id");
       expect(res.body.payload.colleges[0]).toHaveProperty("name");
       expect(res.body.payload.colleges[0]).toHaveProperty("address");
@@ -173,8 +177,8 @@ describe("College Routes", () => {
         .get("/v1/colleges?page=1&limit=1")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
-      expect(res.body.payload.colleges.length).toBe(1);
-      expect(res.body.payload.totalPages).toBe(2);
+      expect(res.body.payload.colleges.length).toEqual(1);
+      expect(res.body.payload.totalPages).toEqual(2);
     });
 
     it("should fail without authentication", async () => {
@@ -213,6 +217,16 @@ describe("College Routes", () => {
       expect(res.body.responseMessage).toEqual("page must be a number");
     });
 
+    it("should fail with page is less than 1", async () => {
+      const res = await request(server)
+        .get("/v1/colleges?page=0")
+        .set("Authorization", `Bearer ${token}`);
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.status).toEqual("FAILURE");
+      expect(res.body.responseCode).toEqual("BAD_REQUEST");
+      expect(res.body.responseMessage).toEqual("page must be greater than 1");
+    });
+
     it("should fail with invalid limit parameter", async () => {
       const res = await request(server)
         .get("/v1/colleges?limit=abc")
@@ -235,7 +249,7 @@ describe("College Routes", () => {
         });
       expect(res.statusCode).toEqual(200);
       expect(res.body.payload.id).toEqual(collegeId);
-      expect(res.body.payload.name).toBe("Updated College Name");
+      expect(res.body.payload.name).toEqual("Updated College Name");
     });
 
     it("should fail if college does not exist", async () => {
@@ -341,7 +355,7 @@ describe("College Routes", () => {
       expect(res.body.status).toEqual("SUCCESS");
       expect(res.body.responseCode).toEqual("COLLEGE_UPDATED");
       expect(res.body.payload.id).toEqual(collegeId);
-      expect(res.body.payload.address).toBe("Updated Address");
+      expect(res.body.payload.address).toEqual("Updated Address");
     });
 
     it("should fail with an empty address", async () => {

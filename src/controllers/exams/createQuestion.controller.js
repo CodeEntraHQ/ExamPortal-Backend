@@ -8,7 +8,7 @@ export const createQuestion = ApiHandler(async (req, res) => {
   const exam_id = req.body.exam_id?.trim();
   const question_text = req.body.question_text?.trim();
   const type = req.body.type?.trim();
-  const metadata = req.body.metadata?.trim();
+  const metadata = req.body.metadata;
 
   // Request assertion
   if (
@@ -36,7 +36,7 @@ export const createQuestion = ApiHandler(async (req, res) => {
   // Send response
   return res.status(200).json(
     new ApiResponse("QUESTION_CREATED", {
-      question_id: question.id,
+      id: question.id,
     })
   );
 });

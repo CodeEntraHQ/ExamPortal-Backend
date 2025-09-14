@@ -25,13 +25,6 @@ const loggerMiddleware = (req, res, next) => {
       body: req.body,
     };
     let responseBody = res.body;
-    try {
-      if (typeof responseBody === "string") {
-        responseBody = JSON.parse(responseBody);
-      }
-    } catch {
-      // Ignore parsing errors, keep the original body
-    }
     const response = {
       statusCode: res.statusCode,
       body: responseBody,
