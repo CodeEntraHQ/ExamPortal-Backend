@@ -13,8 +13,19 @@ export const loginUser = ApiHandler(async (req, res) => {
   const passwordMatch = await bcrypt.compare(password, req.user.password_hash);
   const captchaMatch = await bcrypt.compare(captcha, req.captcha);
 
-  if (!passwordMatch || !captchaMatch) {
-    throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid credentials");
+  if (!captchaMatch) {
+    throw new ApiError(
+      401,
+      "AUTHENTICATION_FAILED",
+      "Captcha verification failed. Please try again"
+    );
+  }
+  if (!passwordMatch) {
+    throw new ApiError(
+      401,
+      "AUTHENTICATION_FAILED",
+      "Password verification failed. Please try again"
+    );
   }
 
   // Generate session token

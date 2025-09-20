@@ -107,7 +107,9 @@ describe("User Routes", () => {
       expect(res.statusCode).toEqual(401);
       expect(res.body.status).toBe("FAILURE");
       expect(res.body.responseCode).toBe("AUTHENTICATION_FAILED");
-      expect(res.body.responseMessage).toBe("Invalid credentials");
+      expect(res.body.responseMessage).toBe(
+        "Password verification failed. Please try again"
+      );
     });
 
     it("should fail to login with wrong captcha", async () => {
@@ -124,7 +126,9 @@ describe("User Routes", () => {
       expect(res.statusCode).toEqual(401);
       expect(res.body.status).toBe("FAILURE");
       expect(res.body.responseCode).toBe("AUTHENTICATION_FAILED");
-      expect(res.body.responseMessage).toBe("Invalid credentials");
+      expect(res.body.responseMessage).toBe(
+        "Captcha verification failed. Please try again"
+      );
     });
 
     it("should fail to login without captcha", async () => {
