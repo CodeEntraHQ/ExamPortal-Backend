@@ -3,15 +3,37 @@ import jwt from "jsonwebtoken";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { TOKEN_TYPES } from "#utils/constants/meta.constant.js";
+import { USER_STATUS } from "#utils/constants/model.constant.js";
 
-const getUserStatusAndTokenType = (url) => {
-  if (url === "/v1/users/register") {
-    return ["ACTIVATION_PENDING", TOKEN_TYPES.USER_INVITATION];
-  } else if (url === "/v1/users/password/reset") {
-    return ["ACTIVE", TOKEN_TYPES.RESET_PASSWORD];
-  } else {
-    return ["ACTIVE", TOKEN_TYPES.USER_SESSION];
-  }
+const getQueryConditionAndTokenType = (decodedToken, req) => {
+  const routeMap = {
+    "/v1/users/register": {
+      condition: {
+        id: decodedToken.user_id,
+        status: USER_STATUS.ACTIVATION_PENDING,
+      },
+      tokenType: TOKEN_TYPES.USER_INVITATION,
+    },
+    "/v1/users/password/reset": {
+      condition: { id: decodedToken.user_id, status: USER_STATUS.ACTIVE },
+      tokenType: TOKEN_TYPES.RESET_PASSWORD,
+    },
+    "/v1/users/login": {
+      condition: { email: req.body?.email, status: USER_STATUS.ACTIVE },
+      tokenType: TOKEN_TYPES.LOGIN_CAPTCHA,
+    },
+  };
+
+  const match = routeMap[req.originalUrl];
+
+  // Fallback/default case
+  return [
+    match?.condition || {
+      id: decodedToken.user_id,
+      status: USER_STATUS.ACTIVE,
+    },
+    match?.tokenType || TOKEN_TYPES.USER_SESSION,
+  ];
 };
 
 export const verifyJWT = async (req, _res, next) => {
@@ -23,8 +45,9 @@ export const verifyJWT = async (req, _res, next) => {
   } catch {
     throw new ApiError(401, "AUTHENTICATION_FAILED", "Invalid token details");
   }
-  const [userStatus, expectedTokenType] = getUserStatusAndTokenType(
-    req.originalUrl
+  const [queryCondition, expectedTokenType] = getQueryConditionAndTokenType(
+    decodedToken,
+    req
   );
 
   if (expectedTokenType !== decodedToken.type) {
@@ -32,12 +55,14 @@ export const verifyJWT = async (req, _res, next) => {
   }
 
   const user = await User.findOne({
-    where: { id: decodedToken.user_id, status: userStatus },
+    where: queryCondition,
   });
   if (!user) {
     throw new ApiError(401, "AUTHENTICATION_FAILED", "User not found");
   }
 
   req.user = user;
+  req.captcha = decodedToken.captcha;
+
   next();
 };

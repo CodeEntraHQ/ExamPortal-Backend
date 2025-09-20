@@ -13,8 +13,10 @@ export const loginUserSchema = z.object({
     .object({
       email: emailValidation(),
       password: stringValidation("password"),
+      captcha: integerValidation("captcha"),
     })
     .strict(),
+  headers: authorizationValidation(),
 });
 
 export const forgotPasswordSchema = z.object({
