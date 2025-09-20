@@ -82,3 +82,13 @@ export const registerUserSchema = z.object({
     .strict(),
   headers: authorizationValidation(),
 });
+
+export const changePasswordSchema = z.object({
+  body: z
+    .object({
+      oldPassword: stringValidation("oldPassword"),
+      newPassword: stringValidation("newPassword"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
