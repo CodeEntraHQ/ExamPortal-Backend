@@ -1,6 +1,5 @@
 # inclusion list
 node_modules
-.env
 package-lock.json
 coverage
 
