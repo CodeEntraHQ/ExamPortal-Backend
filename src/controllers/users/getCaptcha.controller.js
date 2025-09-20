@@ -10,10 +10,9 @@ import { encodeBase64 } from "#utils/utils.js";
 export const getCaptcha = ApiHandler(async (req, res) => {
   const captchaRaw = svgCaptcha.createMathExpr({
     mathMin: 1,
-    mathMax: 20,
+    mathMax: 9,
     mathOperator: "+", // '+', '-', '*', '/' or random if omitted
     noise: 2,
-    color: true,
     background: "#ffe6cc",
   });
   const hashedAnswer = await bcrypt.hash(captchaRaw.text, 10);
