@@ -16,6 +16,7 @@ import { getAuthToken } from "../utils.js";
 describe("User Routes", () => {
   let token;
   let collegeId;
+  let password = "password";
 
   beforeAll(async () => {
     const college = await College.create({
@@ -32,7 +33,7 @@ describe("User Routes", () => {
     jest
       .spyOn(triggerEmail, "sendPasswordResetEmail")
       .mockImplementation(() => true);
-    token = await getAuthToken("superadmin@example.com", "password");
+    token = await getAuthToken("superadmin@example.com", password);
   });
 
   afterAll(async () => {
@@ -913,6 +914,38 @@ describe("User Routes", () => {
       expect(res.body.status).toBe("FAILURE");
       expect(res.body.responseCode).toBe("USER_IS_INACTIVE");
       expect(res.body.responseMessage).toBe("User is already inactive.");
+    });
+  });
+
+  describe("PATCH /v1/users/password/change", () => {
+    it("should change the password successfully", async () => {
+      const res = await request(server)
+        .post("/v1/users/password/change")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          oldPassword: "password",
+          newPassword: "newPassword",
+        });
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.status).toBe("SUCCESS");
+      expect(res.body.responseCode).toBe("PASSWORD_CHANGE_SUCCESSFUL");
+      password = "newPassword";
+    });
+
+    it("should fail if old password is wrong", async () => {
+      const res = await request(server)
+        .post("/v1/users/password/change")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          oldPassword: "oldpassword",
+          newPassword: "newPassword",
+        });
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.status).toBe("FAILURE");
+      expect(res.body.responseCode).toBe("INCORRECT_PASSWORD");
+      expect(res.body.responseMessage).toBe(
+        "The old password you entered is incorrect. Please try again"
+      );
     });
   });
 });

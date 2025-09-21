@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { changePassword } from "#controllers/users/changePassword.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
 import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
 import { getCaptcha } from "#controllers/users/getCaptcha.controller.js";
@@ -22,6 +23,7 @@ import {
   registerUserSchema,
   deregisterUserSchema,
   getUsersSchema,
+  changePasswordSchema,
 } from "#validations/user.validation.js";
 
 const router = Router();
@@ -37,6 +39,10 @@ router
 router
   .route("/password/reset")
   .post(validate(resetPasswordSchema), verifyJWT, resetPassword);
+
+router
+  .route("/password/change")
+  .post(validate(changePasswordSchema), verifyJWT, changePassword);
 
 router.route("/renew").post(validate(renewLoginSchema), verifyJWT, renewLogin);
 

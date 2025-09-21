@@ -48,6 +48,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await User.destroy({ where: {} });
   await new Promise((resolve) => server.close(resolve));
   await sequelize.close();
 });
