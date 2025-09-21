@@ -1,5 +1,6 @@
 import winston from "winston";
 
+import { NODE_ENVS } from "./constants/meta.constant.js";
 import asyncLocalStorage from "./context.js";
 
 const myLevels = {
@@ -39,13 +40,13 @@ const log = (level, params) => {
     level,
     request_id: context?.request_id,
     timestamp: new Date().toISOString(),
-    api_name: context?.api_name,
+    api_name: context?.api_name.split("?")[0],
     session_id: context?.session_id,
     action: params.action,
     message: params.message,
     environment: process.env.NODE_ENV,
   };
-  if (process.env.NODE_ENV !== "test") {
+  if (process.env.NODE_ENV !== NODE_ENVS.TEST) {
     logger.log(level, logObject);
   }
 };

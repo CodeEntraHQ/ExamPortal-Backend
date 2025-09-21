@@ -43,12 +43,30 @@ describe("User Routes", () => {
     jest.restoreAllMocks();
   });
 
+  describe("GET /v1/users/captcha", () => {
+    it("should return a captcha", async () => {
+      const res = await request(server).get("/v1/users/captcha");
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.status).toBe("SUCCESS");
+      expect(res.body.responseCode).toBe("CAPTCHA_GENERATED");
+      expect(res.body.payload).toHaveProperty("token");
+      expect(res.body.payload).toHaveProperty("captcha");
+    });
+  });
+
   describe("POST /v1/users/login", () => {
     it("should login a user", async () => {
-      const res = await request(server).post("/v1/users/login").send({
-        email: "superadmin@example.com",
-        password: "password",
-      });
+      const captchaRes = await request(server).get("/v1/users/captcha");
+      const captchaToken = captchaRes.body.payload.token;
+      const captchaAnswer = captchaRes.body.payload.captchaAnswer;
+      const res = await request(server)
+        .post("/v1/users/login")
+        .send({
+          email: "superadmin@example.com",
+          password: "password",
+          captcha: captchaAnswer,
+        })
+        .set("Authorization", `Bearer ${captchaToken}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toBe("SUCCESS");
       expect(res.body.responseCode).toBe("LOGIN_SUCCESSFUL");
@@ -58,24 +76,75 @@ describe("User Routes", () => {
     });
 
     it("should fail to login with wrong credentials", async () => {
-      const res = await request(server).post("/v1/users/login").send({
-        email: "wrong@example.com",
-        password: "wrongpassword",
-      });
+      const captchaRes = await request(server).get("/v1/users/captcha");
+      const captchaToken = captchaRes.body.payload.token;
+      const captchaAnswer = captchaRes.body.payload.captchaAnswer;
+      const res = await request(server)
+        .post("/v1/users/login")
+        .send({
+          email: "wrong@example.com",
+          password: "wrongpassword",
+          captcha: captchaAnswer,
+        })
+        .set("Authorization", `Bearer ${captchaToken}`);
       expect(res.statusCode).toEqual(401);
       expect(res.body.status).toBe("FAILURE");
       expect(res.body.responseCode).toBe("AUTHENTICATION_FAILED");
     });
 
     it("should fail to login with wrong password", async () => {
-      const res = await request(server).post("/v1/users/login").send({
-        email: "superadmin@example.com",
-        password: "wrongpassword",
-      });
+      const captchaRes = await request(server).get("/v1/users/captcha");
+      const captchaToken = captchaRes.body.payload.token;
+      const captchaAnswer = captchaRes.body.payload.captchaAnswer;
+      const res = await request(server)
+        .post("/v1/users/login")
+        .send({
+          email: "superadmin@example.com",
+          password: "wrongpassword",
+          captcha: captchaAnswer,
+        })
+        .set("Authorization", `Bearer ${captchaToken}`);
       expect(res.statusCode).toEqual(401);
       expect(res.body.status).toBe("FAILURE");
       expect(res.body.responseCode).toBe("AUTHENTICATION_FAILED");
-      expect(res.body.responseMessage).toBe("Invalid credentials");
+      expect(res.body.responseMessage).toBe(
+        "Password verification failed. Please try again"
+      );
+    });
+
+    it("should fail to login with wrong captcha", async () => {
+      const captchaRes = await request(server).get("/v1/users/captcha");
+      const captchaToken = captchaRes.body.payload.token;
+      const res = await request(server)
+        .post("/v1/users/login")
+        .send({
+          email: "superadmin@example.com",
+          password: "password",
+          captcha: "123456",
+        })
+        .set("Authorization", `Bearer ${captchaToken}`);
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.status).toBe("FAILURE");
+      expect(res.body.responseCode).toBe("AUTHENTICATION_FAILED");
+      expect(res.body.responseMessage).toBe(
+        "Captcha verification failed. Please try again"
+      );
+    });
+
+    it("should fail to login without captcha", async () => {
+      const captchaRes = await request(server).get("/v1/users/captcha");
+      const captchaToken = captchaRes.body.payload.token;
+      const res = await request(server)
+        .post("/v1/users/login")
+        .send({
+          email: "superadmin@example.com",
+          password: "password",
+        })
+        .set("Authorization", `Bearer ${captchaToken}`);
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.status).toBe("FAILURE");
+      expect(res.body.responseCode).toBe("BAD_REQUEST");
+      expect(res.body.responseMessage).toBe("captcha must be a number");
     });
   });
 
