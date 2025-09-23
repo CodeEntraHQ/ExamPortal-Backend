@@ -1,0 +1,106 @@
+name: Build & Deploy Backend
+# Triggers on push to main or PR merge
+on:
+  push:
+    branches:
+      - main          # just for testing
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  build-and-push-to-ghcr:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: examportal-backend
+      TAG: ${{ github.sha }}
+      GHCR_USERNAME: codeentrahq
+    outputs:                            #  used to pass values from one job to another
+      image_tag: ${{ env.TAG }}
+      image_name: ${{ env.IMAGE_NAME }}    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.GHCR_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.GHCR_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push-to-ghcr
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: examportal-backend
+      TAG: ${{ github.sha }}
+      GHCR_USERNAME: codeentrahq
+    steps:
+      - name: SSH, Login to GHCR, Update Docker Compose (using yq) & Deploy with latest image
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ env.GHCR_USERNAME }} --password-stdin
+            cd /home/ubuntu
+            # Ensure yq is installed
+            if ! command -v yq &> /dev/null; then
+              sudo wget https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64 -O /usr/bin/yq
+              sudo chmod +x /usr/bin/yq
+            fi
+            # Update the image tag in docker-compose.yaml using yq
+            yq -i '.services.app-backend.image = "ghcr.io/${{ env.GHCR_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}"' docker-compose.yaml
+            # Pull the new image and perform rolling restart for zero downtime
+            docker compose pull app-backend
+            docker compose down
+            docker compose up -d 
+            # Optionally, you can use healthchecks and wait-for-it scripts for more robust zero-downtime
+
+# ----
+# Required GitHub Secrets:
+#   EC2_HOST      : Public IP or DNS of your EC2 instance
+#   EC2_USER      : SSH username (e.g., ec2-user, ubuntu)
+#   EC2_SSH_KEY   : Private SSH key (use multiline secret)
+#   GHCR_PAT      : Provided by GitHub (default)
+#
+#
+# Environment Variables:
+#   REGISTRY      : Container registry (default: ghcr.io)
+#   IMAGE_NAME    : Image name (default: <repo>-backend)
+#   TAG           : Image tag (default: commit SHA)
+#
+# This workflow:
+#   - Builds and pushes Docker image to GHCR with SHA tag
+#   - SSHes to EC2, updates docker-compose image using yq
+#   - Pulls new image and restarts app-backend service with zero downtime
+
+# ---
+# Required GitHub Secrets:
+#   EC2_HOST      : Public IP or DNS of your EC2 instance
+#   EC2_USER      : SSH username (e.g., ec2-user, ubuntu)
+#   EC2_SSH_KEY   : Private SSH key (use multiline secret)
+#   GITHUB_TOKEN  : Provided by GitHub (default)
+#
+# Environment Variables:
+#   REGISTRY      : Container registry (default: ghcr.io)
+#   IMAGE_NAME    : Image name (default: <repo>-backend)
+#   TAG           : Image tag (default: commit SHA)
+#
+# This workflow:
+#   - Builds and pushes Docker image to GHCR with SHA tag
+#   - SSHes to EC2, updates docker-compose image using yq
+#   - Pulls new image and restarts app-backend service
