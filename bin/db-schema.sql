@@ -4,13 +4,15 @@ CREATE TABLE courses (
 );
 
 CREATE TABLE users (
-  id CHAR(36) PRIMARY KEY,
+  id VARCHAR(255) PRIMARY KEY,
   name VARCHAR(255),
-  email VARCHAR(255) UNIQUE,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  entity_id VARCHAR(255),
   password_hash VARCHAR(255),
-  role VARCHAR(50),
-  course_id VARCHAR(255),
-  FOREIGN KEY (course_id) REFERENCES courses(id)
+  role VARCHAR(255) NOT NULL DEFAULT 'STUDENT',
+  status VARCHAR(255) NOT NULL DEFAULT 'INACTIVE',
+  profile_picture BLOB,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE profiles (

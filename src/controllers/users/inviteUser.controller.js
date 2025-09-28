@@ -8,7 +8,7 @@ import { generateUUID } from "#utils/utils.js";
 
 export const inviteUser = ApiHandler(async (req, res) => {
   // Parsing request
-  const { email, role, college_id } = req.body;
+  const { email, role, entity_id } = req.body;
 
   // STUDENT can be invited by SUPERADMIN / ADMIN
   // ADMIN can only be invited by SUPERADMIN
@@ -27,22 +27,22 @@ export const inviteUser = ApiHandler(async (req, res) => {
     );
   }
 
-  if (inviterRole === "SUPERADMIN" && !college_id) {
+  if (inviterRole === "SUPERADMIN" && !entity_id) {
     throw new ApiError(
       400,
       "BAD_REQUEST",
-      "college_id is required for SUPERADMIN"
+      "entity_id is required for SUPERADMIN"
     );
   }
 
-  const resolvedCollegeId = college_id || req.user.entity_id;
+  const resolvedEntityId = entity_id || req.user.entity_id;
 
   // Check for duplicate email
   const existingUser = await User.findOne({
     where: { email: email },
   });
 
-  if (existingUser && resolvedCollegeId !== existingUser.entity_id) {
+  if (existingUser && resolvedEntityId !== existingUser.entity_id) {
     throw new ApiError(400, "BAD_REQUEST", "user is already registered");
   }
 
@@ -84,7 +84,7 @@ export const inviteUser = ApiHandler(async (req, res) => {
       password_hash: null,
       role: role,
       status: "ACTIVATION_PENDING",
-      entity_id: college_id || req.user.entity_id,
+      entity_id: entity_id || req.user.entity_id,
     });
 
     // Send response

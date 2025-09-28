@@ -23,7 +23,7 @@ const Question = sequelize.define(
     },
 
     type: {
-      type: DataTypes.ENUM(QUESTION_TYPE.MCQ, QUESTION_TYPE.OTHER),
+      type: DataTypes.ENUM(...Object.values(QUESTION_TYPE)),
       allowNull: false,
     },
 

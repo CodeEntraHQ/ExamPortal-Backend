@@ -71,3 +71,15 @@ export const arrayValidation = (keyName, itemSchema) =>
     .min(1, {
       error: `${keyName} must have size greater than 1`,
     });
+
+export const imageFileValidation = () =>
+  z.object({
+    originalname: z.string(),
+    mimetype: z
+      .string()
+      .refine((type) => ["image/jpeg", "image/png"].includes(type), {
+        error: "Only JPEG and PNG images are allowed",
+      }),
+    size: z.number().max(256000, { message: "File must be less than 250kb" }),
+    buffer: z.instanceof(Buffer),
+  });

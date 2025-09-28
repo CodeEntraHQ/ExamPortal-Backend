@@ -1,15 +1,15 @@
 import app from "#app.js";
 import sequelize from "#db/index.js";
-// import models
-import College from "#models/college.model.js";
 import Enrollment from "#models/enrollment.model.js";
+// import models
+import Entity from "#models/entity.model.js";
 import Exam from "#models/exam.model.js";
 import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
 import Submission from "#models/submission.model.js";
 import User from "#models/user.model.js";
 
-User.belongsTo(College, { foreignKey: "entity_id", onDelete: "CASCADE" });
+User.belongsTo(Entity, { foreignKey: "entity_id", onDelete: "CASCADE" });
 Exam.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
 Question.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
 Enrollment.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });

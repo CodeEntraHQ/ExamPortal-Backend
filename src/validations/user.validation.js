@@ -6,6 +6,7 @@ import {
   uuidValidation,
   authorizationValidation,
   integerValidation,
+  imageFileValidation,
 } from "#validations/rules.js";
 
 export const loginUserSchema = z.object({
@@ -43,7 +44,7 @@ export const renewLoginSchema = z.object({
 export const getUsersSchema = z.object({
   query: z
     .object({
-      college_id: uuidValidation("college_id"),
+      entity_id: uuidValidation("entity_id"),
       role: z.enum(["ADMIN", "STUDENT"]),
       page: integerValidation("page", 1, null).optional(),
       limit: integerValidation("limit", 1, 10).optional(),
@@ -67,7 +68,7 @@ export const inviteUserSchema = z.object({
     .object({
       email: emailValidation(),
       role: z.enum(["ADMIN", "STUDENT"]),
-      college_id: uuidValidation("college_id").optional(),
+      entity_id: uuidValidation("entity_id").optional(),
     })
     .strict(),
   headers: authorizationValidation(),
@@ -90,5 +91,15 @@ export const changePasswordSchema = z.object({
       newPassword: stringValidation("newPassword"),
     })
     .strict(),
+  headers: authorizationValidation(),
+});
+
+export const updateUserSchema = z.object({
+  body: z
+    .object({
+      name: stringValidation("name").optional(),
+    })
+    .strict(),
+  file: imageFileValidation().optional(),
   headers: authorizationValidation(),
 });

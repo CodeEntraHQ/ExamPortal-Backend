@@ -1,49 +1,49 @@
 import request from "supertest";
 
-import College from "#models/college.model.js";
+import Entity from "#models/entity.model.js";
 
 import { server } from "../setup.js";
 import { getAuthToken } from "../utils.js";
 
-describe("College Routes", () => {
+describe("Entity Routes", () => {
   let token;
-  let collegeId;
+  let entityId;
   let nonExistentId = "a5f0cc74-47f7-4b9c-9505-9f2fc8cf9905";
 
   beforeEach(async () => {
-    await College.destroy({ where: {} });
+    await Entity.destroy({ where: {} });
     token = await getAuthToken("superadmin@example.com", "password");
-    const college = await College.create({
-      name: "Test College",
+    const entity = await Entity.create({
+      name: "Test Entity",
       address: "Test Address",
     });
-    collegeId = college.id;
+    entityId = entity.id;
   });
 
   afterAll(async () => {
-    await College.destroy({ where: {} });
+    await Entity.destroy({ where: {} });
   });
 
-  describe("POST /v1/colleges", () => {
-    it("should onboard a new college", async () => {
+  describe("POST /v1/entities", () => {
+    it("should onboard a new entity", async () => {
       const res = await request(server)
-        .post("/v1/colleges")
+        .post("/v1/entities")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          name: "New Test College",
+          name: "New Test Entity",
           address: "New Test Address",
         });
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toEqual("SUCCESS");
-      expect(res.body.responseCode).toEqual("COLLEGE_ONBOARDED");
+      expect(res.body.responseCode).toEqual("ENTITY_ONBOARDED");
       expect(res.body.payload).toHaveProperty("id");
-      expect(res.body.payload.name).toEqual("New Test College");
+      expect(res.body.payload.name).toEqual("New Test Entity");
       expect(res.body.payload.address).toEqual("New Test Address");
     });
 
     it("should fail if name is not provided", async () => {
       const res = await request(server)
-        .post("/v1/colleges")
+        .post("/v1/entities")
         .set("Authorization", `Bearer ${token}`)
         .send({
           address: "Test Address",
@@ -56,10 +56,10 @@ describe("College Routes", () => {
 
     it("should fail if address is not provided", async () => {
       const res = await request(server)
-        .post("/v1/colleges")
+        .post("/v1/entities")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          name: "Test College",
+          name: "Test Entity",
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -67,25 +67,25 @@ describe("College Routes", () => {
       expect(res.body.responseMessage).toEqual("address is required");
     });
 
-    it("should fail if college with same name exists", async () => {
+    it("should fail if entity with same name exists", async () => {
       const res = await request(server)
-        .post("/v1/colleges")
+        .post("/v1/entities")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          name: "Test College",
+          name: "Test Entity",
           address: "Another Address",
         });
       expect(res.statusCode).toEqual(409);
       expect(res.body.status).toEqual("FAILURE");
-      expect(res.body.responseCode).toEqual("COLLEGE_ALREADY_EXISTS");
+      expect(res.body.responseCode).toEqual("ENTITY_ALREADY_EXISTS");
       expect(res.body.responseMessage).toEqual(
-        "College with this name already exists"
+        "Entity with this name already exists"
       );
     });
 
     it("should fail without authentication", async () => {
-      const res = await request(server).post("/v1/colleges").send({
-        name: "No Auth College",
+      const res = await request(server).post("/v1/entities").send({
+        name: "No Auth Entity",
         address: "No Auth Address",
       });
       expect(res.statusCode).toEqual(400);
@@ -102,10 +102,10 @@ describe("College Routes", () => {
         "password"
       );
       const res = await request(server)
-        .post("/v1/colleges")
+        .post("/v1/entities")
         .set("Authorization", `Bearer ${studentToken}`)
         .send({
-          name: "Unauthorized College",
+          name: "Unauthorized Entity",
           address: "Unauthorized Address",
         });
       expect(res.statusCode).toEqual(403);
@@ -118,7 +118,7 @@ describe("College Routes", () => {
 
     it("should fail if name is not a string", async () => {
       const res = await request(server)
-        .post("/v1/colleges")
+        .post("/v1/entities")
         .set("Authorization", `Bearer ${token}`)
         .send({
           name: 123,
@@ -131,10 +131,10 @@ describe("College Routes", () => {
 
     it("should fail if address is not a string", async () => {
       const res = await request(server)
-        .post("/v1/colleges")
+        .post("/v1/entities")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          name: "Test College",
+          name: "Test Entity",
           address: 123,
         });
       expect(res.statusCode).toEqual(400);
@@ -143,46 +143,46 @@ describe("College Routes", () => {
     });
   });
 
-  describe("GET /v1/colleges", () => {
-    it("should list colleges", async () => {
+  describe("GET /v1/entities", () => {
+    it("should list entities", async () => {
       const res = await request(server)
-        .get("/v1/colleges")
+        .get("/v1/entities")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toEqual("SUCCESS");
-      expect(res.body.responseCode).toEqual("COLLEGES_FETCHED");
+      expect(res.body.responseCode).toEqual("ENTITIES_FETCHED");
       expect(res.body.payload).toHaveProperty("total");
       expect(res.body.payload).toHaveProperty("page");
       expect(res.body.payload).toHaveProperty("limit");
       expect(res.body.payload).toHaveProperty("totalPages");
-      expect(res.body.payload.colleges).toBeInstanceOf(Array);
-      expect(res.body.payload.colleges.length).toEqual(1);
-      expect(res.body.payload.colleges[0]).toHaveProperty("id");
-      expect(res.body.payload.colleges[0]).toHaveProperty("name");
-      expect(res.body.payload.colleges[0]).toHaveProperty("address");
+      expect(res.body.payload.entities).toBeInstanceOf(Array);
+      expect(res.body.payload.entities.length).toEqual(1);
+      expect(res.body.payload.entities[0]).toHaveProperty("id");
+      expect(res.body.payload.entities[0]).toHaveProperty("name");
+      expect(res.body.payload.entities[0]).toHaveProperty("address");
     });
 
-    it("should return an empty array if there are no colleges", async () => {
-      await College.destroy({ where: {} });
+    it("should return an empty array if there are no entities", async () => {
+      await Entity.destroy({ where: {} });
       const res = await request(server)
-        .get("/v1/colleges")
+        .get("/v1/entities")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
-      expect(res.body.payload.colleges).toEqual([]);
+      expect(res.body.payload.entities).toEqual([]);
     });
 
     it("should handle pagination", async () => {
-      await College.create({ name: "College 2", address: "Address 2" });
+      await Entity.create({ name: "Entity 2", address: "Address 2" });
       const res = await request(server)
-        .get("/v1/colleges?page=1&limit=1")
+        .get("/v1/entities?page=1&limit=1")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
-      expect(res.body.payload.colleges.length).toEqual(1);
+      expect(res.body.payload.entities.length).toEqual(1);
       expect(res.body.payload.totalPages).toEqual(2);
     });
 
     it("should fail without authentication", async () => {
-      const res = await request(server).get("/v1/colleges");
+      const res = await request(server).get("/v1/entities");
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
       expect(res.body.responseCode).toEqual("BAD_REQUEST");
@@ -197,7 +197,7 @@ describe("College Routes", () => {
         "password"
       );
       const res = await request(server)
-        .get("/v1/colleges")
+        .get("/v1/entities")
         .set("Authorization", `Bearer ${studentToken}`);
       expect(res.statusCode).toEqual(403);
       expect(res.body.status).toEqual("FAILURE");
@@ -209,7 +209,7 @@ describe("College Routes", () => {
 
     it("should fail with invalid page parameter", async () => {
       const res = await request(server)
-        .get("/v1/colleges?page=abc")
+        .get("/v1/entities?page=abc")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -219,7 +219,7 @@ describe("College Routes", () => {
 
     it("should fail with page is less than 1", async () => {
       const res = await request(server)
-        .get("/v1/colleges?page=0")
+        .get("/v1/entities?page=0")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -229,7 +229,7 @@ describe("College Routes", () => {
 
     it("should fail with invalid limit parameter", async () => {
       const res = await request(server)
-        .get("/v1/colleges?limit=abc")
+        .get("/v1/entities?limit=abc")
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -238,40 +238,40 @@ describe("College Routes", () => {
     });
   });
 
-  describe("PATCH /v1/colleges", () => {
-    it("should update a college", async () => {
+  describe("PATCH /v1/entities", () => {
+    it("should update a entity", async () => {
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${token}`)
         .send({
-          college_id: collegeId,
-          name: "Updated College Name",
+          entity_id: entityId,
+          name: "Updated Entity Name",
         });
       expect(res.statusCode).toEqual(200);
-      expect(res.body.payload.id).toEqual(collegeId);
-      expect(res.body.payload.name).toEqual("Updated College Name");
+      expect(res.body.payload.id).toEqual(entityId);
+      expect(res.body.payload.name).toEqual("Updated Entity Name");
     });
 
-    it("should fail if college does not exist", async () => {
+    it("should fail if entity does not exist", async () => {
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${token}`)
         .send({
-          college_id: nonExistentId,
-          name: "Non-existent College",
+          entity_id: nonExistentId,
+          name: "Non-existent Entity",
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
-      expect(res.body.responseCode).toEqual("COLLEGE_NOT_FOUND");
-      expect(res.body.responseMessage).toEqual("College not found");
+      expect(res.body.responseCode).toEqual("ENTITY_NOT_FOUND");
+      expect(res.body.responseMessage).toEqual("Entity not found");
     });
 
     it("should fail with invalid data", async () => {
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${token}`)
         .send({
-          college_id: collegeId,
+          entity_id: entityId,
           name: "", // empty name
         });
       expect(res.statusCode).toEqual(400);
@@ -283,8 +283,8 @@ describe("College Routes", () => {
     });
 
     it("should fail without authentication", async () => {
-      const res = await request(server).patch(`/v1/colleges`).send({
-        college_id: collegeId,
+      const res = await request(server).patch(`/v1/entities`).send({
+        entity_id: entityId,
         name: "No Auth Update",
       });
       expect(res.statusCode).toEqual(400);
@@ -301,10 +301,10 @@ describe("College Routes", () => {
         "password"
       );
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${studentToken}`)
         .send({
-          college_id: collegeId,
+          entity_id: entityId,
           name: "Unauthorized Update",
         });
       expect(res.statusCode).toEqual(403);
@@ -315,13 +315,13 @@ describe("College Routes", () => {
       );
     });
 
-    it("should fail if college_id is not a valid UUID", async () => {
+    it("should fail if entity_id is not a valid UUID", async () => {
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${token}`)
         .send({
-          college_id: "invalid-uuid",
-          name: "Updated College Name",
+          entity_id: "invalid-uuid",
+          name: "Updated Entity Name",
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -330,10 +330,10 @@ describe("College Routes", () => {
 
     it("should fail if both name and address are missing", async () => {
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${token}`)
         .send({
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -345,25 +345,25 @@ describe("College Routes", () => {
 
     it("should update only the address", async () => {
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${token}`)
         .send({
-          college_id: collegeId,
+          entity_id: entityId,
           address: "Updated Address",
         });
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toEqual("SUCCESS");
-      expect(res.body.responseCode).toEqual("COLLEGE_UPDATED");
-      expect(res.body.payload.id).toEqual(collegeId);
+      expect(res.body.responseCode).toEqual("ENTITY_UPDATED");
+      expect(res.body.payload.id).toEqual(entityId);
       expect(res.body.payload.address).toEqual("Updated Address");
     });
 
     it("should fail with an empty address", async () => {
       const res = await request(server)
-        .patch(`/v1/colleges`)
+        .patch(`/v1/entities`)
         .set("Authorization", `Bearer ${token}`)
         .send({
-          college_id: collegeId,
+          entity_id: entityId,
           address: "",
         });
       expect(res.statusCode).toEqual(400);

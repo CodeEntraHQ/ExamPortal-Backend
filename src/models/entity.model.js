@@ -1,10 +1,11 @@
 import { DataTypes } from "sequelize";
 
 import sequelize from "#db/index.js";
+import { ENTITY_TYPE } from "#utils/constants/model.constant.js";
 import { generateUUID } from "#utils/utils.js";
 
-const College = sequelize.define(
-  "Colleges",
+const Entity = sequelize.define(
+  "Entities",
   {
     id: {
       type: DataTypes.STRING,
@@ -20,6 +21,10 @@ const College = sequelize.define(
       allowNull: false,
       unique: false,
     },
+    type: {
+      type: DataTypes.ENUM(...Object.values(ENTITY_TYPE)),
+      allowNull: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -30,8 +35,8 @@ const College = sequelize.define(
   }
 );
 
-College.beforeCreate((college) => {
-  college.id = generateUUID();
+Entity.beforeCreate((entity) => {
+  entity.id = generateUUID();
 });
 
-export default College;
+export default Entity;

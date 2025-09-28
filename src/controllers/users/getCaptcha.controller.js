@@ -9,8 +9,8 @@ import { encodeBase64 } from "#utils/utils.js";
 
 export const getCaptcha = ApiHandler(async (req, res) => {
   const captchaRaw = svgCaptcha.createMathExpr({
-    mathMin: 1,
-    mathMax: 9,
+    mathMin: 0,
+    mathMax: 99,
     mathOperator: "+", // '+', '-', '*', '/' or random if omitted
     noise: 2,
     background: "#ffe6cc",
