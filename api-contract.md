@@ -25,13 +25,13 @@ This document outlines the contract for the ExamPortal API.
 
 ---
 
-## College API
+## Entity API
 
-### Get Colleges
+### Get Entities
 
 - **Method:** `GET`
-- **Endpoint:** `/college`
-- **Description:** Retrieves a paginated list of colleges.
+- **Endpoint:** `/entity`
+- **Description:** Retrieves a paginated list of entities.
 - **Authorization:** `SUPERADMIN`
 - **Headers:**
   - `Authorization`: `Bearer <token>`
@@ -42,13 +42,13 @@ This document outlines the contract for the ExamPortal API.
   ```json
   {
     "success": true,
-    "message": "Colleges retrieved successfully",
+    "message": "Entities retrieved successfully",
     "data": {
       "total": "integer",
       "page": "integer",
       "limit": "integer",
       "totalPages": "integer",
-      "colleges": [
+      "entities": [
         {
           "id": "uuid",
           "name": "string",
@@ -59,11 +59,11 @@ This document outlines the contract for the ExamPortal API.
   }
   ```
 
-### Create College
+### Create Entity
 
 - **Method:** `POST`
-- **Endpoint:** `/college`
-- **Description:** Creates a new college.
+- **Endpoint:** `/entity`
+- **Description:** Creates a new entity.
 - **Authorization:** `SUPERADMIN`
 - **Headers:**
   - `Authorization`: `Bearer <token>`
@@ -78,7 +78,7 @@ This document outlines the contract for the ExamPortal API.
   ```json
   {
     "success": true,
-    "message": "College created successfully",
+    "message": "Entity created successfully",
     "data": {
       "id": "uuid",
       "name": "string",
@@ -87,18 +87,18 @@ This document outlines the contract for the ExamPortal API.
   }
   ```
 
-### Update College
+### Update Entity
 
 - **Method:** `PATCH`
-- **Endpoint:** `/college`
-- **Description:** Updates an existing college.
+- **Endpoint:** `/entity`
+- **Description:** Updates an existing entity.
 - **Authorization:** `SUPERADMIN`
 - **Headers:**
   - `Authorization`: `Bearer <token>`
 - **Request Body:**
   ```json
   {
-    "college_id": "uuid",
+    "entity_id": "uuid",
     "name": "string (optional)",
     "address": "string (optional)"
   }
@@ -107,7 +107,7 @@ This document outlines the contract for the ExamPortal API.
   ```json
   {
     "success": true,
-    "message": "College updated successfully",
+    "message": "Entity updated successfully",
     "data": {
       "id": "uuid",
       "name": "string",
@@ -429,7 +429,7 @@ This document outlines the contract for the ExamPortal API.
   {
     "email": "string",
     "role": "ADMIN | STUDENT",
-    "college_id": "uuid (optional)"
+    "entity_id": "uuid (optional)"
   }
   ```
 - **Response:**
@@ -528,7 +528,7 @@ This document outlines the contract for the ExamPortal API.
 - **Headers:**
   - `Authorization`: `Bearer <token>`
 - **Query Parameters:**
-  - `college_id`: "uuid"
+  - `entity_id`: "uuid"
   - `role`: "ADMIN | STUDENT"
   - `page` (optional, integer, default: 1)
   - `limit` (optional, integer, default: 10)

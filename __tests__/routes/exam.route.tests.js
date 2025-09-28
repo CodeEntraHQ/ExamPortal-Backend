@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import College from "#models/college.model.js";
+import Entity from "#models/entity.model.js";
 import { generateUUID } from "#utils/utils.js";
 
 import { server } from "../setup.js";
@@ -8,15 +8,15 @@ import { getAuthToken } from "../utils.js";
 
 describe("Exam Routes", () => {
   let token;
-  let collegeId;
+  let entityId;
   let examId;
 
   beforeAll(async () => {
-    const college = await College.create({
-      name: "Test College",
+    const entity = await Entity.create({
+      name: "Test Entity",
       address: "Test Address",
     });
-    collegeId = college.id;
+    entityId = entity.id;
   });
 
   beforeEach(async () => {
@@ -24,7 +24,7 @@ describe("Exam Routes", () => {
   });
 
   afterAll(async () => {
-    await College.destroy({ where: {} });
+    await Entity.destroy({ where: {} });
   });
 
   describe("POST /v1/exams", () => {
@@ -35,7 +35,7 @@ describe("Exam Routes", () => {
         .send({
           title: "Test Exam",
           type: "QUIZ",
-          entity_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toEqual("SUCCESS");
@@ -51,7 +51,7 @@ describe("Exam Routes", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({
           type: "QUIZ",
-          entity_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -75,7 +75,7 @@ describe("Exam Routes", () => {
       );
     });
 
-    it("should fail if college_id is invalid", async () => {
+    it("should fail if entity_id is invalid", async () => {
       const res = await request(server)
         .post("/v1/exams")
         .set("Authorization", `Bearer ${token}`)
@@ -100,7 +100,7 @@ describe("Exam Routes", () => {
         .send({
           title: "Test Exam",
           type: "QUIZ",
-          entity_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toEqual("FAILURE");
@@ -130,7 +130,7 @@ describe("Exam Routes", () => {
   describe("GET /v1/exams", () => {
     it("should fetch exams", async () => {
       const res = await request(server)
-        .get(`/v1/exams?entity_id=${collegeId}`)
+        .get(`/v1/exams?entity_id=${entityId}`)
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toEqual("SUCCESS");
@@ -180,7 +180,7 @@ describe("Exam Routes", () => {
 
     it("should fetch exams for a SUPERADMIN user", async () => {
       const res = await request(server)
-        .get(`/v1/exams?entity_id=${collegeId}`)
+        .get(`/v1/exams?entity_id=${entityId}`)
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toEqual("SUCCESS");
@@ -191,7 +191,7 @@ describe("Exam Routes", () => {
 
     it("should fetch exams for a SUPERADMIN user with entity_id", async () => {
       const res = await request(server)
-        .get(`/v1/exams?entity_id=${collegeId}`)
+        .get(`/v1/exams?entity_id=${entityId}`)
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toEqual("SUCCESS");
@@ -450,7 +450,7 @@ describe("Exam Routes", () => {
         .send({
           title: "New Test Exam",
           type: "QUIZ",
-          entity_id: collegeId,
+          entity_id: entityId,
         });
       const newExamId = newExamRes.body.payload.id;
 

@@ -44,7 +44,7 @@ export const renewLoginSchema = z.object({
 export const getUsersSchema = z.object({
   query: z
     .object({
-      college_id: uuidValidation("college_id"),
+      entity_id: uuidValidation("entity_id"),
       role: z.enum(["ADMIN", "STUDENT"]),
       page: integerValidation("page", 1, null).optional(),
       limit: integerValidation("limit", 1, 10).optional(),
@@ -68,7 +68,7 @@ export const inviteUserSchema = z.object({
     .object({
       email: emailValidation(),
       role: z.enum(["ADMIN", "STUDENT"]),
-      college_id: uuidValidation("college_id").optional(),
+      entity_id: uuidValidation("entity_id").optional(),
     })
     .strict(),
   headers: authorizationValidation(),

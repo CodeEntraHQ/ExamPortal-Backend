@@ -1,45 +1,45 @@
 import { Router } from "express";
 
-import { createCollege } from "#controllers/colleges/createCollege.controller.js";
-import { getColleges } from "#controllers/colleges/getColleges.controller.js";
-import { updateCollege } from "#controllers/colleges/updateCollege.controller.js";
+import { createEntity } from "#controllers/entities/createEntity.controller.js";
+import { getEntities } from "#controllers/entities/getEntities.controller.js";
+import { updateEntity } from "#controllers/entities/updateEntity.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
 import { validate } from "#middleware/validation.middleware.js";
 import { USER_ROLES } from "#utils/constants/model.constant.js";
 import {
-  getCollegesSchema,
-  createCollegeSchema,
-  updateCollegeSchema,
-} from "#validations/college.validation.js";
+  getEntitiesSchema,
+  createEntitySchema,
+  updateEntitySchema,
+} from "#validations/entity.validation.js";
 
 const router = Router();
 
 router
   .route("/")
   .get(
-    validate(getCollegesSchema),
+    validate(getEntitiesSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN),
-    getColleges
+    getEntities
   );
 
 router
   .route("/")
   .post(
-    validate(createCollegeSchema),
+    validate(createEntitySchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN),
-    createCollege
+    createEntity
   );
 
 router
   .route("/")
   .patch(
-    validate(updateCollegeSchema),
+    validate(updateEntitySchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN),
-    updateCollege
+    updateEntity
   );
 
 export default router;

@@ -21,7 +21,7 @@ export const createExam = ApiHandler(async (req, res) => {
     );
   }
 
-  // Create college
+  // Create entity
   const newExam = await Exam.create({
     title,
     type,

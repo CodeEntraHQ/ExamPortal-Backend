@@ -4,7 +4,7 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const getUsers = ApiHandler(async (req, res) => {
   // Parsing request
-  const college_id = req.query.college_id?.trim();
+  const entity_id = req.query.entity_id?.trim();
   const role = req.query.role?.trim();
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -12,7 +12,7 @@ export const getUsers = ApiHandler(async (req, res) => {
 
   // Fetch users
   const { rows, count: total } = await User.findAndCountAll({
-    where: { role: role, entity_id: college_id },
+    where: { role: role, entity_id: entity_id },
     offset,
     limit,
     attributes: [

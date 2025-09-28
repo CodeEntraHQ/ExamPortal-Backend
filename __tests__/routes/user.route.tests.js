@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import College from "#models/college.model.js";
+import Entity from "#models/entity.model.js";
 import User from "#models/user.model.js";
 import asyncLocalStorage from "#utils/context.js";
 import {
@@ -15,15 +15,15 @@ import { getAuthToken } from "../utils.js";
 
 describe("User Routes", () => {
   let token;
-  let collegeId;
+  let entityId;
   let password = "password";
 
   beforeAll(async () => {
-    const college = await College.create({
-      name: "Test College",
+    const entity = await Entity.create({
+      name: "Test Entity",
       address: "Test Address",
     });
-    collegeId = college.id;
+    entityId = entity.id;
   });
 
   beforeEach(async () => {
@@ -37,7 +37,7 @@ describe("User Routes", () => {
   });
 
   afterAll(async () => {
-    await College.destroy({ where: {} });
+    await Entity.destroy({ where: {} });
   });
 
   afterEach(() => {
@@ -152,7 +152,7 @@ describe("User Routes", () => {
   describe("GET /v1/users", () => {
     it("should list users", async () => {
       const res = await request(server)
-        .get(`/v1/users?college_id=${collegeId}&role=ADMIN`)
+        .get(`/v1/users?entity_id=${entityId}&role=ADMIN`)
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toBe("SUCCESS");
@@ -163,7 +163,7 @@ describe("User Routes", () => {
 
     it("should return an empty array if no users are found", async () => {
       const res = await request(server)
-        .get(`/v1/users?college_id=${collegeId}&role=ADMIN`)
+        .get(`/v1/users?entity_id=${entityId}&role=ADMIN`)
         .set("Authorization", `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toBe("SUCCESS");
@@ -180,7 +180,7 @@ describe("User Routes", () => {
         .send({
           email: `student_${Date.now()}@example.com`,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toBe("SUCCESS");
@@ -197,7 +197,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
 
@@ -223,7 +223,7 @@ describe("User Routes", () => {
         .send({
           email: `student2_${Date.now()}@example.com`,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(403);
       expect(res.body.status).toBe("FAILURE");
@@ -241,7 +241,7 @@ describe("User Routes", () => {
       const inviteRes1 = await request(server)
         .post("/v1/users/invite")
         .set("Authorization", `Bearer ${token}`)
-        .send({ email: adminEmail1, role: "ADMIN", college_id: collegeId });
+        .send({ email: adminEmail1, role: "ADMIN", entity_id: entityId });
       const userId1 = inviteRes1.body.payload.id;
       let authToken1;
       await asyncLocalStorage.run({ session_id: "test" }, () => {
@@ -260,7 +260,7 @@ describe("User Routes", () => {
         .send({
           email: adminEmail2,
           role: "ADMIN",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(403);
       expect(res.body.status).toBe("FAILURE");
@@ -277,7 +277,7 @@ describe("User Routes", () => {
         .send({
           email: `superadmin_${Date.now()}@example.com`,
           role: "SUPERADMIN",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toBe("FAILURE");
@@ -287,7 +287,7 @@ describe("User Routes", () => {
       );
     });
 
-    it("should return an error if college_id is not provided by superadmin", async () => {
+    it("should return an error if entity_id is not provided by superadmin", async () => {
       const res = await request(server)
         .post("/v1/users/invite")
         .set("Authorization", `Bearer ${token}`)
@@ -299,24 +299,24 @@ describe("User Routes", () => {
       expect(res.body.status).toBe("FAILURE");
       expect(res.body.responseCode).toBe("BAD_REQUEST");
       expect(res.body.responseMessage).toBe(
-        "college_id is required for SUPERADMIN"
+        "entity_id is required for SUPERADMIN"
       );
     });
 
-    it("should return an error if the user is already registered with another college", async () => {
+    it("should return an error if the user is already registered with another entity", async () => {
       const studentEmail = `student_${Date.now()}@example.com`;
-      // Invite and register the user with the first college
+      // Invite and register the user with the first entity
       await request(server)
         .post("/v1/users/invite")
         .set("Authorization", `Bearer ${token}`)
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
 
-      const otherCollege = await College.create({
-        name: "Other College",
+      const otherEntity = await Entity.create({
+        name: "Other Entity",
         address: "Other Address",
       });
 
@@ -326,7 +326,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: otherCollege.id,
+          entity_id: otherEntity.id,
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.status).toBe("FAILURE");
@@ -343,7 +343,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
       let authToken;
@@ -362,7 +362,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(409);
       expect(res.body.status).toBe("FAILURE");
@@ -379,7 +379,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
       let authToken;
@@ -402,7 +402,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toBe("SUCCESS");
@@ -418,7 +418,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
 
       const res = await request(server)
@@ -427,7 +427,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(200);
       expect(res.body.status).toBe("SUCCESS");
@@ -445,7 +445,7 @@ describe("User Routes", () => {
         .send({
           email: `student_${Date.now()}@example.com`,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(500);
       expect(res.body.status).toBe("FAILURE");
@@ -464,7 +464,7 @@ describe("User Routes", () => {
         .send({
           email: `student_${Date.now()}@example.com`,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(500);
       expect(res.body.status).toBe("FAILURE");
@@ -481,7 +481,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
       let authToken;
@@ -508,7 +508,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       expect(res.statusCode).toEqual(500);
       expect(res.body.status).toBe("FAILURE");
@@ -526,7 +526,7 @@ describe("User Routes", () => {
         .send({
           email: `student_${Date.now()}@example.com`,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
 
@@ -579,7 +579,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
       let authToken;
@@ -676,7 +676,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
       let authToken;
@@ -733,7 +733,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
 
@@ -788,7 +788,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
 
@@ -839,7 +839,7 @@ describe("User Routes", () => {
       const inviteRes1 = await request(server)
         .post("/v1/users/invite")
         .set("Authorization", `Bearer ${token}`)
-        .send({ email: adminEmail1, role: "ADMIN", college_id: collegeId });
+        .send({ email: adminEmail1, role: "ADMIN", entity_id: entityId });
       const userId1 = inviteRes1.body.payload.id;
       let authToken1;
       await asyncLocalStorage.run({ session_id: "test" }, () => {
@@ -856,7 +856,7 @@ describe("User Routes", () => {
       const inviteRes2 = await request(server)
         .post("/v1/users/invite")
         .set("Authorization", `Bearer ${token}`)
-        .send({ email: adminEmail2, role: "ADMIN", college_id: collegeId });
+        .send({ email: adminEmail2, role: "ADMIN", entity_id: entityId });
       const userId2 = inviteRes2.body.payload.id;
 
       const res = await request(server)
@@ -880,7 +880,7 @@ describe("User Routes", () => {
         .send({
           email: studentEmail,
           role: "STUDENT",
-          college_id: collegeId,
+          entity_id: entityId,
         });
       const userId = inviteRes.body.payload.id;
 

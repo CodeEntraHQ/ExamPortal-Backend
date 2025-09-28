@@ -25,7 +25,7 @@ const Exam = sequelize.define(
       allowNull: false,
     },
     type: {
-      type: DataTypes.ENUM(EXAM_TYPE.QUIZ, EXAM_TYPE.OTHER),
+      type: DataTypes.ENUM(...Object.values(EXAM_TYPE)),
       allowNull: false,
     },
     active: {
