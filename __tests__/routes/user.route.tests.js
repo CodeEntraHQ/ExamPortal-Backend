@@ -948,4 +948,21 @@ describe("User Routes", () => {
       );
     });
   });
+
+  describe("PATCH /v1/users", () => {
+    it("should update a user's name and profile picture", async () => {
+      const res = await request(server)
+        .patch("/v1/users")
+        .set("Authorization", `Bearer ${token}`)
+        .field("name", "New Name");
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.status).toBe("SUCCESS");
+      expect(res.body.responseCode).toBe("USER_UPDATED");
+      expect(res.body.payload).toHaveProperty("id");
+      expect(res.body.payload).toHaveProperty("name", "New Name");
+      expect(res.body.payload).toHaveProperty("email");
+      expect(res.body.payload).toHaveProperty("created_at");
+    });
+  });
 });

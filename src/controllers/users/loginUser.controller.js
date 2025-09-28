@@ -40,6 +40,8 @@ export const loginUser = ApiHandler(async (req, res) => {
         name: req.user.name,
         email: req.user.email,
         role: req.user.role,
+        profile_picture: req.user.profile_picture,
+        created_at: req.user.created_at,
       },
     })
   );

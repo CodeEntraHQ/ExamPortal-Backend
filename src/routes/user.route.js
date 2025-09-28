@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 
 import { changePassword } from "#controllers/users/changePassword.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
@@ -10,6 +11,7 @@ import { loginUser } from "#controllers/users/loginUser.controller.js";
 import { registerUser } from "#controllers/users/registerUser.controller.js";
 import { renewLogin } from "#controllers/users/renewLogin.controller.js";
 import { resetPassword } from "#controllers/users/resetPassword.controller.js";
+import { updateUser } from "#controllers/users/updateUser.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
 import { validate } from "#middleware/validation.middleware.js";
@@ -24,9 +26,13 @@ import {
   deregisterUserSchema,
   getUsersSchema,
   changePasswordSchema,
+  updateUserSchema,
 } from "#validations/user.validation.js";
 
 const router = Router();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 router.route("/login").post(validate(loginUserSchema), verifyJWT, loginUser);
 
@@ -70,6 +76,15 @@ router
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     getUsers
+  );
+
+router
+  .route("/")
+  .patch(
+    upload.single("profile_picture"),
+    validate(updateUserSchema),
+    verifyJWT,
+    updateUser
   );
 
 export default router;

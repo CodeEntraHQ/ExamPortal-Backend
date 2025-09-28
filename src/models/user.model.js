@@ -51,6 +51,11 @@ const User = sequelize.define(
       allowNull: false,
     },
 
+    profile_picture: {
+      type: DataTypes.BLOB("long"),
+      allowNull: true,
+    },
+
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

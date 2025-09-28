@@ -6,6 +6,7 @@ import {
   uuidValidation,
   authorizationValidation,
   integerValidation,
+  imageFileValidation,
 } from "#validations/rules.js";
 
 export const loginUserSchema = z.object({
@@ -90,5 +91,15 @@ export const changePasswordSchema = z.object({
       newPassword: stringValidation("newPassword"),
     })
     .strict(),
+  headers: authorizationValidation(),
+});
+
+export const updateUserSchema = z.object({
+  body: z
+    .object({
+      name: stringValidation("name").optional(),
+    })
+    .strict(),
+  file: imageFileValidation().optional(),
   headers: authorizationValidation(),
 });

@@ -15,7 +15,15 @@ export const getUsers = ApiHandler(async (req, res) => {
     where: { role: role, entity_id: college_id },
     offset,
     limit,
-    attributes: ["id", "name", "email", "role", "status"],
+    attributes: [
+      "id",
+      "name",
+      "email",
+      "role",
+      "status",
+      "created_at",
+      "profile_picture",
+    ],
     order: [["created_at", "ASC"]],
   });
 
