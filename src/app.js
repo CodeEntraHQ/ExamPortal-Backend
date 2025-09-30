@@ -24,6 +24,8 @@ import Submission from "./models/submission.model.js";
 import userRouter from "./routes/user.route.js";
 import getAllCollage from "./routes/collage.route.js";
 import examAndQuestRouter from "./routes/exam.route.js";
+import leaderboard from "./routes/leaderboard.route.js";
+
 // import questionRoute from "./routes/question.route.js";
 
 app.use(
@@ -62,7 +64,7 @@ Submission.belongsTo(Question, {
 app.use("/v1", getAllCollage);
 app.use("/v1/users", userRouter);
 app.use("/v1/exam", examAndQuestRouter);
-
+app.use("/v1/exams", leaderboard);
 sequelize
   .sync()
   // .sync({ force: true })
