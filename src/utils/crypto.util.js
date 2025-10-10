@@ -32,14 +32,8 @@ const generateUserSessionToken = (user_id) => {
   return getJwtToken(payload, process.env.USER_SESSION_TOKEN_EXPIRY);
 };
 
-const generateLoginCaptchaToken = (captcha) => {
-  const payload = getJwtPayload({ captcha, type: TOKEN_TYPES.LOGIN_CAPTCHA });
-  return getJwtToken(payload, process.env.LOGIN_CAPTCHA_TOKEN_EXPIRY);
-};
-
 export {
   getUserInvitationLink,
   getResetPasswordLink,
   generateUserSessionToken,
-  generateLoginCaptchaToken,
 };

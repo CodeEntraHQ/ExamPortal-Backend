@@ -4,7 +4,6 @@ import multer from "multer";
 import { changePassword } from "#controllers/users/changePassword.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
 import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
-import { getCaptcha } from "#controllers/users/getCaptcha.controller.js";
 import { getUsers } from "#controllers/users/getUsers.controller.js";
 import { inviteUser } from "#controllers/users/inviteUser.controller.js";
 import { loginUser } from "#controllers/users/loginUser.controller.js";
@@ -34,9 +33,7 @@ const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.route("/login").post(validate(loginUserSchema), verifyJWT, loginUser);
-
-router.route("/captcha").get(getCaptcha);
+router.route("/login").post(validate(loginUserSchema), loginUser);
 
 router
   .route("/password/forgot")

@@ -18,10 +18,6 @@ const getQueryConditionAndTokenType = (decodedToken, req) => {
       condition: { id: decodedToken.user_id, status: USER_STATUS.ACTIVE },
       tokenType: TOKEN_TYPES.RESET_PASSWORD,
     },
-    "/v1/users/login": {
-      condition: { email: req.body?.email, status: USER_STATUS.ACTIVE },
-      tokenType: TOKEN_TYPES.LOGIN_CAPTCHA,
-    },
   };
 
   const match = routeMap[req.originalUrl];

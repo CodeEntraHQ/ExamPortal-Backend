@@ -5,15 +5,25 @@ import sequelize from "#db/index.js";
 import { USER_ROLES, USER_STATUS } from "#utils/constants/model.constant.js";
 
 const User = sequelize.define(
-  "User",
+  "Users",
   {
     id: {
       type: DataTypes.STRING,
       primaryKey: true,
     },
 
-    name: {
+    address: {
       type: DataTypes.STRING,
+    },
+
+    bio: {
+      type: DataTypes.STRING,
+    },
+
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
     },
 
     email: {
@@ -27,8 +37,21 @@ const User = sequelize.define(
       allowNull: true,
     },
 
+    name: {
+      type: DataTypes.STRING,
+    },
+
     password_hash: {
       type: DataTypes.STRING,
+    },
+
+    phone_number: {
+      type: DataTypes.STRING,
+    },
+
+    profile_picture_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
 
     role: {
@@ -48,17 +71,6 @@ const User = sequelize.define(
         USER_STATUS.ACTIVATION_PENDING
       ),
       defaultValue: USER_STATUS.INACTIVE,
-      allowNull: false,
-    },
-
-    profile_picture: {
-      type: DataTypes.BLOB("long"),
-      allowNull: true,
-    },
-
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
       allowNull: false,
     },
   },

@@ -14,10 +14,8 @@ export const loginUserSchema = z.object({
     .object({
       email: emailValidation(),
       password: stringValidation("password"),
-      captcha: integerValidation("captcha"),
     })
     .strict(),
-  headers: authorizationValidation(),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -79,8 +77,12 @@ export const registerUserSchema = z.object({
     .object({
       name: stringValidation("name"),
       password: stringValidation("password"),
+      phone_number: integerValidation("phone_number", 6000000000, 9999999999),
+      address: stringValidation("address").optional(),
+      bio: stringValidation("bio").optional(),
     })
     .strict(),
+  file: imageFileValidation().optional(),
   headers: authorizationValidation(),
 });
 
@@ -98,6 +100,14 @@ export const updateUserSchema = z.object({
   body: z
     .object({
       name: stringValidation("name").optional(),
+      password: stringValidation("password").optional(),
+      phone_number: integerValidation(
+        "phone_number",
+        6000000000,
+        9999999999
+      ).optional(),
+      address: stringValidation("address").optional(),
+      bio: stringValidation("bio").optional(),
     })
     .strict(),
   file: imageFileValidation().optional(),
