@@ -1,0 +1,790 @@
+{
+	"info": {
+		"_postman_id": "5ca16621-e50e-4e8d-ab10-aa55230660f3",
+		"name": "ExamEntra",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20109760"
+	},
+	"item": [
+		{
+			"name": "College",
+			"item": [
+				{
+					"name": "List college",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/v1/entities?page=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"entities"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Onboard College",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"  college v11\",\r\n    \"address\": \"Beside College v3\",\r\n    \"type\": \"COLLEGE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/entities?query=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"entities"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update College",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"entity_id\": \"9c8b3e19-51dc-4fac-a8b3-42bc63d9caf5\",\r\n    \"type\": \"SCHOOL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/entities",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"entities"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register Users",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-register}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Rishabh\",\r\n    \"password\": \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let responseData = pm.response.json();\r",
+									"if (responseData?.payload?.token) {\r",
+									"    const token = responseData.payload.token;\r",
+									"    pm.environment.set(\"token\", token);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"rishabh.gtm99@gmail.com\",\r\n    \"password\": \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Users",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"rishabh.gtm99@gmail.com\",\r\n    \"role\": \"ADMIN\",\r\n    \"entity_id\": \"d5a79958-fd4b-4fab-91b7-3765cbb1aa48\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/invite",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/v1/users?entity_id=d5a79958-fd4b-4fab-91b7-3765cbb1aa48&role=ADMIN",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users"
+							],
+							"query": [
+								{
+									"key": "entity_id",
+									"value": "d5a79958-fd4b-4fab-91b7-3765cbb1aa48"
+								},
+								{
+									"key": "role",
+									"value": "ADMIN"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deregister User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/deregister",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"deregister"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Renew Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/renew",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"renew"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"rgautam199@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/password/forgot",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"password",
+								"forgot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Password Reset",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\": \"token\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/password/reset",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"password",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "/C:/Users/shash/Downloads/WhatsApp Image 2024-09-07 at 1.27.10 PM.jpeg"
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/users/password/change",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"password",
+								"change"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "kk",
+									"type": "text"
+								},
+								{
+									"key": "profile_picture",
+									"type": "file",
+									"src": "/C:/Users/shash/Downloads/WhatsApp Image 2024-09-07 at 1.27.10 PM.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8000/v1/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"v1",
+								"users"
+							]
+						},
+						"description": "Generated from cURL: curl -X PATCH http://localhost:3000/user \\\r\n-H \"Authorization: Bearer <your_auth_token>\" \\\r\n-F \"name=<new_name>\" \\\r\n-F \"profile_picture=@<path_to_your_image>\"\r\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Healthcheck",
+			"item": [
+				{
+					"name": "App Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/v1/checks/app",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"checks",
+								"app"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Db Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/v1/checks/db",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"checks",
+								"db"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Exam",
+			"item": [
+				{
+					"name": "Create Exam",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Final Test v2\",\r\n  \"description\": \"quiz 2.0\",\r\n  \"entity_id\": \"890ddd3c-d49c-4d1e-a4be-0343b61522c3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/exams",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"exams"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Exam",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"exam_id\": \"a39d0b69-a672-4225-871f-1f14a2c3d06c\",\r\n  \"status\": \"ACTIVE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/exams",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"exams"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Exams",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/v1/exams?entity_id=d5a79958-fd4b-4fab-91b7-3765cbb1aa48",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"exams"
+							],
+							"query": [
+								{
+									"key": "entity_id",
+									"value": "d5a79958-fd4b-4fab-91b7-3765cbb1aa48"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"exam_id\": \"a39d0b69-a672-4225-871f-1f14a2c3d06c\",\r\n  \"question_text\": \"What is 2+2?\",\r\n  \"type\": \"MCQ\",\r\n  \"total_marks\": \"10\",\r\n  \"duration\": \"1\",\r\n  \"status\": \"ACTIVE\",\r\n  \"metadata\": {\r\n    \"options\": [\"1\", \"2\", \"3\", \"4\"],\r\n    \"correct_answers\": [\"3\"]\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/exams/question",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"exams",
+								"question"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Question",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"question_id\": \"8041f9cc-02e6-4022-845b-c68889bfe8c0\",\r\n  \"question_text\": \"What is 2+5?\",\r\n  \"type\": \"MCQ\",\r\n  \"metadata\": {\r\n    \"options\": [\"1\", \"2\", \"7\", \"4\"],\r\n    \"correct_answers\": [\"7\"]\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/exams/question",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"exams",
+								"question"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Questions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"exam_id\": \"UUID\",\r\n  \"question_text\": \"What is 2+2?\",\r\n  \"type\": \"MCQ\",\r\n  \"metadata\": {\r\n    \"options\": [\"1\", \"2\", \"3\", \"4\"],\r\n    \"correct_answers\": [\"3\"]\r\n  }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{host}}/v1/exams/question?exam_id=UUID",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"exams",
+								"question"
+							],
+							"query": [
+								{
+									"key": "exam_id",
+									"value": "UUID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Students",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"exam_id\": \"d11e448e-c8a4-4d99-8f1d-50270c26409e\",\r\n  \"student_emails\": [\"rgautam1919@gmail.com\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/v1/exams/invite",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"v1",
+								"exams",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/v1/medias?id=710d1e01-9982-4108-b2d0-ec9df6fc3c08",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"medias"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "710d1e01-9982-4108-b2d0-ec9df6fc3c08"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
