@@ -20,6 +20,12 @@
 npm install
 ```
 
+### 3. Populate seed data in db
+
+```bash
+npm run setup
+```
+
 ### 3. Start the Server
 
 ```bash

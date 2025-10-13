@@ -122,6 +122,7 @@
     "dev": "nodemon -r ./src/config/index.js --experimental-json-modules src/server.js",
     "test": "cross-env NODE_ENV=TEST DB_NAME=examentra-test jest --runInBand",
     "coverage": "cross-env NODE_ENV=TEST DB_NAME=examentra-test jest --runInBand --coverage",
+    "setup": "node -r ./src/config/index.js bin/setup.js",
     "prepare": "husky",
     "lint": "eslint . --ext .js --fix",
     "format": "prettier --write ."
