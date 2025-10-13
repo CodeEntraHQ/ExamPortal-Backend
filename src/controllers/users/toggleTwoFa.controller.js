@@ -14,8 +14,6 @@ export const toggleTwoFa = ApiHandler(async (req, res) => {
       throw new ApiError(400, "BAD_REQUEST", "Two FA is already enabled");
     }
 
-    console.log("here1");
-
     const verified = speakeasy.totp.verify({
       secret: req.user.two_fa_secret_key,
       encoding: "base32",
