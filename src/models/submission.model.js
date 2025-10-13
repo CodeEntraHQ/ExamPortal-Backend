@@ -4,7 +4,7 @@ import sequelize from "#db/index.js";
 import { generateUUID } from "#utils/utils.js";
 
 const Submission = sequelize.define(
-  "Submission",
+  "Submissions",
   {
     id: {
       type: DataTypes.STRING,
