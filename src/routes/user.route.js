@@ -4,13 +4,14 @@ import multer from "multer";
 import { changePassword } from "#controllers/users/changePassword.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
 import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
-import { getCaptcha } from "#controllers/users/getCaptcha.controller.js";
+import { generateTwoFa } from "#controllers/users/generateTwoFa.controller.js";
 import { getUsers } from "#controllers/users/getUsers.controller.js";
 import { inviteUser } from "#controllers/users/inviteUser.controller.js";
 import { loginUser } from "#controllers/users/loginUser.controller.js";
 import { registerUser } from "#controllers/users/registerUser.controller.js";
 import { renewLogin } from "#controllers/users/renewLogin.controller.js";
 import { resetPassword } from "#controllers/users/resetPassword.controller.js";
+import { toggleTwoFa } from "#controllers/users/toggleTwoFa.controller.js";
 import { updateUser } from "#controllers/users/updateUser.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
@@ -27,6 +28,8 @@ import {
   getUsersSchema,
   changePasswordSchema,
   updateUserSchema,
+  toggleTwoFaSchema,
+  generateTwoFaSchema,
 } from "#validations/user.validation.js";
 
 const router = Router();
@@ -34,9 +37,7 @@ const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.route("/login").post(validate(loginUserSchema), verifyJWT, loginUser);
-
-router.route("/captcha").get(getCaptcha);
+router.route("/login").post(validate(loginUserSchema), loginUser);
 
 router
   .route("/password/forgot")
@@ -63,7 +64,12 @@ router
 
 router
   .route("/register")
-  .post(validate(registerUserSchema), verifyJWT, registerUser);
+  .post(
+    upload.single("profile_picture"),
+    validate(registerUserSchema),
+    verifyJWT,
+    registerUser
+  );
 
 router
   .route("/deregister")
@@ -86,5 +92,13 @@ router
     verifyJWT,
     updateUser
   );
+
+router
+  .route("/two-fa/generate")
+  .get(validate(generateTwoFaSchema), verifyJWT, generateTwoFa);
+
+router
+  .route("/two-fa/toggle")
+  .patch(validate(toggleTwoFaSchema), verifyJWT, toggleTwoFa);
 
 export default router;

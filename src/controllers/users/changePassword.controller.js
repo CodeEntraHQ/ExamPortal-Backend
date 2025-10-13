@@ -5,19 +5,19 @@ import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 
 export const changePassword = ApiHandler(async (req, res) => {
-  const oldPassword = req.body.oldPassword?.trim();
+  const currentPassword = req.body.currentPassword?.trim();
   const newPassword = req.body.newPassword?.trim();
 
   const isPasswordCorrect = await bcrypt.compare(
-    oldPassword,
+    currentPassword,
     req.user.password_hash
   );
 
   if (!isPasswordCorrect) {
     throw new ApiError(
-      401,
+      400,
       "INCORRECT_PASSWORD",
-      "The old password you entered is incorrect. Please try again"
+      "The current password you entered is incorrect."
     );
   }
 

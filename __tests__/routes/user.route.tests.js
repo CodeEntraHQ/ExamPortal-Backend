@@ -923,7 +923,7 @@ describe("User Routes", () => {
         .post("/v1/users/password/change")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          oldPassword: "password",
+          currentPassword: "password",
           newPassword: "newPassword",
         });
       expect(res.statusCode).toEqual(200);
@@ -937,7 +937,7 @@ describe("User Routes", () => {
         .post("/v1/users/password/change")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          oldPassword: "oldpassword",
+          currentPassword: "currentpassword",
           newPassword: "newPassword",
         });
       expect(res.statusCode).toEqual(401);

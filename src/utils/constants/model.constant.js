@@ -20,6 +20,11 @@ export const USER_STATUS = {
   ACTIVATION_PENDING: "ACTIVATION_PENDING",
 };
 
+export const USER_GENDER = {
+  MALE: "MALE",
+  FEMALE: "FEMALE",
+};
+
 export const ENTITY_TYPE = {
   COLLEGE: "COLLEGE",
   SCHOOL: "SCHOOL",

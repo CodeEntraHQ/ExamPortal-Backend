@@ -384,7 +384,7 @@ This document outlines the contract for the ExamPortal API.
 - **Request Body:**
   ```json
   {
-    "oldPassword": "string",
+    "currentPassword": "string",
     "newPassword": "string"
   }
   ```

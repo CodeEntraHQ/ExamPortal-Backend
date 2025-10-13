@@ -21,17 +21,17 @@ export const integerValidation = (keyName, minValue, maxValue) => {
   return rule;
 };
 
-export const stringValidation = (keyName) =>
+export const stringValidation = (keyName, minLength = 1, maxLength = 255) =>
   z
     .string({
       error: `${keyName} is required`,
     })
     .transform((str) => str.trim())
-    .refine((str) => str.length >= 1, {
-      error: `${keyName} must have length greater than 1`,
+    .refine((str) => str.length >= minLength, {
+      error: `${keyName} must have length greater than ${minLength}`,
     })
-    .refine((str) => str.length <= 255, {
-      error: `${keyName} must have length less than 255`,
+    .refine((str) => str.length <= maxLength, {
+      error: `${keyName} must have length less than ${maxLength}`,
     });
 
 export const uuidValidation = (keyName) =>

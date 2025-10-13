@@ -11,3 +11,8 @@ export const NODE_ENVS = {
   STG: "STG",
   PROD: "PROD",
 };
+
+export const TWO_FA_TOGGLE_MODE = {
+  ENABLE: "ENABLE",
+  DISABLE: "DISABLE",
+};
