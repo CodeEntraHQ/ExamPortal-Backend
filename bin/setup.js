@@ -37,6 +37,9 @@ const setup = async () => {
       name: "Dummy Entity",
       address: "Dummy Address",
       type: ENTITY_TYPE.SCHOOL,
+      description: "This is a dummy entity created for testing purposes.",
+      email: "dummy@example.com",
+      phone_number: "1234567890",
     });
     console.log("Dummy entity created successfully.");
 

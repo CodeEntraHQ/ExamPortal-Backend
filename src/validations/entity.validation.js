@@ -6,6 +6,8 @@ import {
   stringValidation,
   uuidValidation,
   authorizationValidation,
+  emailValidation,
+  imageFileValidation,
 } from "#validations/rules.js";
 
 export const getEntitiesSchema = z.object({
@@ -21,11 +23,19 @@ export const getEntitiesSchema = z.object({
 export const createEntitySchema = z.object({
   body: z
     .object({
-      name: stringValidation("name"),
       address: stringValidation("address"),
+      description: stringValidation("description").optional(),
+      email: emailValidation("email").optional(),
+      name: stringValidation("name"),
+      phone_number: integerValidation(
+        "phone_number",
+        6000000000,
+        9999999999
+      ).optional(),
       type: z.enum([...Object.values(ENTITY_TYPE)]),
     })
     .strict(),
+  file: imageFileValidation().optional(),
   headers: authorizationValidation(),
 });
 
@@ -33,19 +43,29 @@ export const updateEntitySchema = z.object({
   body: z
     .object({
       entity_id: uuidValidation("entity_id"),
-      name: stringValidation("name").optional(),
       address: stringValidation("address").optional(),
+      description: stringValidation("description").optional(),
+      email: emailValidation("email").optional(),
+      name: stringValidation("name").optional(),
+      phone_number: integerValidation(
+        "phone_number",
+        6000000000,
+        9999999999
+      ).optional(),
       type: z.enum([...Object.values(ENTITY_TYPE)]).optional(),
     })
     .refine(
       (data) =>
-        data.name !== undefined ||
         data.address !== undefined ||
-        data.type !== undefined,
-      {
-        message: "At least one of name address or type is required",
-      }
+        data.description !== undefined ||
+        data.email !== undefined ||
+        data.name !== undefined ||
+        data.phone_number !== undefined ||
+        data.type !== undefined || {
+          message: "At least one of attribute is required",
+        }
     )
     .strict(),
+  file: imageFileValidation().optional(),
   headers: authorizationValidation(),
 });

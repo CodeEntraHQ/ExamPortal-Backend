@@ -11,23 +11,47 @@ const Entity = sequelize.define(
       type: DataTypes.STRING,
       primaryKey: true,
     },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
+
     address: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: false,
     },
-    type: {
-      type: DataTypes.ENUM(...Object.values(ENTITY_TYPE)),
-      allowNull: false,
-    },
+
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    logo_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    type: {
+      type: DataTypes.ENUM(...Object.values(ENTITY_TYPE)),
+      allowNull: false,
     },
   },
   {

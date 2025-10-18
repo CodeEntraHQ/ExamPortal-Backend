@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 
 import { createEntity } from "#controllers/entities/createEntity.controller.js";
 import { getEntities } from "#controllers/entities/getEntities.controller.js";
@@ -15,6 +16,9 @@ import {
 
 const router = Router();
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 router
   .route("/")
   .get(
@@ -27,6 +31,7 @@ router
 router
   .route("/")
   .post(
+    upload.single("logo"),
     validate(createEntitySchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN),
@@ -36,6 +41,7 @@ router
 router
   .route("/")
   .patch(
+    upload.single("logo"),
     validate(updateEntitySchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN),
