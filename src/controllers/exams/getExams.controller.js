@@ -54,6 +54,7 @@ export const getExams = ApiHandler(async (req, res) => {
       type: exam.type,
       active: exam.active,
       created_at: exam.created_at,
+      duration_seconds: exam.duration_seconds,
     };
   });
 

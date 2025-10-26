@@ -14,6 +14,14 @@ export const createExamSchema = z.object({
     .object({
       title: stringValidation("title"),
       type: stringValidation("type"),
+      duration_seconds: z.number().min(0),
+      metadata: z
+        .object({
+          totalMarks: z.number().min(0),
+          passingMarks: z.number().min(0),
+          instructions: z.string(),
+        })
+        .optional(),
       entity_id: uuidValidation("entity_id").optional(),
     })
     .strict(),

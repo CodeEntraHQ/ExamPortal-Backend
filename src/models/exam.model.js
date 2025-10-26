@@ -16,6 +16,10 @@ const Exam = sequelize.define(
       allowNull: false,
     },
     metadata: DataTypes.JSON,
+    duration_seconds: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     user_id: {
       type: DataTypes.STRING,
       allowNull: false,
