@@ -5,12 +5,14 @@ import { createQuestion } from "#controllers/exams/createQuestion.controller.js"
 import { getExams } from "#controllers/exams/getExams.controller.js";
 import { getQuestions } from "#controllers/exams/getQuestions.controller.js";
 import { inviteStudent } from "#controllers/exams/inviteStudents.controller.js";
+import { updateExam } from "#controllers/exams/updateExam.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
 import { validate } from "#middleware/validation.middleware.js";
 import { USER_ROLES } from "#utils/constants/model.constant.js";
 import {
   createExamSchema,
+  updateExamSchema,
   getExamsSchema,
   createQuestionSchema,
   getQuestionsSchema,
@@ -29,6 +31,15 @@ router
   );
 
 router.route("/").get(validate(getExamsSchema), verifyJWT, getExams);
+
+router
+  .route("/:id")
+  .patch(
+    validate(updateExamSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    updateExam
+  );
 
 router
   .route("/question")

@@ -71,3 +71,30 @@ export const inviteStudentSchema = z.object({
     .strict(),
   headers: authorizationValidation(),
 });
+
+export const updateExamSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
+  body: z
+    .object({
+      title: stringValidation("title").optional(),
+      type: stringValidation("type").optional(),
+      duration_seconds: z.number().min(0).optional(),
+      metadata: z
+        .object({
+          totalMarks: z.number().min(0).optional(),
+          passingMarks: z.number().min(0).optional(),
+          instructions: z.string().optional(),
+          description: z.string().optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional(),
+      active: z.boolean().optional(),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
