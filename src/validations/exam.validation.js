@@ -44,8 +44,8 @@ export const createQuestionSchema = z.object({
     .object({
       exam_id: uuidValidation("exam_id"),
       question_text: stringValidation("question_text"),
-      type: z.enum(["MCQ"]),
-      metadata: z.any(),
+      type: z.enum(["MCQ", "OTHER"]),
+      metadata: z.any().optional(),
     })
     .strict(),
   headers: authorizationValidation(),
@@ -67,6 +67,31 @@ export const inviteStudentSchema = z.object({
     .object({
       exam_id: uuidValidation("exam_id"),
       student_emails: arrayValidation("student_emails", emailValidation()),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const updateQuestionSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
+  body: z
+    .object({
+      question_text: stringValidation("question_text").optional(),
+      type: z.enum(["MCQ", "OTHER"]).optional(),
+      metadata: z.any().optional(),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const deleteQuestionSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
     })
     .strict(),
   headers: authorizationValidation(),

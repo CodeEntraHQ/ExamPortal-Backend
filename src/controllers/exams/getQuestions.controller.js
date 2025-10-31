@@ -12,12 +12,12 @@ export const getQuestions = ApiHandler(async (req, res) => {
     where: { exam_id: exam_id },
     offset,
     limit,
-    attributes: ["id", "question_text", "type", "metadata"],
+    attributes: ["id", "question_text", "type", "metadata", "created_at"],
     order: [["created_at", "ASC"]],
   });
 
   const questions = rows.map((question) => {
-    const { id, question_text, type, metadata } = question;
+    const { id, question_text, type, metadata, created_at } = question;
 
     const sanitizedMetadata = { ...metadata };
     if (req.user.role === "STUDENT") {
@@ -29,6 +29,7 @@ export const getQuestions = ApiHandler(async (req, res) => {
       question_text,
       type,
       metadata: sanitizedMetadata,
+      created_at,
     };
   });
 
