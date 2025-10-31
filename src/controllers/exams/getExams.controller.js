@@ -46,7 +46,7 @@ export const getExams = ApiHandler(async (req, res) => {
   // Fetch exams
   const { rows, count: total } = await Exam.findAndCountAll(query);
 
-  // Sanitize questions
+  // Sanitize exams - include all fields including metadata
   const exams = rows.map((exam) => {
     return {
       id: exam.id,
@@ -55,6 +55,8 @@ export const getExams = ApiHandler(async (req, res) => {
       active: exam.active,
       created_at: exam.created_at,
       duration_seconds: exam.duration_seconds,
+      metadata: exam.metadata || null,
+      entity_id: exam.entity_id,
     };
   });
 
