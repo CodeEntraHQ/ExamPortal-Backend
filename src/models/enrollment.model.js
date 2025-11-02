@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 
 import sequelize from "#db/index.js";
+import { ENROLLMENT_STATUS } from "#utils/constants/model.constant.js";
 import { generateUUID } from "#utils/utils.js";
 
 const Enrollment = sequelize.define(
@@ -19,6 +20,12 @@ const Enrollment = sequelize.define(
     user_id: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+
+    status: {
+      type: DataTypes.ENUM(...Object.values(ENROLLMENT_STATUS)),
+      allowNull: true,
+      defaultValue: null,
     },
 
     metadata: DataTypes.JSON,

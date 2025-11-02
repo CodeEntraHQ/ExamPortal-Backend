@@ -123,3 +123,16 @@ export const updateExamSchema = z.object({
     .strict(),
   headers: authorizationValidation(),
 });
+
+export const getStudentEnrollmentsSchema = z.object({
+  headers: authorizationValidation(),
+});
+
+export const getExamByIdSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});

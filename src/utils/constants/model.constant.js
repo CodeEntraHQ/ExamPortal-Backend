@@ -29,3 +29,9 @@ export const ENTITY_TYPE = {
   COLLEGE: "COLLEGE",
   SCHOOL: "SCHOOL",
 };
+
+export const ENROLLMENT_STATUS = {
+  UPCOMING: "UPCOMING",
+  ONGOING: "ONGOING",
+  COMPLETED: "COMPLETED",
+};
