@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 
 import sequelize from "../src/db/index.js";
+import Enrollment from "../src/models/enrollment.model.js";
 import Entity from "../src/models/entity.model.js";
 import Exam from "../src/models/exam.model.js";
 import Question from "../src/models/question.model.js";
@@ -71,7 +72,13 @@ const setup = async () => {
       metadata: {
         totalMarks: 20,
         passingMarks: 12,
-        instructions: "Answer all questions. Each question carries 5 marks.",
+        instructions: [
+          "Once started, you cannot pause the exam",
+          "Make sure you have a stable internet connection",
+          "Calculator is allowed for this exam",
+          "You can flag questions for review before submitting",
+          "Results will be shown immediately after submission",
+        ],
       },
       duration_seconds: 3800, // 60 minutes in seconds
       user_id: admin.id,
@@ -88,36 +95,52 @@ const setup = async () => {
         question_text: "What is 2 + 2?",
         type: QUESTION_TYPE.MCQ,
         metadata: {
-          options: ["3", "4", "5", "6"],
-          correctAnswer: "4",
-          explanation: "Basic addition: 2 + 2 = 4",
+          options: [
+            { text: "3", isCorrect: false },
+            { text: "4", isCorrect: true },
+            { text: "5", isCorrect: false },
+            { text: "6", isCorrect: false },
+          ],
+          correct_answers: [1],
         },
       },
       {
         question_text: "What is 5 × 5?",
         type: QUESTION_TYPE.MCQ,
         metadata: {
-          options: ["15", "20", "25", "30"],
-          correctAnswer: "25",
-          explanation: "Multiplication: 5 × 5 = 25",
+          options: [
+            { text: "15", isCorrect: false },
+            { text: "20", isCorrect: false },
+            { text: "25", isCorrect: true },
+            { text: "30", isCorrect: false },
+          ],
+          correct_answers: [2],
         },
       },
       {
         question_text: "What is 10 ÷ 2?",
         type: QUESTION_TYPE.MCQ,
         metadata: {
-          options: ["3", "4", "5", "6"],
-          correctAnswer: "5",
-          explanation: "Division: 10 ÷ 2 = 5",
+          options: [
+            { text: "3", isCorrect: false },
+            { text: "4", isCorrect: false },
+            { text: "5", isCorrect: true },
+            { text: "6", isCorrect: false },
+          ],
+          correct_answers: [2],
         },
       },
       {
         question_text: "What is 15 - 7?",
         type: QUESTION_TYPE.MCQ,
         metadata: {
-          options: ["6", "7", "8", "9"],
-          correctAnswer: "8",
-          explanation: "Subtraction: 15 - 7 = 8",
+          options: [
+            { text: "6", isCorrect: false },
+            { text: "7", isCorrect: false },
+            { text: "8", isCorrect: true },
+            { text: "9", isCorrect: false },
+          ],
+          correct_answers: [2],
         },
       },
     ];
@@ -138,8 +161,13 @@ const setup = async () => {
       metadata: {
         totalMarks: 50,
         passingMarks: 25,
-        instructions:
-          "Complete all programming tasks. Include proper comments in your code.",
+        instructions: [
+          "Once started, you cannot pause the exam",
+          "Make sure you have a stable internet connection",
+          "Calculator is allowed for this exam",
+          "You can flag questions for review before submitting",
+          "Results will be shown immediately after submission",
+        ],
       },
       duration_seconds: 7900, // 120 minutes in seconds
       user_id: admin.id,
@@ -184,6 +212,122 @@ const setup = async () => {
       });
     }
     console.log("Sample programming questions created successfully.");
+
+    // Create an exam with multiple correct answer questions
+    const multipleChoiceExam = await Exam.create({
+      id: randomUUID(),
+      title: "General Knowledge Quiz - Multiple Choice",
+      metadata: {
+        totalMarks: 30,
+        passingMarks: 18,
+        instructions: [
+          "Once started, you cannot pause the exam",
+          "Make sure you have a stable internet connection",
+          "Calculator is allowed for this exam",
+          "You can flag questions for review before submitting",
+          "Results will be shown immediately after submission",
+        ],
+      },
+      duration_seconds: 3600, // 60 minutes in seconds
+      user_id: admin.id,
+      entity_id: entity.id,
+      type: EXAM_TYPE.QUIZ,
+      active: true,
+      created_at: new Date(),
+    });
+    console.log("Multiple choice quiz created successfully.");
+
+    // Create questions with multiple correct answers
+    const multipleChoiceQuestions = [
+      {
+        question_text: "Which of the following are programming languages?",
+        type: QUESTION_TYPE.MCQ,
+        metadata: {
+          options: [
+            { text: "Python", isCorrect: true },
+            { text: "JavaScript", isCorrect: true },
+            { text: "HTML", isCorrect: false },
+            { text: "Java", isCorrect: true },
+          ],
+          correct_answers: [0, 1, 3],
+        },
+      },
+      {
+        question_text: "What is life?",
+        type: QUESTION_TYPE.MCQ,
+        metadata: {
+          options: [
+            { text: "life", isCorrect: true },
+            { text: "not life", isCorrect: false },
+            { text: "good", isCorrect: true },
+            { text: "bad", isCorrect: false },
+          ],
+          correct_answers: [0, 2],
+        },
+      },
+      {
+        question_text: "Which of the following are prime numbers?",
+        type: QUESTION_TYPE.MCQ,
+        metadata: {
+          options: [
+            { text: "2", isCorrect: true },
+            { text: "4", isCorrect: false },
+            { text: "7", isCorrect: true },
+            { text: "9", isCorrect: false },
+          ],
+          correct_answers: [0, 2],
+        },
+      },
+      {
+        question_text: "Which of the following are continents?",
+        type: QUESTION_TYPE.MCQ,
+        metadata: {
+          options: [
+            { text: "Asia", isCorrect: true },
+            { text: "Europe", isCorrect: true },
+            { text: "Pacific Ocean", isCorrect: false },
+            { text: "Africa", isCorrect: true },
+          ],
+          correct_answers: [0, 1, 3],
+        },
+      },
+    ];
+
+    for (const question of multipleChoiceQuestions) {
+      await Question.create({
+        id: randomUUID(),
+        exam_id: multipleChoiceExam.id,
+        ...question,
+      });
+    }
+    console.log("Multiple choice questions created successfully.");
+
+    // Enroll the default student in all three exams
+    const student = await User.findOne({ where: { role: USER_ROLES.STUDENT } });
+
+    if (student) {
+      const enrollments = [
+        {
+          exam_id: quiz.id,
+          user_id: student.id,
+        },
+        {
+          exam_id: assignment.id,
+          user_id: student.id,
+        },
+        {
+          exam_id: multipleChoiceExam.id,
+          user_id: student.id,
+        },
+      ];
+
+      await Enrollment.bulkCreate(enrollments, {
+        individualHooks: true,
+      });
+      console.log("Student enrolled in all three exams successfully.");
+    } else {
+      console.log("Warning: No student user found to enroll.");
+    }
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   } finally {

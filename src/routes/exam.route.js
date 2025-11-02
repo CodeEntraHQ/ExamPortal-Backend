@@ -3,8 +3,10 @@ import { Router } from "express";
 import { createExam } from "#controllers/exams/createExam.controller.js";
 import { createQuestion } from "#controllers/exams/createQuestion.controller.js";
 import { deleteQuestion } from "#controllers/exams/deleteQuestion.controller.js";
+import { getExamById } from "#controllers/exams/getExamById.controller.js";
 import { getExams } from "#controllers/exams/getExams.controller.js";
 import { getQuestions } from "#controllers/exams/getQuestions.controller.js";
+import { getStudentEnrollments } from "#controllers/exams/getStudentEnrollments.controller.js";
 import { inviteStudent } from "#controllers/exams/inviteStudents.controller.js";
 import { updateExam } from "#controllers/exams/updateExam.controller.js";
 import { updateQuestion } from "#controllers/exams/updateQuestion.controller.js";
@@ -16,11 +18,13 @@ import {
   createExamSchema,
   updateExamSchema,
   getExamsSchema,
+  getExamByIdSchema,
   createQuestionSchema,
   updateQuestionSchema,
   deleteQuestionSchema,
   getQuestionsSchema,
   inviteStudentSchema,
+  getStudentEnrollmentsSchema,
 } from "#validations/exam.validation.js";
 
 const router = Router();
@@ -36,13 +40,23 @@ router
 
 router.route("/").get(validate(getExamsSchema), verifyJWT, getExams);
 
+// Specific routes must come before parameterized routes to avoid route conflicts
 router
-  .route("/:id")
-  .patch(
-    validate(updateExamSchema),
+  .route("/enrollments")
+  .get(
+    validate(getStudentEnrollmentsSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.STUDENT),
+    getStudentEnrollments
+  );
+
+router
+  .route("/invite")
+  .post(
+    validate(inviteStudentSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
-    updateExam
+    inviteStudent
   );
 
 router
@@ -73,13 +87,15 @@ router
     deleteQuestion
   );
 
+// Parameterized routes should come last
 router
-  .route("/invite")
-  .post(
-    validate(inviteStudentSchema),
+  .route("/:id")
+  .get(validate(getExamByIdSchema), verifyJWT, getExamById)
+  .patch(
+    validate(updateExamSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
-    inviteStudent
+    updateExam
   );
 
 export default router;
