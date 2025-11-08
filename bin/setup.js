@@ -331,6 +331,25 @@ const setup = async () => {
         individualHooks: true,
       });
       console.log("Student enrolled in all three exams successfully.");
+
+      // Initialize results for each enrollment
+      const { default: Result } = await import("../src/models/result.model.js");
+      const resultInitializations = enrollments.map((enrollment) => ({
+        id: randomUUID(), // Generate ID manually since bulkCreate doesn't trigger hooks with ignoreDuplicates
+        user_id: enrollment.user_id,
+        exam_id: enrollment.exam_id,
+        score: null,
+        metadata: {
+          correct_answer: 0,
+          incorrect_answer: 0,
+          no_answers: 0,
+        },
+      }));
+
+      await Result.bulkCreate(resultInitializations, {
+        ignoreDuplicates: true, // Ignore if result already exists
+      });
+      console.log("Results initialized for all enrollments successfully.");
     } else {
       console.log("Warning: No student user found to enroll.");
     }

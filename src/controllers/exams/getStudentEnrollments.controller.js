@@ -78,11 +78,14 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
 
       const result = resultsMap.get(enrollment.exam_id);
 
-      // Use enrollment status from database, but override if there's a result (completed)
+      // Use enrollment status from database
+      // Only mark as COMPLETED if enrollment status is actually COMPLETED
+      // Don't override based on result existence, as results are initialized on enrollment
       let status = enrollment.status || ENROLLMENT_STATUS.UPCOMING;
 
-      // If there's a result, exam is completed
-      if (result) {
+      // Only override to COMPLETED if enrollment status is already COMPLETED
+      // This ensures that UPCOMING/ONGOING enrollments with initialized results stay in correct status
+      if (enrollment.status === ENROLLMENT_STATUS.COMPLETED) {
         status = ENROLLMENT_STATUS.COMPLETED;
       }
 

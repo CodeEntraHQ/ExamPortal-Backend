@@ -13,12 +13,12 @@ const Result = sequelize.define(
 
     user_id: {
       type: DataTypes.STRING,
-      unique: true,
+      allowNull: false,
     },
 
     exam_id: {
       type: DataTypes.STRING,
-      unique: true,
+      allowNull: false,
     },
 
     score: DataTypes.INTEGER,
@@ -37,6 +37,7 @@ const Result = sequelize.define(
       { fields: ["exam_id"] },
       { fields: ["user_id"] },
       { fields: ["score"] },
+      { fields: ["user_id", "exam_id"], unique: true }, // One result per user per exam
     ],
   }
 );
