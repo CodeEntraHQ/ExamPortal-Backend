@@ -79,6 +79,7 @@ const setup = async () => {
           "You can flag questions for review before submitting",
           "Results will be shown immediately after submission",
         ],
+        isMultipleCorrect: false,
       },
       duration_seconds: 3800, // 60 minutes in seconds
       user_id: admin.id,
@@ -227,6 +228,7 @@ const setup = async () => {
           "You can flag questions for review before submitting",
           "Results will be shown immediately after submission",
         ],
+        isMultipleCorrect: true,
       },
       duration_seconds: 3600, // 60 minutes in seconds
       user_id: admin.id,
