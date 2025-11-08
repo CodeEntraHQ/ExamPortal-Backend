@@ -13,6 +13,7 @@ import {
   QUESTION_TYPE,
   USER_ROLES,
   USER_STATUS,
+  ENROLLMENT_STATUS,
 } from "../src/utils/constants/model.constant.js";
 
 const users = [
@@ -312,14 +313,17 @@ const setup = async () => {
         {
           exam_id: quiz.id,
           user_id: student.id,
+          status: ENROLLMENT_STATUS.UPCOMING,
         },
         {
           exam_id: assignment.id,
           user_id: student.id,
+          status: ENROLLMENT_STATUS.UPCOMING,
         },
         {
           exam_id: multipleChoiceExam.id,
           user_id: student.id,
+          status: ENROLLMENT_STATUS.UPCOMING,
         },
       ];
 

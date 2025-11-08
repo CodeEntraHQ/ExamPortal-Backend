@@ -9,7 +9,14 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
   // Get all enrollments for the current student
   const enrollments = await Enrollment.findAll({
     where: { user_id: req.user.id },
-    attributes: ["id", "exam_id", "user_id", "metadata", "created_at"],
+    attributes: [
+      "id",
+      "exam_id",
+      "user_id",
+      "status",
+      "metadata",
+      "created_at",
+    ],
   });
 
   if (enrollments.length === 0) {
@@ -54,12 +61,12 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
   const results = await Result.findAll({
     where: {
       user_id: req.user.id,
-      quiz_id: examIds,
+      exam_id: examIds,
     },
-    attributes: ["id", "quiz_id", "user_id", "score", "metadata", "created_at"],
+    attributes: ["id", "exam_id", "user_id", "score", "metadata", "created_at"],
   });
 
-  const resultsMap = new Map(results.map((r) => [r.quiz_id, r]));
+  const resultsMap = new Map(results.map((r) => [r.exam_id, r]));
 
   // Combine enrollment and exam data with computed status
   const enrollmentsWithDetails = enrollments
@@ -70,33 +77,13 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
       }
 
       const result = resultsMap.get(enrollment.exam_id);
-      const now = new Date();
-      const examMetadata = exam.metadata || {};
-      const startDate = examMetadata.startDate
-        ? new Date(examMetadata.startDate)
-        : null;
-      const endDate = examMetadata.endDate
-        ? new Date(examMetadata.endDate)
-        : null;
 
-      let status = ENROLLMENT_STATUS.UPCOMING;
+      // Use enrollment status from database, but override if there's a result (completed)
+      let status = enrollment.status || ENROLLMENT_STATUS.UPCOMING;
 
       // If there's a result, exam is completed
       if (result) {
         status = ENROLLMENT_STATUS.COMPLETED;
-      } else if (startDate && endDate) {
-        // Determine status based on dates
-        if (now < startDate) {
-          status = ENROLLMENT_STATUS.UPCOMING;
-        } else if (now >= startDate && now <= endDate) {
-          status = ENROLLMENT_STATUS.ONGOING;
-        } else if (now > endDate) {
-          // If past end date and no result, still mark as completed (missed/completed)
-          status = ENROLLMENT_STATUS.COMPLETED;
-        }
-      } else if (startDate && now >= startDate) {
-        // If only start date is set and we're past it
-        status = ENROLLMENT_STATUS.ONGOING;
       }
 
       return {

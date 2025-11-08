@@ -15,13 +15,13 @@ Question.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
 Enrollment.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
 Enrollment.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
 Result.belongsTo(User, { foreignKey: "user_id", onDelete: "CASCADE" });
-Result.belongsTo(Exam, { foreignKey: "quiz_id", onDelete: "CASCADE" });
+Result.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
 Submission.belongsTo(User, {
   foreignKey: "user_id",
   onDelete: "CASCADE",
 });
 Submission.belongsTo(Exam, {
-  foreignKey: "quiz_id",
+  foreignKey: "exam_id",
   onDelete: "CASCADE",
 });
 Submission.belongsTo(Question, {

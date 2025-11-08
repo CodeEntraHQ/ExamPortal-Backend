@@ -16,7 +16,7 @@ const Result = sequelize.define(
       unique: true,
     },
 
-    quiz_id: {
+    exam_id: {
       type: DataTypes.STRING,
       unique: true,
     },
@@ -34,7 +34,7 @@ const Result = sequelize.define(
     timestamps: false,
 
     indexes: [
-      { fields: ["quiz_id"] },
+      { fields: ["exam_id"] },
       { fields: ["user_id"] },
       { fields: ["score"] },
     ],

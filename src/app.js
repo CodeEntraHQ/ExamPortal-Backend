@@ -11,6 +11,7 @@ import getAllEntity from "#routes/entity.route.js";
 import examAndQuestRouter from "#routes/exam.route.js";
 import healthcheckRouter from "#routes/healthcheck.route.js";
 import mediaRouter from "#routes/media.route.js";
+import submissionRouter from "#routes/submission.route.js";
 // routes import
 import userRouter from "#routes/user.route.js";
 
@@ -38,6 +39,7 @@ app.use(loggerMiddleware);
 app.use("/v1/entities", getAllEntity);
 app.use("/v1/users", userRouter);
 app.use("/v1/exams", examAndQuestRouter);
+app.use("/v1/submissions", submissionRouter);
 app.use("/v1/checks", healthcheckRouter);
 app.use("/v1/medias", mediaRouter);
 
