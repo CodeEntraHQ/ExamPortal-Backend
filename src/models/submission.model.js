@@ -13,22 +13,22 @@ const Submission = sequelize.define(
 
     user_id: {
       type: DataTypes.STRING,
-      unique: true,
+      allowNull: false,
     },
 
-    quiz_id: {
+    exam_id: {
       type: DataTypes.STRING,
-      unique: true,
+      allowNull: false,
     },
 
     question_id: {
       type: DataTypes.STRING,
-      unique: true,
+      allowNull: false,
     },
 
     metadata: DataTypes.JSON,
 
-    created_at: {
+    last_updated: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -37,9 +37,10 @@ const Submission = sequelize.define(
     timestamps: false,
 
     indexes: [
-      { fields: ["quiz_id"] },
+      { fields: ["exam_id"] },
       { fields: ["user_id"] },
       { fields: ["question_id"] },
+      { fields: ["user_id", "exam_id", "question_id"], unique: true },
     ],
   }
 );
