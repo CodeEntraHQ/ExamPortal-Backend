@@ -19,7 +19,7 @@ export const createExamSchema = z.object({
         .object({
           totalMarks: z.number().min(0),
           passingMarks: z.number().min(0),
-          instructions: z.string(),
+          instructions: z.array(z.string()),
         })
         .optional(),
       entity_id: uuidValidation("entity_id").optional(),
@@ -112,7 +112,7 @@ export const updateExamSchema = z.object({
         .object({
           totalMarks: z.number().min(0).optional(),
           passingMarks: z.number().min(0).optional(),
-          instructions: z.string().optional(),
+          instructions: z.array(z.string()).optional(),
           description: z.string().optional(),
           startDate: z.string().optional(),
           endDate: z.string().optional(),
