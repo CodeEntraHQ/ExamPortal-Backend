@@ -1,3 +1,4 @@
+import { calculateResult } from "#controllers/results/calculateResult.controller.js";
 import Enrollment from "#models/enrollment.model.js";
 import Exam from "#models/exam.model.js";
 import Submission from "#models/submission.model.js";
@@ -60,6 +61,14 @@ export const submitExam = ApiHandler(async (req, res) => {
       submitted_at: submittedAt.toISOString(),
     },
   });
+
+  // Calculate and store result (triggered internally when status changes to COMPLETED)
+  try {
+    await calculateResult(req.user.id, exam_id);
+  } catch (error) {
+    console.error("Error calculating result:", error);
+    // Don't fail the submission if result calculation fails
+  }
 
   // Send response
   return res.status(200).json(

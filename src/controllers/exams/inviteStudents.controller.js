@@ -1,5 +1,6 @@
 import Enrollment from "#models/enrollment.model.js";
 import Exam from "#models/exam.model.js";
+import Result from "#models/result.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
@@ -58,6 +59,31 @@ export const inviteStudent = ApiHandler(async (req, res) => {
   await Enrollment.bulkCreate(newEnrollments, {
     individualHooks: true,
   });
+
+  // Initialize result for each new enrollment
+  const resultInitializations = newEnrollments.map((enrollment) => ({
+    user_id: enrollment.user_id,
+    exam_id: enrollment.exam_id,
+    score: null,
+    metadata: {
+      correct_answer: 0,
+      incorrect_answer: 0,
+      no_answers: 0,
+    },
+  }));
+
+  // Use findOrCreate to avoid duplicates if result already exists
+  await Promise.all(
+    resultInitializations.map((resultData) =>
+      Result.findOrCreate({
+        where: {
+          user_id: resultData.user_id,
+          exam_id: resultData.exam_id,
+        },
+        defaults: resultData,
+      })
+    )
+  );
 
   // Send response
   return res.status(200).json(
