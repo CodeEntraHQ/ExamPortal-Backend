@@ -1,7 +1,9 @@
 import { Router } from "express";
 import multer from "multer";
 
+import { activateUser } from "#controllers/users/activateUser.controller.js";
 import { changePassword } from "#controllers/users/changePassword.controller.js";
+import { createUser } from "#controllers/users/createUser.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
 import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
 import { generateTwoFa } from "#controllers/users/generateTwoFa.controller.js";
@@ -25,6 +27,8 @@ import {
   inviteUserSchema,
   registerUserSchema,
   deregisterUserSchema,
+  activateUserSchema,
+  createUserSchema,
   getUsersSchema,
   changePasswordSchema,
   updateUserSchema,
@@ -63,6 +67,15 @@ router
   );
 
 router
+  .route("/create")
+  .post(
+    validate(createUserSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    createUser
+  );
+
+router
   .route("/register")
   .post(
     upload.single("profile_picture"),
@@ -74,6 +87,15 @@ router
 router
   .route("/deregister")
   .patch(validate(deregisterUserSchema), verifyJWT, deregisterUser);
+
+router
+  .route("/activate")
+  .patch(
+    validate(activateUserSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    activateUser
+  );
 
 router
   .route("/")
