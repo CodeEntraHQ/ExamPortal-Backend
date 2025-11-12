@@ -64,9 +64,14 @@ export const getQuestionsSchema = z.object({
 });
 
 export const inviteStudentSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
   body: z
     .object({
-      exam_id: uuidValidation("exam_id"),
+      entity_id: uuidValidation("entity_id"),
       student_emails: arrayValidation("student_emails", emailValidation()),
     })
     .strict(),

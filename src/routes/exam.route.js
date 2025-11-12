@@ -51,7 +51,7 @@ router
   );
 
 router
-  .route("/invite")
+  .route("/:id/invite")
   .post(
     validate(inviteStudentSchema),
     verifyJWT,
