@@ -68,6 +68,36 @@ export const deregisterUserSchema = z.object({
   headers: authorizationValidation(),
 });
 
+export const activateUserSchema = z.object({
+  body: z
+    .object({
+      user_id: uuidValidation("user_id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const createUserSchema = z.object({
+  body: z
+    .object({
+      email: emailValidation(),
+      name: stringValidation("name").optional(),
+      role: z.enum([USER_ROLES.ADMIN, USER_ROLES.STUDENT]),
+      entity_id: uuidValidation("entity_id").optional(),
+      phone_number: integerValidation(
+        "phone_number",
+        6000000000,
+        9999999999
+      ).optional(),
+      address: stringValidation("address").optional(),
+      bio: stringValidation("bio").optional(),
+      gender: z.enum([...Object.values(USER_GENDER)]).optional(),
+      roll_number: stringValidation("roll_number").optional(),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
 export const inviteUserSchema = z.object({
   body: z
     .object({
