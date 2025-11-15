@@ -1,8 +1,11 @@
 import Entity from "#models/entity.model.js";
+import Exam from "#models/exam.model.js";
 import Media from "#models/media.model.js";
+import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
+import { USER_ROLES } from "#utils/constants/model.constant.js";
 import { constructMediaLink } from "#utils/utils.js";
 
 export const updateEntity = ApiHandler(async (req, res) => {
@@ -41,11 +44,28 @@ export const updateEntity = ApiHandler(async (req, res) => {
     throw new ApiError(400, "ENTITY_NOT_FOUND", "Entity not found");
   }
 
+  // Check authorization - ADMIN can only update their own entity
+  if (req.user.role === "ADMIN" && entity.id !== req.user.entity_id) {
+    throw new ApiError(
+      403,
+      "FORBIDDEN",
+      "You don't have permission to update this entity"
+    );
+  }
+
   if (entity.logo_id) {
     await Media.destroy({ where: { id: entity.logo_id } });
   }
 
   const updatedEntity = await entity.update(updateData);
+
+  // Get counts
+  const total_exams = await Exam.count({
+    where: { entity_id: updatedEntity.id },
+  });
+  const total_students = await User.count({
+    where: { entity_id: updatedEntity.id, role: USER_ROLES.STUDENT },
+  });
 
   // Send response
   return res.status(200).json(
@@ -59,6 +79,8 @@ export const updateEntity = ApiHandler(async (req, res) => {
       name: updatedEntity.name,
       phone_number: updatedEntity.phone_number,
       status: "ACTIVE",
+      total_exams,
+      total_students,
       type: updatedEntity.type,
     })
   );

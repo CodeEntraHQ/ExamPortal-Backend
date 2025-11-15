@@ -11,6 +11,7 @@ import { generateTwoFa } from "#controllers/users/generateTwoFa.controller.js";
 import { getUsers } from "#controllers/users/getUsers.controller.js";
 import { inviteUser } from "#controllers/users/inviteUser.controller.js";
 import { loginUser } from "#controllers/users/loginUser.controller.js";
+import { logoutUser } from "#controllers/users/logoutUser.controller.js";
 import { registerUser } from "#controllers/users/registerUser.controller.js";
 import { renewLogin } from "#controllers/users/renewLogin.controller.js";
 import { resetPassword } from "#controllers/users/resetPassword.controller.js";
@@ -25,6 +26,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   renewLoginSchema,
+  logoutUserSchema,
   inviteUserSchema,
   registerUserSchema,
   deregisterUserSchema,
@@ -44,6 +46,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.route("/login").post(validate(loginUserSchema), loginUser);
+
+router.route("/logout").post(validate(logoutUserSchema), verifyJWT, logoutUser);
 
 router
   .route("/password/forgot")
