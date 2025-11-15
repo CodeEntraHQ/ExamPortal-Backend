@@ -3,6 +3,7 @@ import multer from "multer";
 
 import { createEntity } from "#controllers/entities/createEntity.controller.js";
 import { getEntities } from "#controllers/entities/getEntities.controller.js";
+import { getEntityById } from "#controllers/entities/getEntityById.controller.js";
 import { updateEntity } from "#controllers/entities/updateEntity.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 import { checkAuthorization } from "#middleware/authorization.middleware.js";
@@ -44,8 +45,17 @@ router
     upload.single("logo"),
     validate(updateEntitySchema),
     verifyJWT,
-    checkAuthorization(USER_ROLES.SUPERADMIN),
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     updateEntity
+  );
+
+// Get entity by ID - allows ADMIN to get their own entity
+router
+  .route("/:id")
+  .get(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getEntityById
   );
 
 export default router;

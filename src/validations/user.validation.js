@@ -46,6 +46,10 @@ export const renewLoginSchema = z.object({
   headers: authorizationValidation(),
 });
 
+export const logoutUserSchema = z.object({
+  headers: authorizationValidation(),
+});
+
 export const getUsersSchema = z.object({
   query: z
     .object({

@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import speakeasy from "speakeasy";
 
+import Entity from "#models/entity.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
@@ -20,6 +21,13 @@ export const loginUser = ApiHandler(async (req, res) => {
       email: email,
       status: USER_STATUS.ACTIVE,
     },
+    include: [
+      {
+        model: Entity,
+        attributes: ["id", "name"],
+        required: false,
+      },
+    ],
   });
 
   if (!user) {
@@ -91,11 +99,37 @@ export const loginUser = ApiHandler(async (req, res) => {
   }
 
   const token = generateUserSessionToken(user.id);
-  const updatedUser = await user.update({
+  await user.update({
     last_login_at: new Date(),
     failed_login_count: 0,
     last_failed_duration: null,
   });
+
+  // Reload user with Entity association to get entity information
+  const updatedUser = await User.findByPk(user.id, {
+    include: [
+      {
+        model: Entity,
+        attributes: ["id", "name"],
+        required: false,
+      },
+    ],
+  });
+
+  // Get entity information if available
+  let entityId = null;
+  let entityName = null;
+  if (updatedUser?.Entity) {
+    entityId = updatedUser.Entity.id;
+    entityName = updatedUser.Entity.name;
+  } else if (updatedUser?.entity_id) {
+    entityId = updatedUser.entity_id;
+    // Try to fetch entity name if not included
+    const entity = await Entity.findByPk(updatedUser.entity_id);
+    if (entity) {
+      entityName = entity.name;
+    }
+  }
 
   // Send response
   return res.status(200).json(
@@ -107,6 +141,8 @@ export const loginUser = ApiHandler(async (req, res) => {
         bio: updatedUser.bio,
         created_at: updatedUser.created_at,
         email: updatedUser.email,
+        entity_id: entityId,
+        entity_name: entityName,
         two_fa_enabled: updatedUser.two_fa_enabled,
         gender: updatedUser.gender,
         last_login_at: updatedUser.last_login_at,
