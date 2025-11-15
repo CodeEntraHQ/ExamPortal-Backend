@@ -143,3 +143,30 @@ export const getExamByIdSchema = z.object({
     .strict(),
   headers: authorizationValidation(),
 });
+
+export const getExamStatisticsSchema = z.object({
+  query: z
+    .object({
+      entity_id: uuidValidation("entity_id").optional(),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const getExamDetailStatisticsSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const getExamLeaderboardSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
