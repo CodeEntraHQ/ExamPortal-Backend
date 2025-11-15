@@ -4,6 +4,7 @@ import multer from "multer";
 import { activateUser } from "#controllers/users/activateUser.controller.js";
 import { changePassword } from "#controllers/users/changePassword.controller.js";
 import { createUser } from "#controllers/users/createUser.controller.js";
+import { deleteUser } from "#controllers/users/deleteUser.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
 import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
 import { generateTwoFa } from "#controllers/users/generateTwoFa.controller.js";
@@ -27,6 +28,7 @@ import {
   inviteUserSchema,
   registerUserSchema,
   deregisterUserSchema,
+  deleteUserSchema,
   activateUserSchema,
   createUserSchema,
   getUsersSchema,
@@ -87,6 +89,15 @@ router
 router
   .route("/deregister")
   .patch(validate(deregisterUserSchema), verifyJWT, deregisterUser);
+
+router
+  .route("/delete/:user_id")
+  .delete(
+    validate(deleteUserSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    deleteUser
+  );
 
 router
   .route("/activate")
