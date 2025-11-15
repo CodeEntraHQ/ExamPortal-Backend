@@ -68,6 +68,15 @@ export const deregisterUserSchema = z.object({
   headers: authorizationValidation(),
 });
 
+export const deleteUserSchema = z.object({
+  params: z
+    .object({
+      user_id: uuidValidation("user_id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
 export const activateUserSchema = z.object({
   body: z
     .object({
@@ -81,6 +90,7 @@ export const createUserSchema = z.object({
   body: z
     .object({
       email: emailValidation(),
+      password: stringValidation("password", 8, 255),
       name: stringValidation("name").optional(),
       role: z.enum([USER_ROLES.ADMIN, USER_ROLES.STUDENT]),
       entity_id: uuidValidation("entity_id").optional(),
