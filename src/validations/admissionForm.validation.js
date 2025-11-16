@@ -74,3 +74,23 @@ export const updateAdmissionFormSchema = z.object({
     .strict(),
   headers: authorizationValidation(),
 });
+
+export const submitAdmissionFormSchema = z.object({
+  params: z
+    .object({
+      exam_id: uuidValidation("exam_id"),
+    })
+    .strict(),
+  body: z
+    .object({
+      form_responses: z
+        .record(z.string(), z.any(), {
+          error: "form_responses must be an object",
+        })
+        .refine((obj) => Object.keys(obj).length > 0, {
+          message: "form_responses must contain at least one field",
+        }),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
