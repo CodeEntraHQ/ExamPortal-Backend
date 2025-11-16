@@ -2,9 +2,11 @@ import { Router } from "express";
 
 import { createExam } from "#controllers/exams/createExam.controller.js";
 import { createQuestion } from "#controllers/exams/createQuestion.controller.js";
+import { deleteExamEnrollment } from "#controllers/exams/deleteExamEnrollment.controller.js";
 import { deleteQuestion } from "#controllers/exams/deleteQuestion.controller.js";
 import { getExamById } from "#controllers/exams/getExamById.controller.js";
 import { getExamDetailStatistics } from "#controllers/exams/getExamDetailStatistics.controller.js";
+import { getExamEnrollments } from "#controllers/exams/getExamEnrollments.controller.js";
 import { getExamLeaderboard } from "#controllers/exams/getExamLeaderboard.controller.js";
 import { getExamStatistics } from "#controllers/exams/getExamStatistics.controller.js";
 import { getExams } from "#controllers/exams/getExams.controller.js";
@@ -23,8 +25,10 @@ import {
   getExamsSchema,
   getExamByIdSchema,
   getExamStatisticsSchema,
+  getExamEnrollmentsSchema,
   getExamDetailStatisticsSchema,
   getExamLeaderboardSchema,
+  deleteExamEnrollmentSchema,
   createQuestionSchema,
   updateQuestionSchema,
   deleteQuestionSchema,
@@ -72,6 +76,24 @@ router
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     inviteStudent
+  );
+
+router
+  .route("/:id/enrollments")
+  .get(
+    validate(getExamEnrollmentsSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getExamEnrollments
+  );
+
+router
+  .route("/:id/enrollments/:enrollmentId")
+  .delete(
+    validate(deleteExamEnrollmentSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    deleteExamEnrollment
   );
 
 router

@@ -170,3 +170,22 @@ export const getExamLeaderboardSchema = z.object({
     .strict(),
   headers: authorizationValidation(),
 });
+
+export const getExamEnrollmentsSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const deleteExamEnrollmentSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+      enrollmentId: uuidValidation("enrollmentId"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
