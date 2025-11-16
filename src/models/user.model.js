@@ -62,7 +62,7 @@ const User = sequelize.define(
     },
 
     gender: {
-      type: DataTypes.ENUM(USER_GENDER.MALE, USER_GENDER.FEMALE),
+      type: DataTypes.ENUM(...Object.values(USER_GENDER)),
       allowNull: true,
     },
 
@@ -97,11 +97,7 @@ const User = sequelize.define(
     },
 
     role: {
-      type: DataTypes.ENUM(
-        USER_ROLES.SUPERADMIN,
-        USER_ROLES.ADMIN,
-        USER_ROLES.STUDENT
-      ),
+      type: DataTypes.ENUM(...Object.values(USER_ROLES)),
       defaultValue: USER_ROLES.STUDENT,
       allowNull: false,
     },
@@ -112,11 +108,7 @@ const User = sequelize.define(
     },
 
     status: {
-      type: DataTypes.ENUM(
-        USER_STATUS.ACTIVE,
-        USER_STATUS.INACTIVE,
-        USER_STATUS.ACTIVATION_PENDING
-      ),
+      type: DataTypes.ENUM(...Object.values(USER_STATUS)),
       defaultValue: USER_STATUS.INACTIVE,
       allowNull: false,
     },
