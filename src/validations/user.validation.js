@@ -53,8 +53,12 @@ export const logoutUserSchema = z.object({
 export const getUsersSchema = z.object({
   query: z
     .object({
-      entity_id: uuidValidation("entity_id"),
-      role: z.enum([USER_ROLES.ADMIN, USER_ROLES.STUDENT]),
+      entity_id: uuidValidation("entity_id").optional(),
+      role: z.enum([
+        USER_ROLES.ADMIN,
+        USER_ROLES.STUDENT,
+        USER_ROLES.REPRESENTATIVE,
+      ]),
       page: integerValidation("page", 1, null).optional(),
       limit: integerValidation("limit", 1, 10).optional(),
     })
@@ -96,7 +100,11 @@ export const createUserSchema = z.object({
       email: emailValidation(),
       password: stringValidation("password", 8, 255),
       name: stringValidation("name").optional(),
-      role: z.enum([USER_ROLES.ADMIN, USER_ROLES.STUDENT]),
+      role: z.enum([
+        USER_ROLES.ADMIN,
+        USER_ROLES.STUDENT,
+        USER_ROLES.REPRESENTATIVE,
+      ]),
       entity_id: uuidValidation("entity_id").optional(),
       phone_number: integerValidation(
         "phone_number",

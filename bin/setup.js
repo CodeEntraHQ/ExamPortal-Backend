@@ -32,6 +32,11 @@ const users = [
     password: "password",
     role: USER_ROLES.STUDENT,
   },
+  {
+    email: "representative@example.com",
+    password: "password",
+    role: USER_ROLES.REPRESENTATIVE,
+  },
 ];
 
 const setup = async () => {
@@ -51,6 +56,9 @@ const setup = async () => {
 
     for (const user of users) {
       const password_hash = await bcrypt.hash(user.password, 10);
+      // Representatives don't belong to any entity (entity_id is null)
+      const entityId =
+        user.role === USER_ROLES.REPRESENTATIVE ? null : entity.id;
       await User.create({
         id: randomUUID(),
         email: user.email,
@@ -58,7 +66,7 @@ const setup = async () => {
         role: user.role,
         status: USER_STATUS.ACTIVE,
         name: user.role.toLowerCase(),
-        entity_id: entity.id,
+        entity_id: entityId,
       });
       console.log(`User ${user.email} created successfully.`);
     }
