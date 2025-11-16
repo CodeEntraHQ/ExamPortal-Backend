@@ -4,6 +4,7 @@ import {
   stringValidation,
   authorizationValidation,
   uuidValidation,
+  integerValidation,
 } from "#validations/rules.js";
 
 // Field type enum
@@ -92,5 +93,53 @@ export const submitAdmissionFormSchema = z.object({
         }),
     })
     .strict(),
+  headers: authorizationValidation(),
+});
+
+export const getAdmissionFormSubmissionsSchema = z.object({
+  query: z
+    .object({
+      page: integerValidation("page", 1, null).optional(),
+      limit: integerValidation("limit", 1, 10).optional(),
+      entity_id: uuidValidation("entity_id").optional(),
+      status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const updateSubmissionStatusSchema = z.object({
+  params: z
+    .object({
+      submission_id: uuidValidation("submission_id"),
+    })
+    .strict(),
+  body: z
+    .object({
+      action: z.enum(["approve", "reject"], {
+        errorMap: () => ({
+          message: "action must be either 'approve' or 'reject'",
+        }),
+      }),
+      password: z
+        .string()
+        .min(6, "Password must be at least 6 characters")
+        .optional(),
+    })
+    .strict()
+    .refine(
+      (data) => {
+        // Password is required when action is "approve"
+        if (data.action === "approve") {
+          return data.password && data.password.length >= 6;
+        }
+        return true;
+      },
+      {
+        message:
+          "Password is required and must be at least 6 characters when approving",
+        path: ["password"],
+      }
+    ),
   headers: authorizationValidation(),
 });
