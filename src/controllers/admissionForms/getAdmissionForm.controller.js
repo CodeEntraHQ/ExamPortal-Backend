@@ -1,8 +1,10 @@
 import AdmissionForm from "#models/admissionForm.model.js";
+import Enrollment from "#models/enrollment.model.js";
 import Exam from "#models/exam.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
+import { ENROLLMENT_STATUS } from "#utils/constants/model.constant.js";
 
 export const getAdmissionForm = ApiHandler(async (req, res) => {
   const { exam_id } = req.params;
@@ -16,6 +18,25 @@ export const getAdmissionForm = ApiHandler(async (req, res) => {
   // Check authorization
   if (req.user.role === "ADMIN" && exam.entity_id !== req.user.entity_id) {
     throw new ApiError(403, "FORBIDDEN", "You don't have access to this exam");
+  }
+
+  // For representatives, check if they have an enrollment with ASSIGNED status
+  if (req.user.role === "REPRESENTATIVE") {
+    const enrollment = await Enrollment.findOne({
+      where: {
+        exam_id: exam_id,
+        user_id: req.user.id,
+        status: ENROLLMENT_STATUS.ASSIGNED,
+      },
+    });
+
+    if (!enrollment) {
+      throw new ApiError(
+        403,
+        "FORBIDDEN",
+        "You don't have access to this exam's admission form"
+      );
+    }
   }
 
   // Find admission form
