@@ -78,6 +78,22 @@ export const inviteStudentSchema = z.object({
   headers: authorizationValidation(),
 });
 
+export const inviteRepresentativesSchema = z.object({
+  params: z
+    .object({
+      exam_id: uuidValidation("exam_id"),
+    })
+    .strict(),
+  body: z
+    .object({
+      user_ids: arrayValidation("user_ids", uuidValidation("user_id")).min(1, {
+        message: "At least one representative must be selected",
+      }),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
 export const updateQuestionSchema = z.object({
   params: z
     .object({
