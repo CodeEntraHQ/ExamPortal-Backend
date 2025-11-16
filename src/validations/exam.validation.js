@@ -151,6 +151,10 @@ export const getStudentEnrollmentsSchema = z.object({
   headers: authorizationValidation(),
 });
 
+export const getRepresentativeEnrollmentsSchema = z.object({
+  headers: authorizationValidation(),
+});
+
 export const getExamByIdSchema = z.object({
   params: z
     .object({

@@ -26,7 +26,11 @@ router
   .get(
     validate(getAdmissionFormSchema),
     verifyJWT,
-    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    checkAuthorization(
+      USER_ROLES.SUPERADMIN,
+      USER_ROLES.ADMIN,
+      USER_ROLES.REPRESENTATIVE
+    ),
     getAdmissionForm
   )
   .patch(

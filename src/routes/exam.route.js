@@ -11,6 +11,7 @@ import { getExamLeaderboard } from "#controllers/exams/getExamLeaderboard.contro
 import { getExamStatistics } from "#controllers/exams/getExamStatistics.controller.js";
 import { getExams } from "#controllers/exams/getExams.controller.js";
 import { getQuestions } from "#controllers/exams/getQuestions.controller.js";
+import { getRepresentativeEnrollments } from "#controllers/exams/getRepresentativeEnrollments.controller.js";
 import { getStudentEnrollments } from "#controllers/exams/getStudentEnrollments.controller.js";
 import { inviteRepresentatives } from "#controllers/exams/inviteRepresentatives.controller.js";
 import { inviteStudent } from "#controllers/exams/inviteStudents.controller.js";
@@ -37,6 +38,7 @@ import {
   inviteStudentSchema,
   inviteRepresentativesSchema,
   getStudentEnrollmentsSchema,
+  getRepresentativeEnrollmentsSchema,
 } from "#validations/exam.validation.js";
 
 const router = Router();
@@ -69,6 +71,15 @@ router
     verifyJWT,
     checkAuthorization(USER_ROLES.STUDENT),
     getStudentEnrollments
+  );
+
+router
+  .route("/representative/enrollments")
+  .get(
+    validate(getRepresentativeEnrollmentsSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.REPRESENTATIVE),
+    getRepresentativeEnrollments
   );
 
 router
