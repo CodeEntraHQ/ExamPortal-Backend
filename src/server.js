@@ -1,5 +1,6 @@
 import app from "#app.js";
 import sequelize from "#db/index.js";
+import AdmissionForm from "#models/admissionForm.model.js";
 import Enrollment from "#models/enrollment.model.js";
 // import models
 import Entity from "#models/entity.model.js";
@@ -28,6 +29,7 @@ Submission.belongsTo(Question, {
   foreignKey: "question_id",
   onDelete: "CASCADE",
 });
+AdmissionForm.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
 
 const port = process.env.PORT || 8000;
 
