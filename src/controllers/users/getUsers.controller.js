@@ -1,4 +1,5 @@
 import User from "#models/user.model.js";
+import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { constructMediaLink } from "#utils/utils.js";
@@ -11,9 +12,28 @@ export const getUsers = ApiHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
 
+  // For non-representative roles, entity_id is required
+  if (role !== "REPRESENTATIVE" && !entity_id) {
+    throw new ApiError(
+      400,
+      "BAD_REQUEST",
+      "entity_id is required for this role"
+    );
+  }
+
+  // Build where clause
+  // For REPRESENTATIVE role, entity_id should be null (they don't belong to any entity)
+  // For other roles, use the provided entity_id
+  const whereClause = { role: role };
+  if (role === "REPRESENTATIVE") {
+    whereClause.entity_id = null;
+  } else {
+    whereClause.entity_id = entity_id;
+  }
+
   // Fetch users
   const { rows, count: total } = await User.findAndCountAll({
-    where: { role: role, entity_id: entity_id },
+    where: whereClause,
     offset,
     limit,
     order: [["created_at", "ASC"]],
