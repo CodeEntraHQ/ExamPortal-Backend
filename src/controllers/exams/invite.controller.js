@@ -2,7 +2,10 @@ import Enrollment from "#models/enrollment.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
-import { USER_STATUS } from "#utils/constants/model.constant.js";
+import {
+  ENROLLMENT_STATUS,
+  USER_STATUS,
+} from "#utils/constants/model.constant.js";
 import { sendExamInvitationEmail } from "#utils/email-handler/index.js";
 
 export const inviteStudents = async (req, res) => {
@@ -36,6 +39,7 @@ export const inviteStudents = async (req, res) => {
     users.map((user) => ({
       exam_id: examId,
       user_id: user.id,
+      status: ENROLLMENT_STATUS.UPCOMING,
       metadata: {
         invited_by: req.user.id,
         invited_at: new Date(),
@@ -65,6 +69,7 @@ export const inviteStudents = async (req, res) => {
         id: e.id,
         exam_id: e.exam_id,
         user_id: e.user_id,
+        status: e.status,
         created_at: e.created_at,
       })),
       enrolledCount: enrollments.length,
