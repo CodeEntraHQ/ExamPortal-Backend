@@ -12,6 +12,7 @@ import { getExamStatistics } from "#controllers/exams/getExamStatistics.controll
 import { getExams } from "#controllers/exams/getExams.controller.js";
 import { getQuestions } from "#controllers/exams/getQuestions.controller.js";
 import { getStudentEnrollments } from "#controllers/exams/getStudentEnrollments.controller.js";
+import { inviteRepresentatives } from "#controllers/exams/inviteRepresentatives.controller.js";
 import { inviteStudent } from "#controllers/exams/inviteStudents.controller.js";
 import { updateExam } from "#controllers/exams/updateExam.controller.js";
 import { updateQuestion } from "#controllers/exams/updateQuestion.controller.js";
@@ -34,6 +35,7 @@ import {
   deleteQuestionSchema,
   getQuestionsSchema,
   inviteStudentSchema,
+  inviteRepresentativesSchema,
   getStudentEnrollmentsSchema,
 } from "#validations/exam.validation.js";
 
@@ -76,6 +78,15 @@ router
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     inviteStudent
+  );
+
+router
+  .route("/:exam_id/invite-representatives")
+  .post(
+    validate(inviteRepresentativesSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    inviteRepresentatives
   );
 
 router

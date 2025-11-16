@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 
 import sequelize from "../src/db/index.js";
+import AdmissionForm from "../src/models/admissionForm.model.js";
 import Enrollment from "../src/models/enrollment.model.js";
 import Entity from "../src/models/entity.model.js";
 import Exam from "../src/models/exam.model.js";
@@ -312,6 +313,29 @@ const setup = async () => {
       });
     }
     console.log("Multiple choice questions created successfully.");
+
+    // Create admission form for the math exam
+    await AdmissionForm.create({
+      id: randomUUID(),
+      exam_id: quiz.id,
+      form_structure: [
+        {
+          label: "Email",
+          type: "EMAIL",
+          required: true,
+          placeholder: "Enter your email address",
+        },
+        {
+          label: "Full Name",
+          type: "TEXT",
+          required: true,
+          placeholder: "Enter your full name",
+        },
+      ],
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    console.log("Admission form created successfully for math exam.");
 
     // Enroll the default student in all three exams
     const student = await User.findOne({ where: { role: USER_ROLES.STUDENT } });
