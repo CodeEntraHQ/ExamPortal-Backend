@@ -7,6 +7,7 @@ import contextMiddleware from "#middleware/context.middleware.js";
 import { errorHandler } from "#middleware/error.middleware.js";
 // logger middleware
 import loggerMiddleware from "#middleware/logger.middleware.js";
+import admissionFormRouter from "#routes/admissionForm.route.js";
 import getAllEntity from "#routes/entity.route.js";
 import examAndQuestRouter from "#routes/exam.route.js";
 import healthcheckRouter from "#routes/healthcheck.route.js";
@@ -39,6 +40,7 @@ app.use(loggerMiddleware);
 app.use("/v1/entities", getAllEntity);
 app.use("/v1/users", userRouter);
 app.use("/v1/exams", examAndQuestRouter);
+app.use("/v1/admission-forms", admissionFormRouter);
 app.use("/v1/submissions", submissionRouter);
 app.use("/v1/checks", healthcheckRouter);
 app.use("/v1/medias", mediaRouter);
