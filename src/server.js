@@ -33,10 +33,12 @@ Submission.belongsTo(Question, {
 AdmissionForm.belongsTo(Exam, { foreignKey: "exam_id", onDelete: "CASCADE" });
 AdmissionFormSubmission.belongsTo(Exam, {
   foreignKey: "exam_id",
+  as: "Exam",
   onDelete: "CASCADE",
 });
 AdmissionFormSubmission.belongsTo(User, {
   foreignKey: "representative_id",
+  as: "Representative",
   onDelete: "CASCADE",
 });
 
