@@ -19,11 +19,16 @@ export const activateUser = ApiHandler(async (req, res) => {
   }
 
   // Check permissions
-  // SUPERADMIN can activate anyone, ADMIN can activate STUDENTS
+  const requesterRole = req.user.role?.toUpperCase();
+  const targetRole = userToActivate.role?.toUpperCase();
+
+  const manageableRolesForSuperAdmin = ["ADMIN", "STUDENT", "REPRESENTATIVE"];
+  const manageableRolesForAdmin = ["STUDENT", "REPRESENTATIVE"];
+
   const canActivate =
-    (req.user.role === "SUPERADMIN" &&
-      ["ADMIN", "STUDENT"].includes(userToActivate.role)) ||
-    (req.user.role === "ADMIN" && userToActivate.role === "STUDENT");
+    (requesterRole === "SUPERADMIN" &&
+      manageableRolesForSuperAdmin.includes(targetRole)) ||
+    (requesterRole === "ADMIN" && manageableRolesForAdmin.includes(targetRole));
 
   if (!canActivate) {
     throw new ApiError(

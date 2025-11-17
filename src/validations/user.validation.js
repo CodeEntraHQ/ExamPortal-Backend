@@ -116,7 +116,15 @@ export const createUserSchema = z.object({
       gender: z.enum([...Object.values(USER_GENDER)]).optional(),
       roll_number: stringValidation("roll_number").optional(),
     })
-    .strict(),
+    .strict()
+    .refine(
+      (data) =>
+        data.role !== USER_ROLES.STUDENT || Boolean(data.roll_number?.trim()),
+      {
+        message: "roll_number is required for students",
+        path: ["roll_number"],
+      }
+    ),
   headers: authorizationValidation(),
 });
 

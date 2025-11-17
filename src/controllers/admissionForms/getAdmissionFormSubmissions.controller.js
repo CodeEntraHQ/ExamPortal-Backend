@@ -15,22 +15,33 @@ export const getAdmissionFormSubmissions = ApiHandler(async (req, res) => {
   const entity_id = req.query.entity_id;
   const status = req.query.status || SUBMISSION_STATUS.PENDING;
 
-  // Request assertion
-  if (
-    (req.user.role === "SUPERADMIN" && !entity_id) ||
-    (req.user.role !== "SUPERADMIN" && entity_id)
-  ) {
-    throw new ApiError(
-      400,
-      "BAD_REQUEST",
-      "entity_id is required for SUPERADMIN"
-    );
-  }
-
   // Determine entity_id based on user role
-  let targetEntityId = entity_id;
-  if (req.user.role === "ADMIN") {
-    targetEntityId = req.user.entity_id;
+  let targetEntityId = null;
+  if (req.user.role === "SUPERADMIN") {
+    if (!entity_id) {
+      throw new ApiError(
+        400,
+        "BAD_REQUEST",
+        "entity_id is required for SUPERADMIN"
+      );
+    }
+    targetEntityId = entity_id;
+  } else if (req.user.role === "ADMIN") {
+    targetEntityId = entity_id || req.user.entity_id;
+    if (!targetEntityId) {
+      throw new ApiError(
+        400,
+        "BAD_REQUEST",
+        "Unable to determine entity for admin user"
+      );
+    }
+    if (entity_id && entity_id !== req.user.entity_id) {
+      throw new ApiError(
+        403,
+        "AUTHORIZATION_FAILED",
+        "Admin cannot access submissions for other entities"
+      );
+    }
   }
 
   // Validate status
