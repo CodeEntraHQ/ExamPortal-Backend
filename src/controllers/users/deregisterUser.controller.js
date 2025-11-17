@@ -37,10 +37,17 @@ export const deregisterUser = ApiHandler(async (req, res) => {
     }
 
     // Rule: Check permissions for deactivation.
+    const requesterRole = req.user.role?.toUpperCase();
+    const targetRole = userToDeactivate.role?.toUpperCase();
+
+    const manageableRolesForSuperAdmin = ["ADMIN", "STUDENT", "REPRESENTATIVE"];
+    const manageableRolesForAdmin = ["STUDENT", "REPRESENTATIVE"];
+
     const canDeactivate =
-      (req.user.role === "SUPERADMIN" &&
-        ["ADMIN", "STUDENT"].includes(userToDeactivate.role)) ||
-      (req.user.role === "ADMIN" && userToDeactivate.role === "STUDENT");
+      (requesterRole === "SUPERADMIN" &&
+        manageableRolesForSuperAdmin.includes(targetRole)) ||
+      (requesterRole === "ADMIN" &&
+        manageableRolesForAdmin.includes(targetRole));
 
     if (!canDeactivate) {
       throw new ApiError(
