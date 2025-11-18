@@ -21,14 +21,23 @@ export const createExam = ApiHandler(async (req, res) => {
   }
 
   // request assertion for entity_id
-  if (
-    (req.user.role === "SUPERADMIN" && !entity_id) ||
-    (req.user.role !== "SUPERADMIN" && entity_id)
-  ) {
+  // SUPERADMIN must provide entity_id, ADMIN must not provide entity_id (uses their own)
+  if (req.user.role === "SUPERADMIN") {
+    if (
+      !entity_id ||
+      (typeof entity_id === "string" && entity_id.length === 0)
+    ) {
+      throw new ApiError(
+        400,
+        "BAD_REQUEST",
+        "entity_id is required for SUPERADMIN"
+      );
+    }
+  } else if (req.user.role !== "SUPERADMIN" && entity_id) {
     throw new ApiError(
       400,
       "BAD_REQUEST",
-      "entity_id is required for SUPERADMIN"
+      "entity_id should not be provided for non-SUPERADMIN users"
     );
   }
 
