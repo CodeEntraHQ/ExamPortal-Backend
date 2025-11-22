@@ -8,6 +8,7 @@ import { deleteUser } from "#controllers/users/deleteUser.controller.js";
 import { deregisterUser } from "#controllers/users/deregisterUser.controller.js";
 import { forgotPassword } from "#controllers/users/forgotPassword.controller.js";
 import { generateTwoFa } from "#controllers/users/generateTwoFa.controller.js";
+import { getRecentLogins } from "#controllers/users/getRecentLogins.controller.js";
 import { getUsers } from "#controllers/users/getUsers.controller.js";
 import { inviteUser } from "#controllers/users/inviteUser.controller.js";
 import { loginUser } from "#controllers/users/loginUser.controller.js";
@@ -137,5 +138,13 @@ router
 router
   .route("/two-fa/toggle")
   .patch(validate(toggleTwoFaSchema), verifyJWT, toggleTwoFa);
+
+router
+  .route("/recent-logins")
+  .get(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getRecentLogins
+  );
 
 export default router;
