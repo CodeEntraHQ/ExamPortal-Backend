@@ -8,10 +8,14 @@ import { getExamById } from "#controllers/exams/getExamById.controller.js";
 import { getExamDetailStatistics } from "#controllers/exams/getExamDetailStatistics.controller.js";
 import { getExamEnrollments } from "#controllers/exams/getExamEnrollments.controller.js";
 import { getExamLeaderboard } from "#controllers/exams/getExamLeaderboard.controller.js";
+import { getExamPerformance } from "#controllers/exams/getExamPerformance.controller.js";
+import { getExamScoreDistribution } from "#controllers/exams/getExamScoreDistribution.controller.js";
 import { getExamStatistics } from "#controllers/exams/getExamStatistics.controller.js";
+import { getExamTypeDistribution } from "#controllers/exams/getExamTypeDistribution.controller.js";
 import { getExams } from "#controllers/exams/getExams.controller.js";
 import { getQuestions } from "#controllers/exams/getQuestions.controller.js";
 import { getRepresentativeEnrollments } from "#controllers/exams/getRepresentativeEnrollments.controller.js";
+import { getScoreDistribution } from "#controllers/exams/getScoreDistribution.controller.js";
 import { getStudentEnrollments } from "#controllers/exams/getStudentEnrollments.controller.js";
 import { inviteRepresentatives } from "#controllers/exams/inviteRepresentatives.controller.js";
 import { inviteStudent } from "#controllers/exams/inviteStudents.controller.js";
@@ -62,6 +66,30 @@ router
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     getExamStatistics
+  );
+
+router
+  .route("/type-distribution")
+  .get(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getExamTypeDistribution
+  );
+
+router
+  .route("/score-distribution")
+  .get(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getScoreDistribution
+  );
+
+router
+  .route("/performance")
+  .get(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getExamPerformance
   );
 
 router
@@ -154,6 +182,14 @@ router
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     getExamDetailStatistics
+  );
+
+router
+  .route("/:id/score-distribution")
+  .get(
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    getExamScoreDistribution
   );
 
 router
