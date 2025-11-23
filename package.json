@@ -119,6 +119,7 @@
     "zod": "^4.1.8"
   },
   "scripts": {
+    "start": "node -r ./src/config/index.js ./src/server.js",
     "dev": "nodemon -r ./src/config/index.js --experimental-json-modules src/server.js",
     "test": "cross-env NODE_ENV=TEST DB_NAME=examentra-test jest --runInBand",
     "coverage": "cross-env NODE_ENV=TEST DB_NAME=examentra-test jest --runInBand --coverage",
