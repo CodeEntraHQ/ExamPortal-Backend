@@ -1,11 +1,20 @@
 import bcrypt from "bcrypt";
 
+import Entity from "#models/entity.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { USER_STATUS } from "#utils/constants/model.constant.js";
+import { getUserInvitationLink } from "#utils/crypto.util.js";
+import { sendInvitationEmail } from "#utils/email-handler/triggerEmail.js";
 import { generateUUID } from "#utils/utils.js";
+
+const getEntityName = async (entityId) => {
+  if (!entityId) return "your organization";
+  const entity = await Entity.findByPk(entityId);
+  return entity?.name || "your organization";
+};
 
 export const createUser = ApiHandler(async (req, res) => {
   // Parsing request
@@ -72,6 +81,9 @@ export const createUser = ApiHandler(async (req, res) => {
 
   const password_hash = await bcrypt.hash(password, 10);
 
+  // Get entity name for email
+  const entityName = await getEntityName(resolvedEntityId);
+
   // Create user
   const user_id = generateUUID();
   const user = await User.create({
@@ -88,6 +100,27 @@ export const createUser = ApiHandler(async (req, res) => {
     gender: gender || null,
     roll_number: roll_number || null,
   });
+
+  // Send invitation email with entity name, password, and login link
+  console.log("📧 Sending invitation email for created user:", {
+    email,
+    role,
+    entityName,
+  });
+  const invitationLink = getUserInvitationLink(user_id);
+  const emailSent = await sendInvitationEmail(email, role, invitationLink, {
+    entityName,
+    loginUrl: process.env.LOGIN_PORTAL_URL,
+    temporaryPassword: password, // Send the password that was created
+  });
+
+  if (!emailSent) {
+    console.error("⚠️ User created but email failed to send:", email);
+    // Don't fail the request, just log the error
+    // User is already created, so we return success
+  } else {
+    console.log("✅ Invitation email sent successfully to:", email);
+  }
 
   return res.status(200).json(
     new ApiResponse("USER_CREATED", {
