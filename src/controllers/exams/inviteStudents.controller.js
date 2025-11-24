@@ -5,6 +5,7 @@ import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
+import { sendExamInvitationEmail } from "#utils/email-handler/triggerEmail.js";
 
 export const inviteStudent = ApiHandler(async (req, res) => {
   // Parsing request - exam_id from URL params, entity_id and student_emails from body
@@ -136,6 +137,42 @@ export const inviteStudent = ApiHandler(async (req, res) => {
           defaults: resultData,
         })
       )
+    );
+
+    // Send invitation emails to all successfully enrolled students
+    console.log("📧 Sending exam invitation emails for exam:", exam.title);
+    const emailPromises = [];
+
+    // Create a map of user_id to student for quick lookup
+    const userIdToStudentMap = new Map();
+    validStudentMap.forEach((student) => {
+      userIdToStudentMap.set(student.id, student);
+    });
+
+    for (const enrollment of newEnrollments) {
+      const student = userIdToStudentMap.get(enrollment.user_id);
+      if (student) {
+        emailPromises.push(
+          sendExamInvitationEmail(student.email, exam.title, {
+            loginUrl: process.env.LOGIN_PORTAL_URL,
+          }).catch((error) => {
+            console.error(
+              `⚠️ Failed to send email to ${student.email}:`,
+              error
+            );
+            return false;
+          })
+        );
+      }
+    }
+
+    // Send all emails in parallel
+    const emailResults = await Promise.all(emailPromises);
+    const successfulEmails = emailResults.filter(
+      (result) => result === true
+    ).length;
+    console.log(
+      `✅ Sent ${successfulEmails} out of ${emailPromises.length} exam invitation emails`
     );
   }
 
