@@ -1,4 +1,5 @@
 import Enrollment from "#models/enrollment.model.js";
+import Exam from "#models/exam.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
@@ -6,7 +7,7 @@ import {
   ENROLLMENT_STATUS,
   USER_STATUS,
 } from "#utils/constants/model.constant.js";
-import { sendExamInvitationEmail } from "#utils/email-handler/index.js";
+import { sendExamInvitationEmail } from "#utils/email-handler/triggerEmail.js";
 
 export const inviteStudents = async (req, res) => {
   const { examId, emails, entityId } = req.body;
@@ -34,6 +35,12 @@ export const inviteStudents = async (req, res) => {
     );
   }
 
+  // Fetch exam details for email
+  const exam = await Exam.findByPk(examId);
+  if (!exam) {
+    throw new ApiError(400, "BAD_REQUEST", "Exam not found");
+  }
+
   // Create enrollments for all valid users
   const enrollments = await Enrollment.bulkCreate(
     users.map((user) => ({
@@ -48,18 +55,42 @@ export const inviteStudents = async (req, res) => {
   );
 
   // Send invitation emails to all enrolled students
+  console.log("📧 Sending exam invitation emails for exam:", exam.title);
   try {
-    await Promise.all(
-      users.map((user) =>
-        sendExamInvitationEmail({
-          to: user.email,
-          examId,
-          userName: user.name,
-        })
-      )
+    const emailPromises = users.map((user) =>
+      sendExamInvitationEmail(user.email, exam.title, {
+        loginUrl: process.env.LOGIN_PORTAL_URL,
+      }).catch((error) => {
+        console.error(`⚠️ Failed to send email to ${user.email}:`, {
+          email: user.email,
+          examTitle: exam.title,
+          error: error.message,
+          stack: error.stack,
+        });
+        return false;
+      })
     );
+
+    const emailResults = await Promise.all(emailPromises);
+    const successfulEmails = emailResults.filter(
+      (result) => result === true
+    ).length;
+    const failedEmails = emailResults.filter(
+      (result) => result === false
+    ).length;
+
+    console.log(
+      `✅ Sent ${successfulEmails} out of ${emailPromises.length} exam invitation emails`
+    );
+    if (failedEmails > 0) {
+      console.error(`❌ Failed to send ${failedEmails} exam invitation emails`);
+    }
   } catch (error) {
-    console.error("Failed to send some invitation emails:", error);
+    console.error("❌ Error sending exam invitation emails:", {
+      examTitle: exam.title,
+      error: error.message,
+      stack: error.stack,
+    });
     // We don't throw here as enrollments were successful
   }
   // Return structured API response

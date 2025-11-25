@@ -10,6 +10,19 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// HTML escaping utility to prevent injection
+const escapeHtml = (text) => {
+  if (!text) return "";
+  const map = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return String(text).replace(/[&<>"']/g, (m) => map[m]);
+};
+
 const sendEmail = async (mailOptions) => {
   let triggerEmailSuccess;
   let response;
@@ -35,21 +48,29 @@ const sendEmail = async (mailOptions) => {
 };
 
 const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
-  // const emailExpiry = process.env.INVITATION_TOKEN_EXPIRY || "7";
-  const formattedRole = role.charAt(0) + role.slice(1).toLowerCase();
-  const { entityName, loginUrl, temporaryPassword } = options;
+  try {
+    const formattedRole = role
+      ? role.charAt(0) + role.slice(1).toLowerCase()
+      : "User";
+    const { entityName, loginUrl, temporaryPassword } = options;
 
-  // Use provided loginUrl or fallback to env variable or default
-  const finalLoginUrl =
-    loginUrl ||
-    process.env.LOGIN_PORTAL_URL ||
-    "https://examentra.cronitorstatus.com/";
+    // Use provided loginUrl or fallback to env variable or default
+    const finalLoginUrl =
+      loginUrl ||
+      process.env.LOGIN_PORTAL_URL ||
+      "https://examentra.cronitorstatus.com/";
 
-  const mailOptions = {
-    from: process.env.EMAIL_USERNAME,
-    to: to,
-    subject: "ExamEntra User Invitation",
-    html: `
+    // Escape HTML to prevent injection
+    const safeEntityName = escapeHtml(entityName || "ExamEntra");
+    const safePassword = temporaryPassword
+      ? escapeHtml(temporaryPassword)
+      : null;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: to,
+      subject: "ExamEntra User Invitation",
+      html: `
       <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 40px;">
       <tr>
         <td align="center">
@@ -58,26 +79,28 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
             <!-- Header / Logo -->
             <tr>
               <td align="center" style="background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); padding: 20px;">
-                <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">👋 You're Invited to Join ExamEntra!</h1>
+                <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">You're Invited to Join ExamEntra!</h1>
               </td>
             </tr>
+
+            <!-- Body -->
             <tr>
               <td style="padding: 40px; color: #333333;">
                 <p style="font-size: 16px; line-height: 1.6;">
                   Hello ${formattedRole},
                 </p>
                 <p style="font-size: 16px; line-height: 1.6;">
-                  You've been invited to join <strong>${entityName || "ExamEntra"}</strong> on <strong>ExamEntra</strong> — a smarter way to manage exams and performance.
+                  You've been invited to join <strong>${safeEntityName}</strong> on <strong>ExamEntra</strong> — a smarter way to manage exams and performance.
                 </p>
                 ${
-                  temporaryPassword
+                  safePassword
                     ? `
                 <p style="font-size: 16px; line-height: 1.6;">
                   Your account has been created with the following password:
                 </p>
                 <p style="text-align: center; margin: 20px 0;">
                   <span style="display:inline-block;padding:10px 20px;background:#f5f5f5;border-radius:8px;font-weight:bold;font-family:'Segoe UI Mono', monospace;font-size:18px;letter-spacing:2px;border:2px solid #e0e0e0;">
-                    ${temporaryPassword}
+                    ${safePassword}
                   </span>
                 </p>
                 `
@@ -86,6 +109,7 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
                 <p style="font-size: 16px; line-height: 1.6;">
                   You can now login to your account using the link below:
                 </p>
+
                 <p style="text-align: center; margin: 30px 0;">
                   <a href="${finalLoginUrl}" style="
                     background: linear-gradient(90deg, #00c6ff, #0072ff);
@@ -101,11 +125,14 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
                     Login to ExamEntra 🚀
                   </a>
                 </p>
+
                 <p style="font-size: 14px; color: #777777; text-align: center;">
-                  ${temporaryPassword ? "Use your email and the password shown above to login." : "Use your email and password to login."}
+                  ${safePassword ? "Use your email and the password shown above to login." : "Use your email and password to login."}
                 </p>
               </td>
             </tr>
+
+            <!-- Footer -->
             <tr>
               <td align="center" style="background-color: #f8f8f8; padding: 20px; color: #aaaaaa; font-size: 12px;">
                 &copy; ${new Date().getFullYear()} CodeEntra. All rights reserved.
@@ -116,9 +143,18 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
       </tr>
     </table>
     `,
-  };
-  const emailSent = await sendEmail(mailOptions);
-  return emailSent;
+    };
+    const emailSent = await sendEmail(mailOptions);
+    return emailSent;
+  } catch (error) {
+    console.error("❌ Error in sendInvitationEmail:", {
+      to,
+      role,
+      error: error.message,
+      stack: error.stack,
+    });
+    return false;
+  }
 };
 
 const sendPasswordResetEmail = async (to, name, resetLink) => {
@@ -144,7 +180,7 @@ const sendPasswordResetEmail = async (to, name, resetLink) => {
             <tr>
               <td style="padding: 40px; color: #333333;">
                 <p style="font-size: 16px; line-height: 1.6;">
-                  Hello ${name},
+                  Hello ${name || "there"},
                 </p>
                 <p style="font-size: 16px; line-height: 1.6;">
                   We received a request to reset your password for your <strong>ExamEntra</strong> account.
@@ -168,7 +204,7 @@ const sendPasswordResetEmail = async (to, name, resetLink) => {
                 </p>
 
                 <p style="font-size: 14px; color: #777777; text-align: center;">
-                  This link will expire in <strong>${tokenExpiry}inutes</strong> for your security.
+                  This link will expire in <strong>${tokenExpiry || "60"} minutes</strong> for your security.
                 </p>
               </td>
             </tr>
@@ -190,19 +226,23 @@ const sendPasswordResetEmail = async (to, name, resetLink) => {
 };
 
 const sendExamInvitationEmail = async (to, examName, options = {}) => {
-  const { loginUrl } = options;
+  try {
+    const { loginUrl } = options;
 
-  // Use provided loginUrl or fallback to env variable or default
-  const finalLoginUrl =
-    loginUrl ||
-    process.env.LOGIN_PORTAL_URL ||
-    "https://examentra.cronitorstatus.com/";
+    // Use provided loginUrl or fallback to env variable or default
+    const finalLoginUrl =
+      loginUrl ||
+      process.env.LOGIN_PORTAL_URL ||
+      "https://examentra.cronitorstatus.com/";
 
-  const mailOptions = {
-    from: process.env.EMAIL_USERNAME,
-    to: to,
-    subject: "Exam Invitation - ExamEntra",
-    html: `
+    // Escape HTML to prevent injection
+    const safeExamName = escapeHtml(examName || "Exam");
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: to,
+      subject: "Exam Invitation - ExamEntra",
+      html: `
       <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 40px;">
       <tr>
         <td align="center">
@@ -211,20 +251,21 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
             <!-- Header / Logo -->
             <tr>
               <td align="center" style="background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); padding: 20px;">
-                <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">📝 Exam Invitation</h1>
+                <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">Exam Invitation</h1>
               </td>
             </tr>
+
+            <!-- Body -->
             <tr>
               <td style="padding: 40px; color: #333333;">
                 <p style="font-size: 16px; line-height: 1.6;">
                   Hello Student,
                 </p>
                 <p style="font-size: 16px; line-height: 1.6;">
-                  You've been invited to take the exam: <strong>${examName || "Exam"}</strong> on <strong>ExamEntra</strong>.
+                  You've been invited to take the exam: <strong>${safeExamName}</strong> on <strong>ExamEntra</strong>.
+                  If you're ready to take this exam, click the button below to login to your account.
                 </p>
-                <p style="font-size: 16px; line-height: 1.6;">
-                  You can login to your account and access the exam using the link below:
-                </p>
+
                 <p style="text-align: center; margin: 30px 0;">
                   <a href="${finalLoginUrl}" style="
                     background: linear-gradient(90deg, #00c6ff, #0072ff);
@@ -240,11 +281,14 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
                     Login to ExamEntra 🚀
                   </a>
                 </p>
+
                 <p style="font-size: 14px; color: #777777; text-align: center;">
                   Use your email and password to login and access your exam.
                 </p>
               </td>
             </tr>
+
+            <!-- Footer -->
             <tr>
               <td align="center" style="background-color: #f8f8f8; padding: 20px; color: #aaaaaa; font-size: 12px;">
                 &copy; ${new Date().getFullYear()} CodeEntra. All rights reserved.
@@ -255,9 +299,18 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
       </tr>
     </table>
     `,
-  };
-  const emailSent = await sendEmail(mailOptions);
-  return emailSent;
+    };
+    const emailSent = await sendEmail(mailOptions);
+    return emailSent;
+  } catch (error) {
+    console.error("❌ Error in sendExamInvitationEmail:", {
+      to,
+      examName,
+      error: error.message,
+      stack: error.stack,
+    });
+    return false;
+  }
 };
 
 export { sendInvitationEmail, sendPasswordResetEmail, sendExamInvitationEmail };
