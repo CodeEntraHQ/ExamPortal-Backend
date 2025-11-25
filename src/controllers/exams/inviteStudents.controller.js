@@ -156,10 +156,12 @@ export const inviteStudent = ApiHandler(async (req, res) => {
           sendExamInvitationEmail(student.email, exam.title, {
             loginUrl: process.env.LOGIN_PORTAL_URL,
           }).catch((error) => {
-            console.error(
-              `⚠️ Failed to send email to ${student.email}:`,
-              error
-            );
+            console.error(`⚠️ Failed to send email to ${student.email}:`, {
+              email: student.email,
+              examTitle: exam.title,
+              error: error.message,
+              stack: error.stack,
+            });
             return false;
           })
         );
@@ -167,13 +169,31 @@ export const inviteStudent = ApiHandler(async (req, res) => {
     }
 
     // Send all emails in parallel
-    const emailResults = await Promise.all(emailPromises);
-    const successfulEmails = emailResults.filter(
-      (result) => result === true
-    ).length;
-    console.log(
-      `✅ Sent ${successfulEmails} out of ${emailPromises.length} exam invitation emails`
-    );
+    try {
+      const emailResults = await Promise.all(emailPromises);
+      const successfulEmails = emailResults.filter(
+        (result) => result === true
+      ).length;
+      const failedEmails = emailResults.filter(
+        (result) => result === false
+      ).length;
+
+      console.log(
+        `✅ Sent ${successfulEmails} out of ${emailPromises.length} exam invitation emails`
+      );
+      if (failedEmails > 0) {
+        console.error(
+          `❌ Failed to send ${failedEmails} exam invitation emails`
+        );
+      }
+    } catch (error) {
+      console.error("❌ Error sending exam invitation emails:", {
+        examTitle: exam.title,
+        error: error.message,
+        stack: error.stack,
+      });
+      // Don't fail the request, enrollments were successful
+    }
   }
 
   // Send response with detailed results

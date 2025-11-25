@@ -1,3 +1,4 @@
+import Entity from "#models/entity.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
@@ -5,6 +6,17 @@ import { ApiResponse } from "#utils/api-handler/response.js";
 import { getUserInvitationLink } from "#utils/crypto.util.js";
 import { sendInvitationEmail } from "#utils/email-handler/triggerEmail.js";
 import { generateUUID } from "#utils/utils.js";
+
+const getEntityName = async (entityId) => {
+  if (!entityId) return "your organization";
+  try {
+    const entity = await Entity.findByPk(entityId);
+    return entity?.name || "your organization";
+  } catch (error) {
+    console.error("⚠️ Failed to fetch entity name:", error);
+    return "your organization";
+  }
+};
 
 export const inviteUser = ApiHandler(async (req, res) => {
   // Parsing request
@@ -48,55 +60,95 @@ export const inviteUser = ApiHandler(async (req, res) => {
 
   if (["INACTIVE", "ACTIVATION_PENDING"].includes(existingUser?.status)) {
     // Initiate activation process
-    const invitationLink = getUserInvitationLink(existingUser?.id); // get invitation link
-    const emailSent = await sendInvitationEmail(email, role, invitationLink); // trigger email
-    // if email was sent update the status
-    if (emailSent === true) {
-      const user = await existingUser.update({
-        status: "ACTIVATION_PENDING",
+    try {
+      const entityName = await getEntityName(resolvedEntityId);
+      const invitationLink = getUserInvitationLink(existingUser?.id);
+      const emailSent = await sendInvitationEmail(email, role, invitationLink, {
+        entityName,
+        loginUrl: process.env.LOGIN_PORTAL_URL,
       });
-      // Send response
-      return res.status(200).json(
-        new ApiResponse("USER_INVITED", {
-          id: user.id,
-          role: user.role,
-        })
-      );
-    }
-    // else throw error
-    else {
+
+      if (emailSent === true) {
+        const user = await existingUser.update({
+          status: "ACTIVATION_PENDING",
+        });
+        console.log("✅ Invitation email sent successfully to:", email);
+        return res.status(200).json(
+          new ApiResponse("USER_INVITED", {
+            id: user.id,
+            role: user.role,
+          })
+        );
+      } else {
+        console.error("⚠️ Failed to send invitation email:", {
+          email,
+          role,
+          entityName,
+        });
+        throw new ApiError(500, "SEND_EMAIL_FAILURE", "Unable to send email");
+      }
+    } catch (error) {
+      console.error("❌ Error in invite user flow (existing user):", {
+        email,
+        role,
+        error: error.message,
+        stack: error.stack,
+      });
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new ApiError(500, "SEND_EMAIL_FAILURE", "Unable to send email");
     }
   } else if (existingUser?.status === "ACTIVE") {
     throw new ApiError(409, "USER_IS_ACTIVE", "User is already active");
   }
 
-  // Procced with new user registration
-  const user_id = generateUUID();
-  const invitationLink = getUserInvitationLink(user_id); // get invitation link
-  const emailSent = await sendInvitationEmail(email, role, invitationLink); // trigger email
-  if (emailSent === true) {
-    // Create user
-    const user = await User.create({
-      id: user_id,
-      name: null,
-      email,
-      password_hash: null,
-      role: role,
-      status: "ACTIVATION_PENDING",
-      entity_id: entity_id || req.user.entity_id,
+  // Proceed with new user registration
+  try {
+    const user_id = generateUUID();
+    const entityName = await getEntityName(resolvedEntityId);
+    const invitationLink = getUserInvitationLink(user_id);
+    const emailSent = await sendInvitationEmail(email, role, invitationLink, {
+      entityName,
+      loginUrl: process.env.LOGIN_PORTAL_URL,
     });
 
-    // Send response
-    return res.status(200).json(
-      new ApiResponse("USER_INVITED", {
-        id: user.id,
-        role: user.role,
-      })
-    );
-  }
-  // else throw error
-  else {
+    if (emailSent === true) {
+      const user = await User.create({
+        id: user_id,
+        name: null,
+        email,
+        password_hash: null,
+        role: role,
+        status: "ACTIVATION_PENDING",
+        entity_id: entity_id || req.user.entity_id,
+      });
+
+      console.log("✅ Invitation email sent successfully to:", email);
+      return res.status(200).json(
+        new ApiResponse("USER_INVITED", {
+          id: user.id,
+          role: user.role,
+        })
+      );
+    } else {
+      console.error("⚠️ Failed to send invitation email:", {
+        email,
+        role,
+        entityName,
+      });
+      throw new ApiError(500, "SEND_EMAIL_FAILURE", "Unable to send email");
+    }
+  } catch (error) {
+    console.error("❌ Error in invite user flow (new user):", {
+      email,
+      role,
+      error: error.message,
+      stack: error.stack,
+    });
+    if (error instanceof ApiError) {
+      throw error;
+    }
     throw new ApiError(500, "SEND_EMAIL_FAILURE", "Unable to send email");
   }
 });

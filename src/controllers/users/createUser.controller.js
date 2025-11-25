@@ -107,19 +107,38 @@ export const createUser = ApiHandler(async (req, res) => {
     role,
     entityName,
   });
-  const invitationLink = getUserInvitationLink(user_id);
-  const emailSent = await sendInvitationEmail(email, role, invitationLink, {
-    entityName,
-    loginUrl: process.env.LOGIN_PORTAL_URL,
-    temporaryPassword: password, // Send the password that was created
-  });
 
-  if (!emailSent) {
-    console.error("⚠️ User created but email failed to send:", email);
+  try {
+    const invitationLink = getUserInvitationLink(user_id);
+    const emailSent = await sendInvitationEmail(email, role, invitationLink, {
+      entityName,
+      loginUrl: process.env.LOGIN_PORTAL_URL,
+      temporaryPassword: password, // Send the password that was created
+    });
+
+    if (!emailSent) {
+      console.error("⚠️ User created but email failed to send:", {
+        email,
+        role,
+        entityName,
+        loginUrl: process.env.LOGIN_PORTAL_URL,
+        error: "Email service returned false",
+      });
+      // Don't fail the request, just log the error
+      // User is already created, so we return success
+    } else {
+      console.log("✅ Invitation email sent successfully to:", email);
+    }
+  } catch (error) {
+    console.error("❌ Error sending invitation email for created user:", {
+      email,
+      role,
+      entityName,
+      error: error.message,
+      stack: error.stack,
+    });
     // Don't fail the request, just log the error
     // User is already created, so we return success
-  } else {
-    console.log("✅ Invitation email sent successfully to:", email);
   }
 
   return res.status(200).json(
