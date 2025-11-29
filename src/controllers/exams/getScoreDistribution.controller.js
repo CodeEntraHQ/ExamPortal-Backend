@@ -1,5 +1,4 @@
 import Exam from "#models/exam.model.js";
-import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
@@ -48,10 +47,10 @@ export const getScoreDistribution = ApiHandler(async (req, res) => {
 
   const examIds = exams.map((exam) => exam.id);
 
-  // Fetch all results for these exams
+  // Fetch all results for these exams with score
   const results = await Result.findAll({
     where: { exam_id: examIds },
-    attributes: ["id", "exam_id", "metadata"],
+    attributes: ["id", "exam_id", "score", "metadata"],
   });
 
   if (results.length === 0) {
@@ -68,33 +67,29 @@ export const getScoreDistribution = ApiHandler(async (req, res) => {
     );
   }
 
-  // Count questions per exam
-  const questionCountsMap = new Map();
-  for (const examId of examIds) {
-    const count = await Question.count({ where: { exam_id: examId } });
-    questionCountsMap.set(examId, count);
-  }
+  // Fetch exam metadata to get total marks for each exam
+  const examsWithMetadata = await Exam.findAll({
+    where: { id: examIds },
+    attributes: ["id", "metadata"],
+  });
 
-  // Calculate score percentages for each result
+  const examTotalMarksMap = new Map();
+  examsWithMetadata.forEach((exam) => {
+    const totalMarks = exam.metadata?.totalMarks || 0;
+    examTotalMarksMap.set(exam.id, totalMarks);
+  });
+
+  // Calculate score percentages for each result using original score
   const scorePercentages = [];
   for (const result of results) {
     const examId = result.exam_id;
-    const metadata = result.metadata || {};
-    const correctAnswers = metadata.correct_answer || 0;
-    const incorrectAnswers = metadata.incorrect_answer || 0;
-    const noAnswers = metadata.no_answers || 0;
+    const score =
+      result.score !== null && result.score !== undefined ? result.score : 0;
+    const totalMarks = examTotalMarksMap.get(examId) || 0;
 
-    // Total questions = correct + incorrect + no answers
-    const totalQuestions = correctAnswers + incorrectAnswers + noAnswers;
-
-    // If we have question count from database, use it; otherwise use calculated total
-    const questionCount = questionCountsMap.get(examId) || totalQuestions;
-
-    // Calculate percentage: (correct answers / total questions) * 100
+    // Calculate percentage: (score / total marks) * 100
     const percentage =
-      questionCount > 0
-        ? Math.round((correctAnswers / questionCount) * 100)
-        : 0;
+      totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
 
     if (percentage > 0) {
       scorePercentages.push(percentage);
