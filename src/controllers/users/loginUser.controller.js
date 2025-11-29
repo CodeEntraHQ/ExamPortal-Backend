@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { Op } from "sequelize";
 import speakeasy from "speakeasy";
 
 import Entity from "#models/entity.model.js";
@@ -16,10 +17,12 @@ export const loginUser = ApiHandler(async (req, res) => {
   const password = req.body.password?.trim();
   const authentication_code = req.body.authentication_code?.trim();
 
+  // Allow both ACTIVE and ACTIVATION_PENDING users to login
+  // ACTIVATION_PENDING users must have a password set (from registration)
   const user = await User.findOne({
     where: {
       email: email,
-      status: USER_STATUS.ACTIVE,
+      status: { [Op.in]: [USER_STATUS.ACTIVE, USER_STATUS.ACTIVATION_PENDING] },
     },
     include: [
       {
@@ -32,6 +35,15 @@ export const loginUser = ApiHandler(async (req, res) => {
 
   if (!user) {
     throw new ApiError(401, "AUTHENTICATION_FAILED", "User not found");
+  }
+
+  // Check if user has a password set (required for login)
+  if (!user.password_hash) {
+    throw new ApiError(
+      401,
+      "AUTHENTICATION_FAILED",
+      "Password not set. Please set your password first."
+    );
   }
 
   if (!user.two_fa_enabled && authentication_code) {
@@ -99,11 +111,19 @@ export const loginUser = ApiHandler(async (req, res) => {
   }
 
   const token = generateUserSessionToken(user.id);
-  await user.update({
+
+  // If user is ACTIVATION_PENDING, set them to ACTIVE on first successful login
+  const updateData = {
     last_login_at: new Date(),
     failed_login_count: 0,
     last_failed_duration: null,
-  });
+  };
+
+  if (user.status === USER_STATUS.ACTIVATION_PENDING) {
+    updateData.status = USER_STATUS.ACTIVE;
+  }
+
+  await user.update(updateData);
 
   // Reload user with Entity association to get entity information
   const updatedUser = await User.findByPk(user.id, {

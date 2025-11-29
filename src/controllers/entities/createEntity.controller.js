@@ -28,7 +28,7 @@ export const createEntity = ApiHandler(async (req, res) => {
   let media;
   if (logo) {
     media = await Media.create({
-      logo,
+      media: logo.buffer,
     });
   }
 

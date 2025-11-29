@@ -1,5 +1,4 @@
 import Exam from "#models/exam.model.js";
-import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
@@ -24,10 +23,10 @@ export const getExamScoreDistribution = ApiHandler(async (req, res) => {
     throw new ApiError(403, "FORBIDDEN", "You don't have access to this exam");
   }
 
-  // Fetch all results for this exam
+  // Fetch all results for this exam with score
   const results = await Result.findAll({
     where: { exam_id: id },
-    attributes: ["id", "exam_id", "metadata"],
+    attributes: ["id", "exam_id", "score", "metadata"],
   });
 
   if (results.length === 0) {
@@ -44,26 +43,18 @@ export const getExamScoreDistribution = ApiHandler(async (req, res) => {
     );
   }
 
-  // Count questions for this exam
-  const questionCount = await Question.count({ where: { exam_id: id } });
+  // Get total marks from exam metadata
+  const totalMarks = exam.metadata?.totalMarks || 0;
 
-  // Calculate score percentages for each result
+  // Calculate score percentages for each result using original score
   const scorePercentages = [];
   for (const result of results) {
-    const metadata = result.metadata || {};
-    const correctAnswers = metadata.correct_answer || 0;
-    const incorrectAnswers = metadata.incorrect_answer || 0;
-    const noAnswers = metadata.no_answers || 0;
+    const score =
+      result.score !== null && result.score !== undefined ? result.score : 0;
 
-    // Total questions = correct + incorrect + no answers
-    const totalQuestions = correctAnswers + incorrectAnswers + noAnswers;
-
-    // Use question count from database if available, otherwise use calculated total
-    const totalQ = questionCount > 0 ? questionCount : totalQuestions;
-
-    // Calculate percentage: (correct answers / total questions) * 100
+    // Calculate percentage: (score / total marks) * 100
     const percentage =
-      totalQ > 0 ? Math.round((correctAnswers / totalQ) * 100) : 0;
+      totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
 
     if (percentage >= 0) {
       scorePercentages.push(percentage);

@@ -98,7 +98,6 @@ export const createUserSchema = z.object({
   body: z
     .object({
       email: emailValidation(),
-      password: stringValidation("password", 8, 255),
       name: stringValidation("name").optional(),
       role: z.enum([
         USER_ROLES.ADMIN,
@@ -142,9 +141,13 @@ export const inviteUserSchema = z.object({
 export const registerUserSchema = z.object({
   body: z
     .object({
-      name: stringValidation("name"),
       password: stringValidation("password"),
-      phone_number: integerValidation("phone_number", 6000000000, 9999999999),
+      name: stringValidation("name").optional(),
+      phone_number: integerValidation(
+        "phone_number",
+        6000000000,
+        9999999999
+      ).optional(),
       address: stringValidation("address").optional(),
       bio: stringValidation("bio").optional(),
       gender: z.enum([...Object.values(USER_GENDER)]).optional(),
