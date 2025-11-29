@@ -1,3 +1,4 @@
+import Exam from "#models/exam.model.js";
 import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
 import Submission from "#models/submission.model.js";
@@ -5,6 +6,7 @@ import Submission from "#models/submission.model.js";
 /**
  * Calculate and store result for a student's exam submission
  * This function compares student answers with correct answers and stores statistics
+ * Score is calculated based on: marks per question = total marks / total questions
  * @param {string} user_id - User ID of the student
  * @param {string} exam_id - Exam ID
  * @returns {Promise<Result>} The created or updated result
@@ -24,6 +26,19 @@ export const calculateResult = async (user_id, exam_id) => {
       exam_id,
     },
   });
+
+  // Get exam details to access total marks
+  const exam = await Exam.findByPk(exam_id);
+  if (!exam) {
+    throw new Error("Exam not found");
+  }
+
+  // Get total marks from exam metadata
+  const totalMarks = exam.metadata?.totalMarks || 0;
+  const totalQuestions = questions.length;
+
+  // Calculate marks per question
+  const marksPerQuestion = totalQuestions > 0 ? totalMarks / totalQuestions : 0;
 
   // Initialize counters
   let correctAnswers = 0;
@@ -91,6 +106,9 @@ export const calculateResult = async (user_id, exam_id) => {
     }
   });
 
+  // Calculate score based on marks per question
+  const score = Math.round(correctAnswers * marksPerQuestion * 100) / 100; // Round to 2 decimal places
+
   // Find or create result
   const [result, created] = await Result.findOrCreate({
     where: {
@@ -100,11 +118,14 @@ export const calculateResult = async (user_id, exam_id) => {
     defaults: {
       user_id,
       exam_id,
-      score: null, // Don't store score as per requirements
+      score: score,
       metadata: {
         correct_answer: correctAnswers,
         incorrect_answer: incorrectAnswers,
         no_answers: noAnswers,
+        total_questions: totalQuestions,
+        total_marks: totalMarks,
+        marks_per_question: marksPerQuestion,
       },
     },
   });
@@ -112,11 +133,14 @@ export const calculateResult = async (user_id, exam_id) => {
   // Update if already exists
   if (!created) {
     await result.update({
-      score: null, // Don't store score as per requirements
+      score: score,
       metadata: {
         correct_answer: correctAnswers,
         incorrect_answer: incorrectAnswers,
         no_answers: noAnswers,
+        total_questions: totalQuestions,
+        total_marks: totalMarks,
+        marks_per_question: marksPerQuestion,
       },
     });
   }

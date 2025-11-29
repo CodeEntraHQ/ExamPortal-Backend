@@ -49,7 +49,7 @@ export const getExamLeaderboard = ApiHandler(async (req, res) => {
       exam_id: id,
       user_id: { [Op.in]: userIds },
     },
-    attributes: ["id", "user_id", "metadata", "created_at"],
+    attributes: ["id", "user_id", "score", "metadata", "created_at"],
   });
 
   // Fetch user details (email)
@@ -59,6 +59,9 @@ export const getExamLeaderboard = ApiHandler(async (req, res) => {
     },
     attributes: ["id", "email", "name"],
   });
+
+  // Get passing marks from exam metadata
+  const passingMarks = exam.metadata?.passingMarks || 0;
 
   // Create maps for quick lookup
   const resultsMap = new Map(results.map((r) => [r.user_id, r]));
@@ -75,17 +78,22 @@ export const getExamLeaderboard = ApiHandler(async (req, res) => {
       }
 
       const correctAnswers = result.metadata?.correct_answer || 0;
+      const score =
+        result.score !== null && result.score !== undefined ? result.score : 0;
+      const passed = score >= passingMarks;
 
       return {
         userId: user.id,
         email: user.email,
         name: user.name || user.email,
         correctAnswers: correctAnswers,
+        score: score,
+        passed: passed,
         completedAt: result.created_at,
       };
     })
     .filter((item) => item !== null)
-    .sort((a, b) => b.correctAnswers - a.correctAnswers); // Sort by correct answers descending
+    .sort((a, b) => b.score - a.score); // Sort by score descending
 
   // Send response
   return res.status(200).json(
