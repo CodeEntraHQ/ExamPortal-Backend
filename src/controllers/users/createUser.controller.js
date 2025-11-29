@@ -1,5 +1,3 @@
-import bcrypt from "bcrypt";
-
 import Entity from "#models/entity.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
@@ -22,7 +20,6 @@ export const createUser = ApiHandler(async (req, res) => {
   const name = req.body.name?.trim();
   const role = req.body.role?.trim();
   const entity_id = req.body.entity_id?.trim();
-  const password = req.body.password?.trim();
   // Phone number can be a number (after validation coercion) or string, convert to string for storage
   const phone_number = req.body.phone_number
     ? typeof req.body.phone_number === "number"
@@ -79,20 +76,18 @@ export const createUser = ApiHandler(async (req, res) => {
     );
   }
 
-  const password_hash = await bcrypt.hash(password, 10);
-
   // Get entity name for email
   const entityName = await getEntityName(resolvedEntityId);
 
-  // Create user
+  // Create user with ACTIVATION_PENDING status (no password)
   const user_id = generateUUID();
   const user = await User.create({
     id: user_id,
     name: name || null,
     email: email,
-    password_hash,
+    password_hash: null,
     role: role,
-    status: USER_STATUS.ACTIVE, // Create as active directly
+    status: USER_STATUS.ACTIVATION_PENDING,
     entity_id: resolvedEntityId,
     phone_number: phone_number || null,
     address: address || null,
@@ -101,7 +96,7 @@ export const createUser = ApiHandler(async (req, res) => {
     roll_number: roll_number || null,
   });
 
-  // Send invitation email with entity name, password, and login link
+  // Send invitation email with set password link (no password)
   console.log("📧 Sending invitation email for created user:", {
     email,
     role,
@@ -113,7 +108,6 @@ export const createUser = ApiHandler(async (req, res) => {
     const emailSent = await sendInvitationEmail(email, role, invitationLink, {
       entityName,
       loginUrl: process.env.LOGIN_PORTAL_URL,
-      temporaryPassword: password, // Send the password that was created
     });
 
     if (!emailSent) {
@@ -124,8 +118,7 @@ export const createUser = ApiHandler(async (req, res) => {
         loginUrl: process.env.LOGIN_PORTAL_URL,
         error: "Email service returned false",
       });
-      // Don't fail the request, just log the error
-      // User is already created, so we return success
+      throw new ApiError(500, "SEND_EMAIL_FAILURE", "Unable to send email");
     } else {
       console.log("✅ Invitation email sent successfully to:", email);
     }
@@ -137,8 +130,10 @@ export const createUser = ApiHandler(async (req, res) => {
       error: error.message,
       stack: error.stack,
     });
-    // Don't fail the request, just log the error
-    // User is already created, so we return success
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, "SEND_EMAIL_FAILURE", "Unable to send email");
   }
 
   return res.status(200).json(

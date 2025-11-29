@@ -18,7 +18,21 @@ const getJwtPayload = (data) => {
 const getUserInvitationLink = (user_id) => {
   const payload = getJwtPayload({ user_id, type: TOKEN_TYPES.USER_INVITATION });
   const token = getJwtToken(payload, process.env.USER_INVITATION_TOKEN_EXPIRY);
-  return process.env.USER_INVITATION_ENDPOINT + "?token=" + token;
+
+  // Use FRONTEND_HOST or FRONTEND_URL for set password link
+  // This should be the frontend host/URL, not the backend API endpoint
+  const frontendUrl =
+    process.env.FRONTEND_HOST ||
+    process.env.FRONTEND_URL ||
+    process.env.LOGIN_PORTAL_URL ||
+    "http://localhost:3000";
+
+  // Clean up URL - remove trailing slash
+  const baseUrl = frontendUrl.endsWith("/")
+    ? frontendUrl.slice(0, -1)
+    : frontendUrl;
+  // Use /set-password endpoint for clarity
+  return baseUrl + "/set-password?token=" + token;
 };
 
 const getResetPasswordLink = (user_id) => {

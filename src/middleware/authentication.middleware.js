@@ -6,8 +6,18 @@ import { TOKEN_TYPES } from "#utils/constants/meta.constant.js";
 import { USER_STATUS } from "#utils/constants/model.constant.js";
 
 const getQueryConditionAndTokenType = (decodedToken, req) => {
+  // Use req.path for route matching (without query params) or check both originalUrl and path
+  const requestPath = req.path || req.originalUrl?.split("?")[0];
+
   const routeMap = {
     "/v1/users/register": {
+      condition: {
+        id: decodedToken.user_id,
+        status: USER_STATUS.ACTIVATION_PENDING,
+      },
+      tokenType: TOKEN_TYPES.USER_INVITATION,
+    },
+    "/register": {
       condition: {
         id: decodedToken.user_id,
         status: USER_STATUS.ACTIVATION_PENDING,
@@ -18,9 +28,14 @@ const getQueryConditionAndTokenType = (decodedToken, req) => {
       condition: { id: decodedToken.user_id, status: USER_STATUS.ACTIVE },
       tokenType: TOKEN_TYPES.RESET_PASSWORD,
     },
+    "/password/reset": {
+      condition: { id: decodedToken.user_id, status: USER_STATUS.ACTIVE },
+      tokenType: TOKEN_TYPES.RESET_PASSWORD,
+    },
   };
 
-  const match = routeMap[req.originalUrl];
+  // Try to match with requestPath first, then fallback to originalUrl
+  const match = routeMap[requestPath] || routeMap[req.originalUrl];
 
   // Fallback/default case
   return [

@@ -52,19 +52,10 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
     const formattedRole = role
       ? role.charAt(0) + role.slice(1).toLowerCase()
       : "User";
-    const { entityName, loginUrl, temporaryPassword } = options;
-
-    // Use provided loginUrl or fallback to env variable or default
-    const finalLoginUrl =
-      loginUrl ||
-      process.env.LOGIN_PORTAL_URL ||
-      "https://examentra.cronitorstatus.com/";
+    const { entityName } = options;
 
     // Escape HTML to prevent injection
     const safeEntityName = escapeHtml(entityName || "ExamEntra");
-    const safePassword = temporaryPassword
-      ? escapeHtml(temporaryPassword)
-      : null;
 
     const mailOptions = {
       from: process.env.EMAIL_USERNAME,
@@ -92,26 +83,12 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
                 <p style="font-size: 16px; line-height: 1.6;">
                   You've been invited to join <strong>${safeEntityName}</strong> on <strong>ExamEntra</strong> — a smarter way to manage exams and performance.
                 </p>
-                ${
-                  safePassword
-                    ? `
                 <p style="font-size: 16px; line-height: 1.6;">
-                  Your account has been created with the following password:
-                </p>
-                <p style="text-align: center; margin: 20px 0;">
-                  <span style="display:inline-block;padding:10px 20px;background:#f5f5f5;border-radius:8px;font-weight:bold;font-family:'Segoe UI Mono', monospace;font-size:18px;letter-spacing:2px;border:2px solid #e0e0e0;">
-                    ${safePassword}
-                  </span>
-                </p>
-                `
-                    : ""
-                }
-                <p style="font-size: 16px; line-height: 1.6;">
-                  You can now login to your account using the link below:
+                  Please set your password by clicking the link below:
                 </p>
 
                 <p style="text-align: center; margin: 30px 0;">
-                  <a href="${finalLoginUrl}" style="
+                  <a href="${resetLink}" style="
                     background: linear-gradient(90deg, #00c6ff, #0072ff);
                     color: #ffffff;
                     padding: 14px 28px;
@@ -122,12 +99,12 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
                     font-size: 16px;
                     box-shadow: 0 4px 14px rgba(0, 114, 255, 0.3);
                   ">
-                    Login to ExamEntra 🚀
+                    Set Your Password 🔐
                   </a>
                 </p>
 
                 <p style="font-size: 14px; color: #777777; text-align: center;">
-                  ${safePassword ? "Use your email and the password shown above to login." : "Use your email and password to login."}
+                  After setting your password, you can login to your account using your email and password.
                 </p>
               </td>
             </tr>
