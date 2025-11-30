@@ -207,10 +207,7 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
     const { loginUrl } = options;
 
     // Use provided loginUrl or fallback to env variable or default
-    const finalLoginUrl =
-      loginUrl ||
-      process.env.LOGIN_PORTAL_URL ||
-      "https://examentra.cronitorstatus.com/";
+    const finalLoginUrl = loginUrl || process.env.FRONTEND_HOST;
 
     // Escape HTML to prevent injection
     const safeExamName = escapeHtml(examName || "Exam");

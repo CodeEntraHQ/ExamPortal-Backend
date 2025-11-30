@@ -65,7 +65,7 @@ export const inviteUser = ApiHandler(async (req, res) => {
       const invitationLink = getUserInvitationLink(existingUser?.id);
       const emailSent = await sendInvitationEmail(email, role, invitationLink, {
         entityName,
-        loginUrl: process.env.LOGIN_PORTAL_URL,
+        loginUrl: process.FRONTEND_HOST,
       });
 
       if (emailSent === true) {
@@ -110,7 +110,7 @@ export const inviteUser = ApiHandler(async (req, res) => {
     const invitationLink = getUserInvitationLink(user_id);
     const emailSent = await sendInvitationEmail(email, role, invitationLink, {
       entityName,
-      loginUrl: process.env.LOGIN_PORTAL_URL,
+      loginUrl: process.env.FRONTEND_HOST,
     });
 
     if (emailSent === true) {
