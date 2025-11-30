@@ -39,3 +39,13 @@ export const getSubmissionsSchema = z.object({
     .strict(),
   headers: authorizationValidation(),
 });
+
+export const deleteAnswerSchema = z.object({
+  body: z
+    .object({
+      exam_id: uuidValidation("exam_id"),
+      question_id: uuidValidation("question_id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
