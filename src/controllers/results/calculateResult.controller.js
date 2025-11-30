@@ -3,6 +3,7 @@ import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
 import Submission from "#models/submission.model.js";
 import { QUESTION_TYPE } from "#utils/constants/model.constant.js";
+import { logInfo, logError, logDebug } from "#utils/logger.js";
 
 /**
  * Validates and checks if a student's answer is correct for a given question
@@ -136,10 +137,28 @@ export const calculateResult = async (user_id, exam_id) => {
     },
   });
 
+  logDebug({
+    action: "CALCULATE_RESULT_FETCH_SUBMISSIONS",
+    message: {
+      exam_id,
+      user_id,
+      submission_count: submissions.length,
+    },
+  });
+
   // Get all questions for this exam
   const questions = await Question.findAll({
     where: {
       exam_id,
+    },
+  });
+
+  logDebug({
+    action: "CALCULATE_RESULT_FETCH_QUESTIONS",
+    message: {
+      exam_id,
+      user_id,
+      question_count: questions.length,
     },
   });
 
@@ -165,6 +184,15 @@ export const calculateResult = async (user_id, exam_id) => {
   const submissionMap = new Map();
   submissions.forEach((sub) => {
     submissionMap.set(sub.question_id, sub);
+    logDebug({
+      action: "CALCULATE_RESULT_SUBMISSION_DETAIL",
+      message: {
+        exam_id,
+        user_id,
+        question_id: sub.question_id,
+        answer: sub.metadata?.answer,
+      },
+    });
   });
 
   // Compare each question's correct answer with student's submission
@@ -179,13 +207,56 @@ export const calculateResult = async (user_id, exam_id) => {
     ) {
       // No answer provided
       noAnswers++;
+      logDebug({
+        action: "CALCULATE_RESULT_NO_ANSWER",
+        message: {
+          exam_id,
+          user_id,
+          question_id: question.id,
+        },
+      });
     } else {
       const studentAnswer = submission.metadata.answer;
-      const isCorrect = checkAnswerCorrectness(question, studentAnswer);
+      logDebug({
+        action: "CALCULATE_RESULT_CHECKING_ANSWER",
+        message: {
+          exam_id,
+          user_id,
+          question_id: question.id,
+          question_type: question.type,
+          student_answer: studentAnswer,
+          correct_answers: question.metadata?.correct_answers,
+        },
+      });
 
-      if (isCorrect) {
-        correctAnswers++;
-      } else {
+      try {
+        const isCorrect = checkAnswerCorrectness(question, studentAnswer);
+        logDebug({
+          action: "CALCULATE_RESULT_ANSWER_CHECKED",
+          message: {
+            exam_id,
+            user_id,
+            question_id: question.id,
+            is_correct: isCorrect,
+          },
+        });
+
+        if (isCorrect) {
+          correctAnswers++;
+        } else {
+          incorrectAnswers++;
+        }
+      } catch (error) {
+        logError({
+          action: "CALCULATE_RESULT_ANSWER_CHECK_ERROR",
+          message: {
+            exam_id,
+            user_id,
+            question_id: question.id,
+            error: error.message,
+            stack: error.stack,
+          },
+        });
         incorrectAnswers++;
       }
     }
@@ -193,6 +264,21 @@ export const calculateResult = async (user_id, exam_id) => {
 
   // Calculate score based on marks per question
   const score = Math.round(correctAnswers * marksPerQuestion * 100) / 100; // Round to 2 decimal places
+
+  logInfo({
+    action: "CALCULATE_RESULT_SCORES_CALCULATED",
+    message: {
+      exam_id,
+      user_id,
+      correct_answers: correctAnswers,
+      incorrect_answers: incorrectAnswers,
+      no_answers: noAnswers,
+      total_questions: totalQuestions,
+      total_marks: totalMarks,
+      marks_per_question: marksPerQuestion,
+      score: score,
+    },
+  });
 
   // Find or create result
   const [result, created] = await Result.findOrCreate({
@@ -215,9 +301,20 @@ export const calculateResult = async (user_id, exam_id) => {
     },
   });
 
+  logDebug({
+    action: "CALCULATE_RESULT_FIND_OR_CREATE",
+    message: {
+      exam_id,
+      user_id,
+      result_id: result.id,
+      was_created: created,
+      existing_score: result.score,
+    },
+  });
+
   // Update if already exists
   if (!created) {
-    await result.update({
+    const updateData = {
       score: score,
       metadata: {
         correct_answer: correctAnswers,
@@ -226,6 +323,38 @@ export const calculateResult = async (user_id, exam_id) => {
         total_questions: totalQuestions,
         total_marks: totalMarks,
         marks_per_question: marksPerQuestion,
+      },
+    };
+    logDebug({
+      action: "CALCULATE_RESULT_UPDATE_START",
+      message: {
+        exam_id,
+        user_id,
+        result_id: result.id,
+        update_data: updateData,
+      },
+    });
+    await result.update(updateData);
+    await result.reload(); // Reload to get updated values
+    logInfo({
+      action: "CALCULATE_RESULT_UPDATE_SUCCESS",
+      message: {
+        exam_id,
+        user_id,
+        result_id: result.id,
+        new_score: result.score,
+        new_metadata: result.metadata,
+      },
+    });
+  } else {
+    logInfo({
+      action: "CALCULATE_RESULT_CREATE_SUCCESS",
+      message: {
+        exam_id,
+        user_id,
+        result_id: result.id,
+        score: result.score,
+        metadata: result.metadata,
       },
     });
   }

@@ -43,6 +43,14 @@ export const saveAnswer = ApiHandler(async (req, res) => {
           "Answer for MCQ_SINGLE must be a number (index) or string (option text)"
         );
       }
+      // Reject empty strings
+      if (typeof answer === "string" && answer.trim().length === 0) {
+        throw new ApiError(
+          400,
+          "BAD_REQUEST",
+          "Answer for MCQ_SINGLE cannot be empty. Use DELETE endpoint to remove answer."
+        );
+      }
       // If it's a number, validate it's within range
       if (typeof answer === "number") {
         const options = question.metadata?.options || [];

@@ -6,6 +6,7 @@ import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { ENROLLMENT_STATUS } from "#utils/constants/model.constant.js";
+import { logInfo, logError, logDebug } from "#utils/logger.js";
 
 export const submitExam = ApiHandler(async (req, res) => {
   const { exam_id } = req.body;
@@ -64,10 +65,36 @@ export const submitExam = ApiHandler(async (req, res) => {
 
   // Calculate and store result (triggered internally when status changes to COMPLETED)
   try {
-    await calculateResult(req.user.id, exam_id);
+    logDebug({
+      action: "SUBMIT_EXAM_CALCULATE_RESULT_START",
+      message: {
+        exam_id,
+        user_id: req.user.id,
+      },
+    });
+    const result = await calculateResult(req.user.id, exam_id);
+    logInfo({
+      action: "SUBMIT_EXAM_CALCULATE_RESULT_SUCCESS",
+      message: {
+        exam_id,
+        user_id: req.user.id,
+        result_id: result.id,
+        score: result.score,
+        metadata: result.metadata,
+      },
+    });
   } catch (error) {
-    console.error("Error calculating result:", error);
-    // Don't fail the submission if result calculation fails
+    logError({
+      action: "SUBMIT_EXAM_CALCULATE_RESULT_ERROR",
+      message: {
+        exam_id,
+        user_id: req.user.id,
+        error: error.message,
+        stack: error.stack,
+      },
+    });
+    // Don't fail the submission if result calculation fails, but log it
+    // The result can be recalculated later if needed
   }
 
   // Send response

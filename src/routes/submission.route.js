@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { deleteAnswer } from "#controllers/submissions/deleteAnswer.controller.js";
 import { getSubmissions } from "#controllers/submissions/getSubmissions.controller.js";
 import { saveAnswer } from "#controllers/submissions/saveAnswer.controller.js";
 import { startExam } from "#controllers/submissions/startExam.controller.js";
@@ -11,6 +12,7 @@ import { USER_ROLES } from "#utils/constants/model.constant.js";
 import {
   startExamSchema,
   saveAnswerSchema,
+  deleteAnswerSchema,
   submitExamSchema,
   getSubmissionsSchema,
 } from "#validations/submission.validation.js";
@@ -32,6 +34,14 @@ router.post(
   verifyJWT,
   checkAuthorization(USER_ROLES.STUDENT),
   saveAnswer
+);
+
+router.delete(
+  "/answer",
+  validate(deleteAnswerSchema),
+  verifyJWT,
+  checkAuthorization(USER_ROLES.STUDENT),
+  deleteAnswer
 );
 
 router.post(
