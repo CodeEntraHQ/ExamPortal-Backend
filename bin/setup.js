@@ -7,6 +7,7 @@ import Enrollment from "../src/models/enrollment.model.js";
 import Entity from "../src/models/entity.model.js";
 import Exam from "../src/models/exam.model.js";
 import Question from "../src/models/question.model.js";
+import Result from "../src/models/result.model.js";
 import User from "../src/models/user.model.js";
 import {
   ENTITY_TYPE,
@@ -45,17 +46,35 @@ const setup = async () => {
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
 
-    const entity = await Entity.create({
-      name: "Dummy Entity",
-      address: "Dummy Address",
-      type: ENTITY_TYPE.SCHOOL,
-      description: "This is a dummy entity created for testing purposes.",
-      email: "dummy@example.com",
-      phone_number: "9234567890",
+    // Sync database schema to create tables
+    await sequelize.sync({ alter: true });
+    console.log("Database schema synchronized successfully.");
+
+    // Find or create the dummy entity
+    const [entity, entityCreated] = await Entity.findOrCreate({
+      where: { name: "Dummy Entity" },
+      defaults: {
+        address: "Dummy Address",
+        type: ENTITY_TYPE.SCHOOL,
+        description: "This is a dummy entity created for testing purposes.",
+        email: "dummy@example.com",
+        phone_number: "9234567890",
+      },
     });
-    console.log("Dummy entity created successfully.");
+    if (entityCreated) {
+      console.log("Dummy entity created successfully.");
+    } else {
+      console.log("Dummy entity already exists, using existing entity.");
+    }
 
     for (const user of users) {
+      // Check if user already exists
+      const existingUser = await User.findOne({ where: { email: user.email } });
+      if (existingUser) {
+        console.log(`User ${user.email} already exists, skipping creation.`);
+        continue;
+      }
+
       const password_hash = await bcrypt.hash(user.password, 10);
       // Representatives don't belong to any entity (entity_id is null)
       const entityId =
@@ -96,6 +115,7 @@ const setup = async () => {
       entity_id: entity.id,
       type: EXAM_TYPE.QUIZ,
       active: true,
+      results_visible: false,
       created_at: new Date(),
     });
     console.log("Sample quiz created successfully.");
@@ -185,6 +205,7 @@ const setup = async () => {
       entity_id: entity.id,
       type: EXAM_TYPE.OTHER,
       active: false,
+      results_visible: false,
       created_at: new Date(),
     });
     console.log("Sample assignment created successfully.");
@@ -245,6 +266,7 @@ const setup = async () => {
       entity_id: entity.id,
       type: EXAM_TYPE.QUIZ,
       active: true,
+      results_visible: false,
       created_at: new Date(),
     });
     console.log("Multiple choice quiz created successfully.");
@@ -365,7 +387,6 @@ const setup = async () => {
       console.log("Student enrolled in all three exams successfully.");
 
       // Initialize results for each enrollment
-      const { default: Result } = await import("../src/models/result.model.js");
       const resultInitializations = enrollments.map((enrollment) => ({
         id: randomUUID(), // Generate ID manually since bulkCreate doesn't trigger hooks with ignoreDuplicates
         user_id: enrollment.user_id,
