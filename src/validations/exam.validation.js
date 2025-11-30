@@ -20,7 +20,6 @@ export const createExamSchema = z.object({
           totalMarks: z.number().min(0),
           passingMarks: z.number().min(0),
           instructions: z.array(z.string()),
-          isMultipleCorrect: z.boolean().optional(),
         })
         .optional(),
       results_visible: z.boolean().optional(),
@@ -46,7 +45,7 @@ export const createQuestionSchema = z.object({
     .object({
       exam_id: uuidValidation("exam_id"),
       question_text: stringValidation("question_text"),
-      type: z.enum(["MCQ", "OTHER"]),
+      type: z.enum(["MCQ_SINGLE", "MCQ_MULTIPLE", "SINGLE_WORD"]),
       metadata: z.any().optional(),
     })
     .strict(),
@@ -104,7 +103,7 @@ export const updateQuestionSchema = z.object({
   body: z
     .object({
       question_text: stringValidation("question_text").optional(),
-      type: z.enum(["MCQ", "OTHER"]).optional(),
+      type: z.enum(["MCQ_SINGLE", "MCQ_MULTIPLE", "SINGLE_WORD"]).optional(),
       metadata: z.any().optional(),
     })
     .strict(),
@@ -136,7 +135,6 @@ export const updateExamSchema = z.object({
           totalMarks: z.number().min(0).optional(),
           passingMarks: z.number().min(0).optional(),
           instructions: z.array(z.string()).optional(),
-          isMultipleCorrect: z.boolean().optional(),
           description: z.string().optional(),
           startDate: z.string().optional(),
           endDate: z.string().optional(),

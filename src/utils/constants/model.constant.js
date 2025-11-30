@@ -4,8 +4,9 @@ export const EXAM_TYPE = {
 };
 
 export const QUESTION_TYPE = {
-  MCQ: "MCQ",
-  OTHER: "OTHER",
+  MCQ_SINGLE: "MCQ_SINGLE", // Single correct answer MCQ
+  MCQ_MULTIPLE: "MCQ_MULTIPLE", // Multiple correct answers MCQ
+  SINGLE_WORD: "SINGLE_WORD", // Single word answer question
 };
 
 export const USER_ROLES = {
