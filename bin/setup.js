@@ -108,7 +108,6 @@ const setup = async () => {
           "You can flag questions for review before submitting",
           "Results will be shown immediately after submission",
         ],
-        isMultipleCorrect: false,
       },
       duration_seconds: 3800, // 60 minutes in seconds
       user_id: admin.id,
@@ -124,53 +123,38 @@ const setup = async () => {
     const questions = [
       {
         question_text: "What is 2 + 2?",
-        type: QUESTION_TYPE.MCQ,
+        type: QUESTION_TYPE.MCQ_SINGLE,
         metadata: {
-          options: [
-            { text: "3", isCorrect: false },
-            { text: "4", isCorrect: true },
-            { text: "5", isCorrect: false },
-            { text: "6", isCorrect: false },
-          ],
+          options: [{ text: "3" }, { text: "4" }, { text: "5" }, { text: "6" }],
           correct_answers: [1],
         },
       },
       {
         question_text: "What is 5 × 5?",
-        type: QUESTION_TYPE.MCQ,
+        type: QUESTION_TYPE.MCQ_SINGLE,
         metadata: {
           options: [
-            { text: "15", isCorrect: false },
-            { text: "20", isCorrect: false },
-            { text: "25", isCorrect: true },
-            { text: "30", isCorrect: false },
+            { text: "15" },
+            { text: "20" },
+            { text: "25" },
+            { text: "30" },
           ],
           correct_answers: [2],
         },
       },
       {
         question_text: "What is 10 ÷ 2?",
-        type: QUESTION_TYPE.MCQ,
+        type: QUESTION_TYPE.MCQ_SINGLE,
         metadata: {
-          options: [
-            { text: "3", isCorrect: false },
-            { text: "4", isCorrect: false },
-            { text: "5", isCorrect: true },
-            { text: "6", isCorrect: false },
-          ],
+          options: [{ text: "3" }, { text: "4" }, { text: "5" }, { text: "6" }],
           correct_answers: [2],
         },
       },
       {
         question_text: "What is 15 - 7?",
-        type: QUESTION_TYPE.MCQ,
+        type: QUESTION_TYPE.MCQ_SINGLE,
         metadata: {
-          options: [
-            { text: "6", isCorrect: false },
-            { text: "7", isCorrect: false },
-            { text: "8", isCorrect: true },
-            { text: "9", isCorrect: false },
-          ],
+          options: [{ text: "6" }, { text: "7" }, { text: "8" }, { text: "9" }],
           correct_answers: [2],
         },
       },
@@ -185,10 +169,10 @@ const setup = async () => {
     }
     console.log("Sample questions created successfully.");
 
-    // Create another exam of type OTHER
+    // Create another exam with single word questions
     const assignment = await Exam.create({
       id: randomUUID(),
-      title: "Python Programming Assignment",
+      title: "Vocabulary and Definitions Quiz",
       metadata: {
         totalMarks: 50,
         passingMarks: 25,
@@ -203,47 +187,46 @@ const setup = async () => {
       duration_seconds: 7900, // 120 minutes in seconds
       user_id: admin.id,
       entity_id: entity.id,
-      type: EXAM_TYPE.OTHER,
+      type: EXAM_TYPE.QUIZ,
       active: false,
       results_visible: false,
       created_at: new Date(),
     });
-    console.log("Sample assignment created successfully.");
+    console.log("Sample vocabulary quiz created successfully.");
 
-    // Create questions for the programming assignment
-    const programmingQuestions = [
+    // Create single word answer questions
+    const singleWordQuestions = [
       {
-        question_text:
-          "Write a Python function to find the factorial of a number.",
-        type: QUESTION_TYPE.OTHER,
+        question_text: "What is the capital city of France?",
+        type: QUESTION_TYPE.SINGLE_WORD,
         metadata: {
-          sampleInput: "5",
-          sampleOutput: "120",
-          explanation:
-            "Function should calculate factorial using recursion or iteration",
+          correct_answer: "Paris",
         },
       },
       {
-        question_text:
-          "Create a Python program to check if a string is palindrome.",
-        type: QUESTION_TYPE.OTHER,
+        question_text: "What is the largest planet in our solar system?",
+        type: QUESTION_TYPE.SINGLE_WORD,
         metadata: {
-          sampleInput: "radar",
-          sampleOutput: "True",
-          explanation:
-            "Program should handle both case-sensitive and case-insensitive palindromes",
+          correct_answer: "Jupiter",
+        },
+      },
+      {
+        question_text: "What is the chemical symbol for gold?",
+        type: QUESTION_TYPE.SINGLE_WORD,
+        metadata: {
+          correct_answer: "Au",
         },
       },
     ];
 
-    for (const question of programmingQuestions) {
+    for (const question of singleWordQuestions) {
       await Question.create({
         id: randomUUID(),
         exam_id: assignment.id,
         ...question,
       });
     }
-    console.log("Sample programming questions created successfully.");
+    console.log("Sample single word questions created successfully.");
 
     // Create an exam with multiple correct answer questions
     const multipleChoiceExam = await Exam.create({
@@ -259,7 +242,6 @@ const setup = async () => {
           "You can flag questions for review before submitting",
           "Results will be shown immediately after submission",
         ],
-        isMultipleCorrect: true,
       },
       duration_seconds: 3600, // 60 minutes in seconds
       user_id: admin.id,
@@ -275,52 +257,34 @@ const setup = async () => {
     const multipleChoiceQuestions = [
       {
         question_text: "Which of the following are programming languages?",
-        type: QUESTION_TYPE.MCQ,
+        type: QUESTION_TYPE.MCQ_MULTIPLE,
         metadata: {
           options: [
-            { text: "Python", isCorrect: true },
-            { text: "JavaScript", isCorrect: true },
-            { text: "HTML", isCorrect: false },
-            { text: "Java", isCorrect: true },
+            { text: "Python" },
+            { text: "JavaScript" },
+            { text: "HTML" },
+            { text: "Java" },
           ],
           correct_answers: [0, 1, 3],
         },
       },
       {
-        question_text: "What is life?",
-        type: QUESTION_TYPE.MCQ,
-        metadata: {
-          options: [
-            { text: "life", isCorrect: true },
-            { text: "not life", isCorrect: false },
-            { text: "good", isCorrect: true },
-            { text: "bad", isCorrect: false },
-          ],
-          correct_answers: [0, 2],
-        },
-      },
-      {
         question_text: "Which of the following are prime numbers?",
-        type: QUESTION_TYPE.MCQ,
+        type: QUESTION_TYPE.MCQ_MULTIPLE,
         metadata: {
-          options: [
-            { text: "2", isCorrect: true },
-            { text: "4", isCorrect: false },
-            { text: "7", isCorrect: true },
-            { text: "9", isCorrect: false },
-          ],
+          options: [{ text: "2" }, { text: "4" }, { text: "7" }, { text: "9" }],
           correct_answers: [0, 2],
         },
       },
       {
         question_text: "Which of the following are continents?",
-        type: QUESTION_TYPE.MCQ,
+        type: QUESTION_TYPE.MCQ_MULTIPLE,
         metadata: {
           options: [
-            { text: "Asia", isCorrect: true },
-            { text: "Europe", isCorrect: true },
-            { text: "Pacific Ocean", isCorrect: false },
-            { text: "Africa", isCorrect: true },
+            { text: "Asia" },
+            { text: "Europe" },
+            { text: "Pacific Ocean" },
+            { text: "Africa" },
           ],
           correct_answers: [0, 1, 3],
         },

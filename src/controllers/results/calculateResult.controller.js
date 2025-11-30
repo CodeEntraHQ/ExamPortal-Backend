@@ -2,6 +2,122 @@ import Exam from "#models/exam.model.js";
 import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
 import Submission from "#models/submission.model.js";
+import { QUESTION_TYPE } from "#utils/constants/model.constant.js";
+
+/**
+ * Validates and checks if a student's answer is correct for a given question
+ * @param {Question} question - The question object
+ * @param {any} studentAnswer - The student's answer from submission
+ * @returns {boolean} - True if answer is correct, false otherwise
+ */
+const checkAnswerCorrectness = (question, studentAnswer) => {
+  const questionMetadata = question.metadata || {};
+
+  switch (question.type) {
+    case QUESTION_TYPE.MCQ_SINGLE: {
+      // MCQ_SINGLE: Student answer should be a single option index or option text
+      // Correct answer is stored as an array with one index in metadata.correct_answers
+      const correctAnswerIndices = questionMetadata.correct_answers || [];
+      const options = questionMetadata.options || [];
+
+      if (correctAnswerIndices.length !== 1) {
+        return false; // Invalid question format
+      }
+
+      const correctIndex = correctAnswerIndices[0];
+      const correctOption = options[correctIndex];
+
+      if (!correctOption) {
+        return false; // Invalid correct answer index
+      }
+
+      // Student answer can be:
+      // 1. A number (index) - compare directly
+      // 2. A string (option text) - compare with correct option text
+      if (typeof studentAnswer === "number") {
+        return studentAnswer === correctIndex;
+      } else if (typeof studentAnswer === "string") {
+        return (
+          studentAnswer === correctOption.text ||
+          studentAnswer === String(correctIndex)
+        );
+      }
+
+      return false;
+    }
+
+    case QUESTION_TYPE.MCQ_MULTIPLE: {
+      // MCQ_MULTIPLE: Student answer should be an array of option indices or texts
+      // Must match all correct answers exactly (order doesn't matter)
+      const correctAnswerIndices = questionMetadata.correct_answers || [];
+      const options = questionMetadata.options || [];
+
+      if (!Array.isArray(studentAnswer)) {
+        return false; // Student answer must be an array for multiple choice
+      }
+
+      if (studentAnswer.length !== correctAnswerIndices.length) {
+        return false; // Must select exactly the same number of options
+      }
+
+      // Get correct answer texts/indices as a set for comparison
+      const correctAnswersSet = new Set(
+        correctAnswerIndices.map((idx) => {
+          const option = options[idx];
+          return option ? option.text : String(idx);
+        })
+      );
+
+      // Check if all student answers are in the correct answers set
+      const studentAnswersSet = new Set(
+        studentAnswer.map((ans) => {
+          // Handle both index (number) and text (string) formats
+          if (typeof ans === "number") {
+            const option = options[ans];
+            return option ? option.text : String(ans);
+          }
+          return String(ans);
+        })
+      );
+
+      // Both sets must have the same size and contain the same elements
+      if (correctAnswersSet.size !== studentAnswersSet.size) {
+        return false;
+      }
+
+      for (const answer of correctAnswersSet) {
+        if (!studentAnswersSet.has(answer)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    case QUESTION_TYPE.SINGLE_WORD: {
+      // SINGLE_WORD: Student answer should be a string
+      // Compare case-insensitively with correct_answer
+      const correctAnswer = questionMetadata.correct_answer;
+
+      if (!correctAnswer || typeof correctAnswer !== "string") {
+        return false; // Invalid question format
+      }
+
+      if (typeof studentAnswer !== "string") {
+        return false; // Student answer must be a string
+      }
+
+      // Trim and compare case-insensitively
+      return (
+        studentAnswer.trim().toLowerCase() ===
+        correctAnswer.trim().toLowerCase()
+      );
+    }
+
+    default:
+      return false; // Unknown question type
+  }
+};
 
 /**
  * Calculate and store result for a student's exam submission
@@ -54,49 +170,18 @@ export const calculateResult = async (user_id, exam_id) => {
   // Compare each question's correct answer with student's submission
   questions.forEach((question) => {
     const submission = submissionMap.get(question.id);
-    const questionMetadata = question.metadata || {};
-    const options = questionMetadata.options || [];
-    const correctAnswerIndices = questionMetadata.correct_answers || [];
 
-    // Get correct answer texts from indices
-    const correctAnswerTexts = correctAnswerIndices
-      .map((index) => {
-        if (options[index] && options[index].text) {
-          return options[index].text;
-        }
-        return null;
-      })
-      .filter((text) => text !== null);
-
-    if (!submission || !submission.metadata || !submission.metadata.answer) {
+    if (
+      !submission ||
+      !submission.metadata ||
+      submission.metadata.answer === undefined ||
+      submission.metadata.answer === null
+    ) {
       // No answer provided
       noAnswers++;
     } else {
       const studentAnswer = submission.metadata.answer;
-
-      // Check if answer is correct
-      let isCorrect = false;
-
-      if (Array.isArray(studentAnswer)) {
-        // Multiple choice answer (array of texts)
-        // For multiple correct answers, student must select exactly all correct answers
-        if (studentAnswer.length === correctAnswerTexts.length) {
-          // Check if all correct answers are selected (order doesn't matter)
-          isCorrect = correctAnswerTexts.every((correctText) =>
-            studentAnswer.includes(correctText)
-          );
-        }
-      } else {
-        // Single choice answer (single text)
-        // For single correct answer, check if student answer matches exactly
-        if (correctAnswerTexts.length === 1) {
-          isCorrect = studentAnswer === correctAnswerTexts[0];
-        } else if (correctAnswerTexts.length > 1) {
-          // Multiple correct answers possible, check if student selected one of them
-          // This handles cases where question allows multiple correct but student selects one
-          isCorrect = correctAnswerTexts.includes(studentAnswer);
-        }
-      }
+      const isCorrect = checkAnswerCorrectness(question, studentAnswer);
 
       if (isCorrect) {
         correctAnswers++;

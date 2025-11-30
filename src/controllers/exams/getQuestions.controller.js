@@ -21,7 +21,9 @@ export const getQuestions = ApiHandler(async (req, res) => {
 
     const sanitizedMetadata = { ...metadata };
     if (req.user.role === "STUDENT") {
+      // Hide correct answers for students
       delete sanitizedMetadata.correct_answers;
+      delete sanitizedMetadata.correct_answer; // For SINGLE_WORD questions
     }
 
     return {
