@@ -3,6 +3,7 @@ import Exam from "#models/exam.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
+import { ENROLLMENT_STATUS } from "#utils/constants/model.constant.js";
 
 export const getExamById = ApiHandler(async (req, res) => {
   const { id } = req.params;
@@ -28,9 +29,34 @@ export const getExamById = ApiHandler(async (req, res) => {
     }
   }
 
-  // Check if admin/superadmin has access (entity check)
+  // Check if admin has access (entity check)
   if (req.user.role === "ADMIN" && exam.entity_id !== req.user.entity_id) {
     throw new ApiError(403, "FORBIDDEN", "You don't have access to this exam");
+  }
+
+  // Check if representative has access (entity check and enrollment)
+  if (req.user.role === "REPRESENTATIVE") {
+    // First check entity match
+    if (exam.entity_id !== req.user.entity_id) {
+      throw new ApiError(
+        403,
+        "FORBIDDEN",
+        "You don't have access to this exam"
+      );
+    }
+
+    // Then check enrollment
+    const enrollment = await Enrollment.findOne({
+      where: {
+        exam_id: id,
+        user_id: req.user.id,
+        status: ENROLLMENT_STATUS.ASSIGNED,
+      },
+    });
+
+    if (!enrollment) {
+      throw new ApiError(403, "FORBIDDEN", "You are not enrolled in this exam");
+    }
   }
 
   // Sanitize exam data

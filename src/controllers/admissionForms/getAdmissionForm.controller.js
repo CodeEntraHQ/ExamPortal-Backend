@@ -21,7 +21,18 @@ export const getAdmissionForm = ApiHandler(async (req, res) => {
   }
 
   // For representatives, check if they have an enrollment with ASSIGNED status
+  // and verify they belong to the same entity as the exam
   if (req.user.role === "REPRESENTATIVE") {
+    // First check entity match
+    if (exam.entity_id !== req.user.entity_id) {
+      throw new ApiError(
+        403,
+        "FORBIDDEN",
+        "You don't have access to this exam's admission form"
+      );
+    }
+
+    // Then check enrollment
     const enrollment = await Enrollment.findOne({
       where: {
         exam_id: exam_id,

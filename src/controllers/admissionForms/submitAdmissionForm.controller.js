@@ -215,6 +215,15 @@ export const submitAdmissionForm = ApiHandler(async (req, res) => {
     throw new ApiError(404, "NOT_FOUND", "Exam not found");
   }
 
+  // Check if representative belongs to the same entity as the exam
+  if (exam.entity_id !== req.user.entity_id) {
+    throw new ApiError(
+      403,
+      "FORBIDDEN",
+      "You don't have access to submit admission forms for this exam"
+    );
+  }
+
   // Check if representative has access to this exam (has ASSIGNED enrollment)
   const enrollment = await Enrollment.findOne({
     where: {

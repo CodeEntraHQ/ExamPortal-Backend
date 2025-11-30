@@ -1,4 +1,5 @@
 import Enrollment from "#models/enrollment.model.js";
+import Exam from "#models/exam.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
@@ -16,12 +17,22 @@ export const inviteRepresentatives = ApiHandler(async (req, res) => {
     throw new ApiError(400, "BAD_REQUEST", "Missing required fields");
   }
 
-  // Find all users by user IDs who are active representatives
-  // Representatives don't belong to any entity (entity_id is null)
+  // Get the exam to check its entity_id
+  const exam = await Exam.findByPk(exam_id);
+  if (!exam) {
+    throw new ApiError(404, "NOT_FOUND", "Exam not found");
+  }
+
+  // Check authorization - admin can only invite to exams from their entity
+  if (req.user.role === "ADMIN" && exam.entity_id !== req.user.entity_id) {
+    throw new ApiError(403, "FORBIDDEN", "You don't have access to this exam");
+  }
+
+  // Find all users by user IDs who are active representatives from the same entity as the exam
   const users = await User.findAll({
     where: {
       id: user_ids,
-      entity_id: null,
+      entity_id: exam.entity_id,
       status: USER_STATUS.ACTIVE,
       role: "REPRESENTATIVE",
     },
