@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 
 import { createExam } from "#controllers/exams/createExam.controller.js";
 import { createQuestion } from "#controllers/exams/createQuestion.controller.js";
@@ -46,6 +47,15 @@ import {
 } from "#validations/exam.validation.js";
 
 const router = Router();
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5242880, // 5MB limit
+  },
+});
 
 router
   .route("/")
@@ -146,14 +156,16 @@ router
     deleteExamEnrollment
   );
 
-router
-  .route("/question")
-  .post(
-    validate(createQuestionSchema),
-    verifyJWT,
-    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
-    createQuestion
-  );
+router.route("/question").post(
+  upload.fields([
+    { name: "question_image", maxCount: 1 },
+    { name: "option_images", maxCount: 10 },
+  ]),
+  validate(createQuestionSchema),
+  verifyJWT,
+  checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+  createQuestion
+);
 
 router
   .route("/question")
@@ -162,6 +174,10 @@ router
 router
   .route("/question/:id")
   .patch(
+    upload.fields([
+      { name: "question_image", maxCount: 1 },
+      { name: "option_images", maxCount: 10 },
+    ]),
     validate(updateQuestionSchema),
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),

@@ -22,6 +22,11 @@ const Question = sequelize.define(
       allowNull: false,
     },
 
+    question_image_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     type: {
       type: DataTypes.ENUM(...Object.values(QUESTION_TYPE)),
       allowNull: false,
