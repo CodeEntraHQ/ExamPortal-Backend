@@ -1,3 +1,5 @@
+import { Op } from "sequelize";
+
 import Exam from "#models/exam.model.js";
 import Result from "#models/result.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
@@ -24,10 +26,21 @@ export const getExamScoreDistribution = ApiHandler(async (req, res) => {
   }
 
   // Fetch all results for this exam with score
+  // Only get results where score is not null (completed exams)
   const results = await Result.findAll({
-    where: { exam_id: id },
-    attributes: ["id", "exam_id", "score", "metadata"],
+    where: {
+      exam_id: id,
+      score: { [Op.ne]: null }, // Only get results with calculated scores
+    },
+    attributes: ["id", "exam_id", "user_id", "score", "metadata", "created_at"],
+    order: [["created_at", "DESC"]],
   });
+
+  // Get total marks and passing marks from exam metadata
+  const totalMarks = exam.metadata?.totalMarks || 0;
+  const passingMarks = exam.metadata?.passingMarks || 0;
+  const passingPercentage =
+    totalMarks > 0 ? Math.round((passingMarks / totalMarks) * 100) : 0;
 
   if (results.length === 0) {
     return res.status(200).json(
@@ -39,24 +52,34 @@ export const getExamScoreDistribution = ApiHandler(async (req, res) => {
           { range: "60-69", count: 0, percentage: 0 },
           { range: "<60", count: 0, percentage: 0 },
         ],
+        summary: {
+          highestScore: 0,
+          lowestScore: 0,
+          averageScore: 0,
+          passRate: 0,
+          totalAttempts: 0,
+        },
       })
     );
   }
 
-  // Get total marks from exam metadata
-  const totalMarks = exam.metadata?.totalMarks || 0;
-
-  // Calculate score percentages for each result using original score
+  // Calculate score percentages for each result using original score from results table
   const scorePercentages = [];
   for (const result of results) {
-    const score =
-      result.score !== null && result.score !== undefined ? result.score : 0;
+    // Get score directly from results table
+    const score = result.score;
+
+    // Skip if score is null or undefined
+    if (score === null || score === undefined) {
+      continue;
+    }
 
     // Calculate percentage: (score / total marks) * 100
     const percentage =
       totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
 
-    if (percentage >= 0) {
+    // Only include valid percentages (0-100)
+    if (percentage >= 0 && percentage <= 100) {
       scorePercentages.push(percentage);
     }
   }
@@ -69,6 +92,24 @@ export const getExamScoreDistribution = ApiHandler(async (req, res) => {
   const poor = scorePercentages.filter((p) => p < 60).length;
 
   const total = scorePercentages.length;
+
+  // Calculate summary statistics
+  const highestScore = total > 0 ? Math.max(...scorePercentages) : 0;
+  const lowestScore = total > 0 ? Math.min(...scorePercentages) : 0;
+  const averageScore =
+    total > 0
+      ? Math.round(
+          (scorePercentages.reduce((sum, score) => sum + score, 0) / total) *
+            100
+        ) / 100
+      : 0;
+
+  // Calculate pass rate
+  const passedCount = scorePercentages.filter(
+    (p) => p >= passingPercentage
+  ).length;
+  const passRate =
+    total > 0 ? Math.round((passedCount / total) * 100 * 100) / 100 : 0;
 
   // Calculate percentages
   const distribution = [
@@ -103,6 +144,13 @@ export const getExamScoreDistribution = ApiHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse("EXAM_SCORE_DISTRIBUTION_FETCHED", {
       distribution,
+      summary: {
+        highestScore,
+        lowestScore,
+        averageScore,
+        passRate,
+        totalAttempts: total,
+      },
     })
   );
 });
