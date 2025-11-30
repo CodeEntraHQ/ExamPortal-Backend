@@ -112,7 +112,7 @@ export const createUser = ApiHandler(async (req, res) => {
     const invitationLink = getUserInvitationLink(user_id);
     const emailSent = await sendInvitationEmail(email, role, invitationLink, {
       entityName,
-      loginUrl: process.env.LOGIN_PORTAL_URL,
+      loginUrl: process.env.FRONTEND_HOST,
     });
 
     if (!emailSent) {
@@ -120,7 +120,7 @@ export const createUser = ApiHandler(async (req, res) => {
         email,
         role,
         entityName,
-        loginUrl: process.env.LOGIN_PORTAL_URL,
+        loginUrl: process.env.FRONTEND_HOST,
         error: "Email service returned false",
       });
       throw new ApiError(500, "SEND_EMAIL_FAILURE", "Unable to send email");

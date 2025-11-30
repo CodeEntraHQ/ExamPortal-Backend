@@ -59,7 +59,7 @@ export const inviteStudents = async (req, res) => {
   try {
     const emailPromises = users.map((user) =>
       sendExamInvitationEmail(user.email, exam.title, {
-        loginUrl: process.env.LOGIN_PORTAL_URL,
+        loginUrl: process.env.FRONTEND_HOST,
       }).catch((error) => {
         console.error(`⚠️ Failed to send email to ${user.email}:`, {
           email: user.email,

@@ -21,11 +21,7 @@ const getUserInvitationLink = (user_id) => {
 
   // Use FRONTEND_HOST or FRONTEND_URL for set password link
   // This should be the frontend host/URL, not the backend API endpoint
-  const frontendUrl =
-    process.env.FRONTEND_HOST ||
-    process.env.FRONTEND_URL ||
-    process.env.LOGIN_PORTAL_URL ||
-    "http://localhost:3000";
+  const frontendUrl = process.env.FRONTEND_HOST || process.env.FRONTEND_URL;
 
   // Clean up URL - remove trailing slash
   const baseUrl = frontendUrl.endsWith("/")
