@@ -69,7 +69,7 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
             
             <!-- Header / Logo -->
             <tr>
-              <td align="center" style="background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); padding: 20px;">
+              <td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 20px;">
                 <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">You're Invited to Join ExamEntra!</h1>
               </td>
             </tr>
@@ -89,7 +89,7 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
 
                 <p style="text-align: center; margin: 30px 0;">
                   <a href="${resetLink}" style="
-                    background: linear-gradient(90deg, #00c6ff, #0072ff);
+                    background: linear-gradient(90deg, #10b981, #059669);
                     color: #ffffff;
                     padding: 14px 28px;
                     font-weight: bold;
@@ -97,7 +97,7 @@ const sendInvitationEmail = async (to, role, resetLink, options = {}) => {
                     border-radius: 30px;
                     display: inline-block;
                     font-size: 16px;
-                    box-shadow: 0 4px 14px rgba(0, 114, 255, 0.3);
+                    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
                   ">
                     Set Your Password 🔐
                   </a>
@@ -148,7 +148,7 @@ const sendPasswordResetEmail = async (to, name, resetLink) => {
             
             <!-- Header / Logo -->
             <tr>
-              <td align="center" style="background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); padding: 20px;">
+              <td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 20px;">
                 <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">Reset Your Password</h1>
               </td>
             </tr>
@@ -166,7 +166,7 @@ const sendPasswordResetEmail = async (to, name, resetLink) => {
 
                 <p style="text-align: center; margin: 30px 0;">
                   <a href="${resetLink}" style="
-                    background: linear-gradient(90deg, #00c6ff, #0072ff);
+                    background: linear-gradient(90deg, #10b981, #059669);
                     color: #ffffff;
                     padding: 14px 28px;
                     font-weight: bold;
@@ -174,7 +174,7 @@ const sendPasswordResetEmail = async (to, name, resetLink) => {
                     border-radius: 30px;
                     display: inline-block;
                     font-size: 16px;
-                    box-shadow: 0 4px 14px rgba(0, 114, 255, 0.3);
+                    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
                   ">
                     Reset Password 🔐
                   </a>
@@ -227,7 +227,7 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
             
             <!-- Header / Logo -->
             <tr>
-              <td align="center" style="background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); padding: 20px;">
+              <td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 20px;">
                 <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">Exam Invitation</h1>
               </td>
             </tr>
@@ -245,7 +245,7 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
 
                 <p style="text-align: center; margin: 30px 0;">
                   <a href="${finalLoginUrl}" style="
-                    background: linear-gradient(90deg, #00c6ff, #0072ff);
+                    background: linear-gradient(90deg, #10b981, #059669);
                     color: #ffffff;
                     padding: 14px 28px;
                     font-weight: bold;
@@ -253,7 +253,7 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
                     border-radius: 30px;
                     display: inline-block;
                     font-size: 16px;
-                    box-shadow: 0 4px 14px rgba(0, 114, 255, 0.3);
+                    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
                   ">
                     Login to ExamEntra 🚀
                   </a>
