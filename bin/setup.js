@@ -76,9 +76,8 @@ const setup = async () => {
       }
 
       const password_hash = await bcrypt.hash(user.password, 10);
-      // Representatives don't belong to any entity (entity_id is null)
-      const entityId =
-        user.role === USER_ROLES.REPRESENTATIVE ? null : entity.id;
+      // Representatives are now bound to entities (same as other roles)
+      const entityId = entity.id;
       await User.create({
         id: randomUUID(),
         email: user.email,

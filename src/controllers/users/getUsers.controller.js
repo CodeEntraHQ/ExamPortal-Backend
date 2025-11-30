@@ -12,24 +12,16 @@ export const getUsers = ApiHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
 
-  // For non-representative roles, entity_id is required
-  if (role !== "REPRESENTATIVE" && !entity_id) {
-    throw new ApiError(
-      400,
-      "BAD_REQUEST",
-      "entity_id is required for this role"
-    );
+  // For all roles including REPRESENTATIVE, entity_id is required
+  if (!entity_id) {
+    throw new ApiError(400, "BAD_REQUEST", "entity_id is required");
   }
 
-  // Build where clause
-  // For REPRESENTATIVE role, entity_id should be null (they don't belong to any entity)
-  // For other roles, use the provided entity_id
-  const whereClause = { role: role };
-  if (role === "REPRESENTATIVE") {
-    whereClause.entity_id = null;
-  } else {
-    whereClause.entity_id = entity_id;
-  }
+  // Build where clause - all roles including representatives are filtered by entity_id
+  const whereClause = {
+    role: role,
+    entity_id: entity_id,
+  };
 
   // Fetch users
   const { rows, count: total } = await User.findAndCountAll({

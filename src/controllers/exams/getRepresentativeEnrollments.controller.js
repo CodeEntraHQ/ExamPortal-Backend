@@ -32,9 +32,12 @@ export const getRepresentativeEnrollments = ApiHandler(async (req, res) => {
 
   const examIds = enrollments.map((e) => e.exam_id);
 
-  // Fetch exam details for these enrollments
+  // Fetch exam details for these enrollments, but only from the representative's entity
   const exams = await Exam.findAll({
-    where: { id: examIds },
+    where: {
+      id: examIds,
+      entity_id: req.user.entity_id, // Only show exams from representative's entity
+    },
     attributes: [
       "id",
       "title",

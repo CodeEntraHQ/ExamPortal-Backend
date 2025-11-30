@@ -48,9 +48,9 @@ export const createUser = ApiHandler(async (req, res) => {
     );
   }
 
-  // For REPRESENTATIVE, entity_id is optional (they use dummy entity ID)
+  // For REPRESENTATIVE, entity_id is required for SUPERADMIN, optional for ADMIN (uses admin's entity)
   // For SUPERADMIN creating other roles, entity_id is required
-  if (inviterRole === "SUPERADMIN" && role !== "REPRESENTATIVE" && !entity_id) {
+  if (inviterRole === "SUPERADMIN" && !entity_id) {
     throw new ApiError(
       400,
       "BAD_REQUEST",
@@ -58,10 +58,15 @@ export const createUser = ApiHandler(async (req, res) => {
     );
   }
 
-  // Representatives don't belong to any entity, so set entity_id to null
+  // Representatives are now bound to an entity
+  // For ADMIN creating representatives, use admin's entity_id
+  // For SUPERADMIN, use provided entity_id
   // For other roles, use provided entity_id or current user's entity_id
-  const resolvedEntityId =
-    role === "REPRESENTATIVE" ? null : entity_id || req.user.entity_id;
+  const resolvedEntityId = entity_id || req.user.entity_id;
+
+  if (!resolvedEntityId) {
+    throw new ApiError(400, "BAD_REQUEST", "entity_id is required");
+  }
 
   // Check for duplicate email
   const existingUser = await User.findOne({
