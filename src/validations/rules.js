@@ -77,9 +77,38 @@ export const imageFileValidation = () =>
     originalname: z.string(),
     mimetype: z
       .string()
-      .refine((type) => ["image/jpeg", "image/png"].includes(type), {
-        error: "Only JPEG and PNG images are allowed",
-      }),
-    size: z.number().max(256000, { message: "File must be less than 250kb" }),
+      .refine(
+        (type) => ["image/jpeg", "image/png", "image/jpg"].includes(type),
+        {
+          error: "Only JPEG and PNG images are allowed",
+        }
+      ),
+    size: z.number().max(5242880, { message: "File must be less than 5MB" }),
     buffer: z.instanceof(Buffer),
   });
+
+/**
+ * Validates image dimensions
+ * @param {Buffer} imageBuffer - Image buffer
+ * @param {number} maxWidth - Maximum width in pixels
+ * @param {number} maxHeight - Maximum height in pixels
+ * @returns {Promise<{width: number, height: number}>} Image dimensions
+ * @throws {Error} If dimensions exceed limits
+ */
+export const validateImageDimensions = async (
+  imageBuffer,
+  maxWidth = 1920,
+  maxHeight = 1080
+) => {
+  // Dynamic import to avoid requiring sharp if not needed
+  const sharp = await import("sharp");
+  const metadata = await sharp.default(imageBuffer).metadata();
+
+  if (metadata.width > maxWidth || metadata.height > maxHeight) {
+    throw new Error(
+      `Image dimensions (${metadata.width}x${metadata.height}) exceed maximum allowed (${maxWidth}x${maxHeight}px)`
+    );
+  }
+
+  return { width: metadata.width, height: metadata.height };
+};
