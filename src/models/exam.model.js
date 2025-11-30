@@ -36,6 +36,10 @@ const Exam = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    results_visible: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

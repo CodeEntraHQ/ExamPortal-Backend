@@ -23,6 +23,7 @@ export const createExamSchema = z.object({
           isMultipleCorrect: z.boolean().optional(),
         })
         .optional(),
+      results_visible: z.boolean().optional(),
       entity_id: uuidValidation("entity_id").optional(),
     })
     .strict(),
@@ -142,6 +143,7 @@ export const updateExamSchema = z.object({
         })
         .optional(),
       active: z.boolean().optional(),
+      results_visible: z.boolean().optional(),
     })
     .strict(),
   headers: authorizationValidation(),
