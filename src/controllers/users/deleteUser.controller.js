@@ -42,8 +42,9 @@ export const deleteUser = ApiHandler(async (req, res) => {
 
   const canDelete =
     (req.user.role === "SUPERADMIN" &&
-      ["ADMIN", "STUDENT"].includes(userToDelete.role)) ||
-    (req.user.role === "ADMIN" && userToDelete.role === "STUDENT");
+      ["ADMIN", "STUDENT", "REPRESENTATIVE"].includes(userToDelete.role)) ||
+    (req.user.role === "ADMIN" &&
+      ["STUDENT", "REPRESENTATIVE"].includes(userToDelete.role));
 
   if (!canDelete) {
     throw new ApiError(
