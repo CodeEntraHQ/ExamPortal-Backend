@@ -3,6 +3,7 @@ import Exam from "#models/exam.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
+import { generateSecureToken } from "#utils/utils.js";
 
 export const createAdmissionForm = ApiHandler(async (req, res) => {
   const exam_id = req.params.exam_id;
@@ -41,10 +42,24 @@ export const createAdmissionForm = ApiHandler(async (req, res) => {
     );
   }
 
+  // Generate public token for anonymous access
+  let publicToken;
+  let isUnique = false;
+  while (!isUnique) {
+    publicToken = generateSecureToken(32);
+    const existing = await AdmissionForm.findOne({
+      where: { public_token: publicToken },
+    });
+    if (!existing) {
+      isUnique = true;
+    }
+  }
+
   // Create admission form
   const admissionForm = await AdmissionForm.create({
     exam_id,
     form_structure,
+    public_token: publicToken,
   });
 
   return res.status(200).json(
@@ -52,6 +67,7 @@ export const createAdmissionForm = ApiHandler(async (req, res) => {
       id: admissionForm.id,
       exam_id: admissionForm.exam_id,
       form_structure: admissionForm.form_structure,
+      public_token: admissionForm.public_token,
       created_at: admissionForm.created_at,
     })
   );
