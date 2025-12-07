@@ -1,8 +1,13 @@
 import { Buffer } from "buffer";
+import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 
 export const generateUUID = () => {
   return uuidv4();
+};
+
+export const generateSecureToken = (length = 32) => {
+  return crypto.randomBytes(length).toString("base64url");
 };
 
 export const encodeBase64 = (data) => {

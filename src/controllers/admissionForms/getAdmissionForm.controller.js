@@ -5,6 +5,7 @@ import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { ENROLLMENT_STATUS } from "#utils/constants/model.constant.js";
+import { generateSecureToken } from "#utils/utils.js";
 
 export const getAdmissionForm = ApiHandler(async (req, res) => {
   const { exam_id } = req.params;
@@ -63,11 +64,29 @@ export const getAdmissionForm = ApiHandler(async (req, res) => {
     );
   }
 
+  // Generate public token if it doesn't exist
+  if (!admissionForm.public_token) {
+    let publicToken;
+    let isUnique = false;
+    while (!isUnique) {
+      publicToken = generateSecureToken(32);
+      const existing = await AdmissionForm.findOne({
+        where: { public_token: publicToken },
+      });
+      if (!existing) {
+        isUnique = true;
+      }
+    }
+    admissionForm.public_token = publicToken;
+    await admissionForm.save();
+  }
+
   return res.status(200).json(
     new ApiResponse("ADMISSION_FORM_FETCHED", {
       id: admissionForm.id,
       exam_id: admissionForm.exam_id,
       form_structure: admissionForm.form_structure,
+      public_token: admissionForm.public_token, // Include public token for sharing
       created_at: admissionForm.created_at,
       updated_at: admissionForm.updated_at,
     })
