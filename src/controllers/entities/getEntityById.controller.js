@@ -64,6 +64,10 @@ export const getEntityById = ApiHandler(async (req, res) => {
       total_exams,
       total_students,
       type: entity.type,
+      monitoring_enabled:
+        entity.monitoring_enabled !== undefined
+          ? entity.monitoring_enabled
+          : true,
     })
   );
 });

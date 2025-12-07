@@ -58,6 +58,10 @@ export const createEntity = ApiHandler(async (req, res) => {
       total_exams: 0,
       total_students: 0,
       type: entity.type,
+      monitoring_enabled:
+        entity.monitoring_enabled !== undefined
+          ? entity.monitoring_enabled
+          : true,
     })
   );
 });
