@@ -18,6 +18,11 @@ const AdmissionForm = sequelize.define(
       type: DataTypes.JSON,
       allowNull: false,
     },
+    public_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -29,7 +34,7 @@ const AdmissionForm = sequelize.define(
   },
   {
     timestamps: false,
-    indexes: [{ fields: ["exam_id"] }],
+    indexes: [{ fields: ["exam_id"] }, { fields: ["public_token"] }],
   }
 );
 

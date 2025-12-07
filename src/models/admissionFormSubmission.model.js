@@ -17,7 +17,7 @@ const AdmissionFormSubmission = sequelize.define(
     },
     representative_id: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true, // Allow null for public submissions
     },
     form_responses: {
       type: DataTypes.JSON,
