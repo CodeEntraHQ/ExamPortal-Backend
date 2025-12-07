@@ -53,6 +53,12 @@ const Entity = sequelize.define(
       type: DataTypes.ENUM(...Object.values(ENTITY_TYPE)),
       allowNull: false,
     },
+
+    monitoring_enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
   },
   {
     timestamps: false,

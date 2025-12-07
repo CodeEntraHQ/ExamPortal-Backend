@@ -17,6 +17,11 @@ export const updateEntity = ApiHandler(async (req, res) => {
   const description = req.body.description?.trim();
   const email = req.body.email?.trim();
   const phone_number = req.body.phone_number?.trim();
+  const monitoring_enabled =
+    req.body.monitoring_enabled !== undefined
+      ? req.body.monitoring_enabled === "true" ||
+        req.body.monitoring_enabled === true
+      : undefined;
   const logo = req.file;
 
   let media;
@@ -35,6 +40,7 @@ export const updateEntity = ApiHandler(async (req, res) => {
     ...(email && { email }),
     ...(phone_number && { phone_number }),
     ...(logo && { logo_id: media.id }),
+    ...(monitoring_enabled !== undefined && { monitoring_enabled }),
   };
 
   const entity = await Entity.findByPk(entity_id);
@@ -82,6 +88,7 @@ export const updateEntity = ApiHandler(async (req, res) => {
       total_exams,
       total_students,
       type: updatedEntity.type,
+      monitoring_enabled: updatedEntity.monitoring_enabled,
     })
   );
 });

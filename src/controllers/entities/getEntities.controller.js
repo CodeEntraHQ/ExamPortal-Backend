@@ -35,6 +35,10 @@ export const getEntities = ApiHandler(async (req, res) => {
         where: { entity_id: entity.id, role: USER_ROLES.STUDENT },
       }),
       type: entity.type,
+      monitoring_enabled:
+        entity.monitoring_enabled !== undefined
+          ? entity.monitoring_enabled
+          : true,
     }))
   );
 

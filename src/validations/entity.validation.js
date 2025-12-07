@@ -53,6 +53,7 @@ export const updateEntitySchema = z.object({
         9999999999
       ).optional(),
       type: z.enum([...Object.values(ENTITY_TYPE)]).optional(),
+      monitoring_enabled: z.union([z.boolean(), z.string()]).optional(),
     })
     .refine(
       (data) =>
@@ -61,7 +62,8 @@ export const updateEntitySchema = z.object({
         data.email !== undefined ||
         data.name !== undefined ||
         data.phone_number !== undefined ||
-        data.type !== undefined || {
+        data.type !== undefined ||
+        data.monitoring_enabled !== undefined || {
           message: "At least one of attribute is required",
         }
     )

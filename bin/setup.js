@@ -59,6 +59,7 @@ const setup = async () => {
         description: "This is a dummy entity created for testing purposes.",
         email: "dummy@example.com",
         phone_number: "9234567890",
+        monitoring_enabled: true,
       },
     });
     if (entityCreated) {
