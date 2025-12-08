@@ -14,6 +14,8 @@ import {
   USER_ROLES,
   USER_STATUS,
 } from "#utils/constants/model.constant.js";
+import { getUserInvitationLink } from "#utils/crypto.util.js";
+import { sendStudentApprovalEmail } from "#utils/email-handler/triggerEmail.js";
 import { generateUUID } from "#utils/utils.js";
 
 export const updateSubmissionStatus = ApiHandler(async (req, res) => {
@@ -161,12 +163,15 @@ export const updateSubmissionStatus = ApiHandler(async (req, res) => {
     );
   }
 
-  // Password is required when approving
-  if (action === "approve" && !password) {
+  // Check if submission is from a representative
+  const isFromRepresentative = submission.representative_id !== null;
+
+  // Password validation: required only if NOT from representative
+  if (action === "approve" && !isFromRepresentative && !password) {
     throw new ApiError(
       400,
       "BAD_REQUEST",
-      "Password is required when approving a submission"
+      "Password is required when approving a submission that was not submitted by a representative"
     );
   }
 
@@ -185,45 +190,97 @@ export const updateSubmissionStatus = ApiHandler(async (req, res) => {
       );
     }
 
-    // If user is inactive or pending, activate them
-    if (user.status !== USER_STATUS.ACTIVE) {
-      await user.update({
-        status: USER_STATUS.ACTIVE,
-        name: name || user.name,
-        phone_number: phone_number || user.phone_number,
-        address: address || user.address,
-        gender: gender || user.gender,
-        roll_number: roll_number || user.roll_number,
-      });
-    } else {
-      // Update user info if provided
-      await user.update({
-        name: name || user.name,
-        phone_number: phone_number || user.phone_number,
-        address: address || user.address,
-        gender: gender || user.gender,
-        roll_number: roll_number || user.roll_number,
-      });
+    // Handle user status and updates
+    const updateData = {
+      name: name || user.name,
+      phone_number: phone_number || user.phone_number,
+      address: address || user.address,
+      gender: gender || user.gender,
+      roll_number: roll_number || user.roll_number,
+    };
+
+    // If from representative and user doesn't have password, set status to ACTIVATION_PENDING
+    // so they can use the registration endpoint
+    if (isFromRepresentative && !user.password_hash) {
+      updateData.status = USER_STATUS.ACTIVATION_PENDING;
+    } else if (user.status !== USER_STATUS.ACTIVE) {
+      // Otherwise, activate inactive/pending users
+      updateData.status = USER_STATUS.ACTIVE;
+    }
+
+    await user.update(updateData);
+
+    // If from representative, send email with password setup link and exam details
+    // If user already has password, still send exam details but they can login normally
+    if (isFromRepresentative) {
+      if (!user.password_hash) {
+        // User doesn't have password - send password setup email with exam details
+        const passwordSetupLink = getUserInvitationLink(user.id);
+        const emailSent = await sendStudentApprovalEmail(
+          user.email,
+          user.name || name,
+          passwordSetupLink,
+          {
+            title: exam.title,
+            description: exam.description,
+            start_time: exam.start_time,
+          }
+        );
+        if (!emailSent) {
+          console.error("Failed to send student approval email");
+        }
+      }
+      // Note: If user already has password, they can login and see the exam
+      // The enrollment is already created below, so they'll see it in their dashboard
     }
   } else {
     // Create new user account
-    // Use provided password
-    const password_hash = await bcrypt.hash(password, 10);
-
     const user_id = generateUUID();
+
+    // If from representative, create user without password
+    // Otherwise, use provided password
+    let password_hash = null;
+    let userStatus = USER_STATUS.ACTIVE;
+
+    if (!isFromRepresentative && password) {
+      password_hash = await bcrypt.hash(password, 10);
+    } else if (isFromRepresentative) {
+      // User needs to set password, so set status to ACTIVATION_PENDING
+      // This allows them to use the registration endpoint
+      userStatus = USER_STATUS.ACTIVATION_PENDING;
+    }
+
     user = await User.create({
       id: user_id,
       name: name || null,
       email: email,
       password_hash,
       role: USER_ROLES.STUDENT,
-      status: USER_STATUS.ACTIVE,
+      status: userStatus,
       entity_id: targetEntityId,
       phone_number: phone_number || null,
       address: address || null,
       gender: gender || null,
       roll_number: roll_number || null,
     });
+
+    // If from representative, send email with password setup link and exam details
+    if (isFromRepresentative) {
+      const passwordSetupLink = getUserInvitationLink(user.id);
+      const emailSent = await sendStudentApprovalEmail(
+        user.email,
+        user.name || name,
+        passwordSetupLink,
+        {
+          title: exam.title,
+          description: exam.description,
+          start_time: exam.start_time,
+        }
+      );
+      if (!emailSent) {
+        console.error("Failed to send student approval email");
+      }
+    }
   }
 
   // Use the existing invite flow - check if user is already enrolled

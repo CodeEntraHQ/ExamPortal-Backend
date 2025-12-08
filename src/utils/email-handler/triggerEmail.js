@@ -287,4 +287,133 @@ const sendExamInvitationEmail = async (to, examName, options = {}) => {
   }
 };
 
-export { sendInvitationEmail, sendPasswordResetEmail, sendExamInvitationEmail };
+const sendStudentApprovalEmail = async (
+  to,
+  name,
+  passwordResetLink,
+  examDetails
+) => {
+  try {
+    const tokenExpiry = process.env.RESET_PASSWORD_TOKEN_EXPIRY || "60";
+
+    // Escape HTML to prevent injection
+    const safeName = escapeHtml(name || "Student");
+    const safeExamName = escapeHtml(examDetails?.title || "Exam");
+    const safeExamDescription = escapeHtml(examDetails?.description || "");
+    const examDate = examDetails?.start_time
+      ? new Date(examDetails.start_time).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "TBA";
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: to,
+      subject: "Welcome to ExamEntra - Set Your Password",
+      html: `
+      <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 40px;">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+            
+            <!-- Header / Logo -->
+            <tr>
+              <td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 20px;">
+                <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px;">Welcome to ExamEntra!</h1>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 40px; color: #333333;">
+                <p style="font-size: 16px; line-height: 1.6;">
+                  Hello ${safeName},
+                </p>
+                <p style="font-size: 16px; line-height: 1.6;">
+                  Your admission form submission has been approved! Your account has been created on <strong>ExamEntra</strong>.
+                </p>
+                
+                <!-- Exam Details Section -->
+                <div style="background-color: #f8f9fa; border-left: 4px solid #10b981; padding: 20px; margin: 25px 0; border-radius: 5px;">
+                  <h2 style="color: #059669; margin-top: 0; font-size: 18px; margin-bottom: 15px;">📝 Exam Details</h2>
+                  <p style="font-size: 15px; line-height: 1.8; margin: 8px 0;">
+                    <strong>Exam Name:</strong> ${safeExamName}
+                  </p>
+                  ${
+                    safeExamDescription
+                      ? `
+                  <p style="font-size: 15px; line-height: 1.8; margin: 8px 0;">
+                    <strong>Description:</strong> ${safeExamDescription}
+                  </p>
+                  `
+                      : ""
+                  }
+                  <p style="font-size: 15px; line-height: 1.8; margin: 8px 0;">
+                    <strong>Exam Date:</strong> ${examDate}
+                  </p>
+                </div>
+
+                <p style="font-size: 16px; line-height: 1.6; margin-top: 25px;">
+                  To get started, please set your password by clicking the button below:
+                </p>
+
+                <p style="text-align: center; margin: 30px 0;">
+                  <a href="${passwordResetLink}" style="
+                    background: linear-gradient(90deg, #10b981, #059669);
+                    color: #ffffff;
+                    padding: 14px 28px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 30px;
+                    display: inline-block;
+                    font-size: 16px;
+                    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+                  ">
+                    Set Your Password 🔐
+                  </a>
+                </p>
+
+                <p style="font-size: 14px; color: #777777; text-align: center;">
+                  This link will expire in <strong>${tokenExpiry} minutes</strong> for your security.
+                </p>
+                <p style="font-size: 14px; color: #777777; text-align: center; margin-top: 10px;">
+                  After setting your password, you can login to your account and access your exam.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="background-color: #f8f8f8; padding: 20px; color: #aaaaaa; font-size: 12px;">
+                &copy; ${new Date().getFullYear()} CodeEntra. All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    `,
+    };
+    const emailSent = await sendEmail(mailOptions);
+    return emailSent;
+  } catch (error) {
+    console.error("❌ Error in sendStudentApprovalEmail:", {
+      to,
+      name,
+      error: error.message,
+      stack: error.stack,
+    });
+    return false;
+  }
+};
+
+export {
+  sendInvitationEmail,
+  sendPasswordResetEmail,
+  sendExamInvitationEmail,
+  sendStudentApprovalEmail,
+};
