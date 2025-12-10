@@ -1,4 +1,5 @@
 import Enrollment from "#models/enrollment.model.js";
+import Entity from "#models/entity.model.js";
 import Exam from "#models/exam.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
@@ -8,6 +9,7 @@ import {
   ENROLLMENT_STATUS,
   USER_STATUS,
 } from "#utils/constants/model.constant.js";
+import { sendRepresentativeExamInviteEmail } from "#utils/email-handler/triggerEmail.js";
 
 export const inviteRepresentatives = ApiHandler(async (req, res) => {
   const { exam_id } = req.params;
@@ -22,6 +24,8 @@ export const inviteRepresentatives = ApiHandler(async (req, res) => {
   if (!exam) {
     throw new ApiError(404, "NOT_FOUND", "Exam not found");
   }
+
+  const entity = await Entity.findByPk(exam.entity_id);
 
   // Check authorization - admin can only invite to exams from their entity
   if (req.user.role === "ADMIN" && exam.entity_id !== req.user.entity_id) {
@@ -93,7 +97,50 @@ export const inviteRepresentatives = ApiHandler(async (req, res) => {
   );
 
   // Note: Email invitations can be added here in the future if needed
-  // For now, enrollments are created successfully without email notifications
+  // Send invitation emails to representatives with exam and entity details
+  if (usersToEnroll.length) {
+    const emailPromises = usersToEnroll.map((rep) =>
+      sendRepresentativeExamInviteEmail(rep.email, {
+        representativeName: rep.name,
+        examTitle: exam.title,
+        examType: exam.type,
+        durationSeconds: exam.duration_seconds,
+        entityName: entity?.name,
+        startDate: exam?.metadata?.startDate,
+        endDate: exam?.metadata?.endDate,
+        loginUrl: process.env.LOGIN_PORTAL_URL,
+      }).catch((error) => {
+        console.error(
+          `⚠️ Failed to send representative invite to ${rep.email}:`,
+          {
+            email: rep.email,
+            examTitle: exam.title,
+            error: error.message,
+            stack: error.stack,
+          }
+        );
+        return false;
+      })
+    );
+
+    try {
+      const emailResults = await Promise.all(emailPromises);
+      const failedEmails = emailResults.filter(
+        (result) => result === false
+      ).length;
+      if (failedEmails > 0) {
+        console.error(
+          `❌ Failed to send ${failedEmails} representative invitation emails`
+        );
+      }
+    } catch (error) {
+      console.error("❌ Error sending representative invitation emails:", {
+        examTitle: exam.title,
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+  }
 
   // Return structured API response
   return res.status(200).json(
