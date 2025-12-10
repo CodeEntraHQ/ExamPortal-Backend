@@ -163,17 +163,9 @@ export const updateSubmissionStatus = ApiHandler(async (req, res) => {
     );
   }
 
-  // Check if submission is from a representative
+  // Check submission origin
   const isFromRepresentative = submission.representative_id !== null;
-
-  // Password validation: required only if NOT from representative
-  if (action === "approve" && !isFromRepresentative && !password) {
-    throw new ApiError(
-      400,
-      "BAD_REQUEST",
-      "Password is required when approving a submission that was not submitted by a representative"
-    );
-  }
+  const isFromPublicLink = submission.representative_id === null;
 
   // Check if user already exists
   let user = await User.findOne({
@@ -199,9 +191,9 @@ export const updateSubmissionStatus = ApiHandler(async (req, res) => {
       roll_number: roll_number || user.roll_number,
     };
 
-    // If from representative and user doesn't have password, set status to ACTIVATION_PENDING
+    // If from representative/public and user doesn't have password, set status to ACTIVATION_PENDING
     // so they can use the registration endpoint
-    if (isFromRepresentative && !user.password_hash) {
+    if ((isFromRepresentative || isFromPublicLink) && !user.password_hash) {
       updateData.status = USER_STATUS.ACTIVATION_PENDING;
     } else if (user.status !== USER_STATUS.ACTIVE) {
       // Otherwise, activate inactive/pending users
@@ -210,11 +202,9 @@ export const updateSubmissionStatus = ApiHandler(async (req, res) => {
 
     await user.update(updateData);
 
-    // If from representative, send email with password setup link and exam details
-    // If user already has password, still send exam details but they can login normally
-    if (isFromRepresentative) {
+    // If from representative or public link, notify student (password setup only when needed)
+    if (isFromRepresentative || isFromPublicLink) {
       if (!user.password_hash) {
-        // User doesn't have password - send password setup email with exam details
         const passwordSetupLink = getUserInvitationLink(user.id);
         const emailSent = await sendStudentApprovalEmail(
           user.email,
@@ -230,21 +220,19 @@ export const updateSubmissionStatus = ApiHandler(async (req, res) => {
           console.error("Failed to send student approval email");
         }
       }
-      // Note: If user already has password, they can login and see the exam
-      // The enrollment is already created below, so they'll see it in their dashboard
     }
   } else {
     // Create new user account
     const user_id = generateUUID();
 
-    // If from representative, create user without password
+    // If from representative or public, create user without password
     // Otherwise, use provided password
     let password_hash = null;
     let userStatus = USER_STATUS.ACTIVE;
 
-    if (!isFromRepresentative && password) {
+    if (!isFromRepresentative && !isFromPublicLink && password) {
       password_hash = await bcrypt.hash(password, 10);
-    } else if (isFromRepresentative) {
+    } else if (isFromRepresentative || isFromPublicLink) {
       // User needs to set password, so set status to ACTIVATION_PENDING
       // This allows them to use the registration endpoint
       userStatus = USER_STATUS.ACTIVATION_PENDING;
@@ -264,21 +252,23 @@ export const updateSubmissionStatus = ApiHandler(async (req, res) => {
       roll_number: roll_number || null,
     });
 
-    // If from representative, send email with password setup link and exam details
-    if (isFromRepresentative) {
-      const passwordSetupLink = getUserInvitationLink(user.id);
-      const emailSent = await sendStudentApprovalEmail(
-        user.email,
-        user.name || name,
-        passwordSetupLink,
-        {
-          title: exam.title,
-          description: exam.description,
-          start_time: exam.start_time,
+    // If from representative or public link, notify student (password setup only when needed)
+    if (isFromRepresentative || isFromPublicLink) {
+      if (!user.password_hash) {
+        const emailSent = await sendStudentApprovalEmail(
+          user.email,
+          user.name || name,
+          getUserInvitationLink(user.id),
+          {
+            title: exam.title,
+            description: exam.description,
+            start_time: exam.start_time,
+          }
+        );
+
+        if (!emailSent) {
+          console.error("Failed to send student approval email");
         }
-      );
-      if (!emailSent) {
-        console.error("Failed to send student approval email");
       }
     }
   }

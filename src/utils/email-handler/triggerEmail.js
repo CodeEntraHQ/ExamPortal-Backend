@@ -411,9 +411,144 @@ const sendStudentApprovalEmail = async (
   }
 };
 
+const sendRepresentativeExamInviteEmail = async (
+  to,
+  {
+    representativeName,
+    examTitle,
+    examType,
+    durationSeconds,
+    entityName,
+    startDate,
+    endDate,
+    loginUrl,
+  } = {}
+) => {
+  try {
+    const safeRepName = escapeHtml(representativeName || "Representative");
+    const safeExamTitle = escapeHtml(examTitle || "Exam");
+    const safeExamType = escapeHtml(examType || "Assessment");
+    const safeEntityName = escapeHtml(entityName || "your institution");
+    const finalLoginUrl = loginUrl || process.env.LOGIN_PORTAL_URL;
+
+    const durationMinutes = durationSeconds
+      ? Math.round(Number(durationSeconds) / 60)
+      : null;
+
+    const startDateDisplay = startDate
+      ? new Date(startDate).toLocaleString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "TBA";
+
+    const endDateDisplay = endDate
+      ? new Date(endDate).toLocaleString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : null;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to,
+      subject: "You are invited to manage an exam - ExamEntra",
+      html: `
+      <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 40px;">
+        <tr>
+          <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+              <tr>
+                <td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 20px;">
+                  <h1 style="color: #ffffff; margin-top: 10px; margin-bottom: 0; font-size: 22px;">Exam Invitation for Representative</h1>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 32px; color: #333333;">
+                  <p style="font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+                    Hello ${safeRepName},
+                  </p>
+                  <p style="font-size: 16px; line-height: 1.6; margin: 0 0 18px 0;">
+                    You have been invited by <strong>${safeEntityName}</strong> to manage student enrollments for the exam <strong>${safeExamTitle}</strong>.
+                  </p>
+
+                  <div style="background-color: #f8fafc; border-left: 4px solid #10b981; padding: 16px; border-radius: 8px; margin: 18px 0;">
+                    <h3 style="margin: 0 0 12px 0; color: #059669; font-size: 16px;">Exam Details</h3>
+                    <p style="margin: 4px 0; font-size: 15px;"><strong>Title:</strong> ${safeExamTitle}</p>
+                    <p style="margin: 4px 0; font-size: 15px;"><strong>Type:</strong> ${safeExamType}</p>
+                    ${
+                      durationMinutes
+                        ? `<p style="margin: 4px 0; font-size: 15px;"><strong>Duration:</strong> ${durationMinutes} minutes</p>`
+                        : ""
+                    }
+                    <p style="margin: 4px 0; font-size: 15px;"><strong>Starts:</strong> ${startDateDisplay}</p>
+                    ${
+                      endDateDisplay
+                        ? `<p style="margin: 4px 0; font-size: 15px;"><strong>Ends:</strong> ${endDateDisplay}</p>`
+                        : ""
+                    }
+                  </div>
+
+                  <p style="font-size: 15px; line-height: 1.6; margin: 12px 0 20px 0;">
+                    Please sign in to ExamEntra to enroll students and manage exam participation.
+                  </p>
+
+                  <p style="text-align: center; margin: 28px 0;">
+                    <a href="${finalLoginUrl}" style="
+                      background: linear-gradient(90deg, #10b981, #059669);
+                      color: #ffffff;
+                      padding: 12px 26px;
+                      font-weight: 600;
+                      text-decoration: none;
+                      border-radius: 28px;
+                      display: inline-block;
+                      font-size: 15px;
+                      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+                    ">
+                      Go to ExamEntra →
+                    </a>
+                  </p>
+
+                  <p style="font-size: 13px; color: #6b7280; text-align: center; margin-top: 10px;">
+                    If you were not expecting this invitation, please ignore this email.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="background-color: #f8f8f8; padding: 16px; color: #9ca3af; font-size: 12px;">
+                  &copy; ${new Date().getFullYear()} CodeEntra. All rights reserved.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      `,
+    };
+
+    const emailSent = await sendEmail(mailOptions);
+    return emailSent;
+  } catch (error) {
+    console.error("❌ Error in sendRepresentativeExamInviteEmail:", {
+      to,
+      examTitle,
+      error: error.message,
+      stack: error.stack,
+    });
+    return false;
+  }
+};
+
 export {
   sendInvitationEmail,
   sendPasswordResetEmail,
   sendExamInvitationEmail,
   sendStudentApprovalEmail,
+  sendRepresentativeExamInviteEmail,
 };
