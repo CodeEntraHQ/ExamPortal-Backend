@@ -1,17 +1,21 @@
 import { Router } from "express";
 
 import {
-  createExamMonitoring,
+  createOrUpdateExamMonitoring,
   getMonitoringByEnrollment,
+  getMonitoringByExam,
 } from "#controllers/examMonitoring.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 
 const router = Router();
 
-// Create monitoring record (called by client during exam)
-router.route("/").post(verifyJWT, createExamMonitoring);
+// Create or update monitoring record (called by client during exam)
+router.route("/").post(verifyJWT, createOrUpdateExamMonitoring);
 
-// Get monitoring records for an enrollment
+// Get all monitoring data for an exam
+router.route("/exam/:examId").get(verifyJWT, getMonitoringByExam);
+
+// Get monitoring record for an enrollment
 router.route("/:enrollmentId").get(verifyJWT, getMonitoringByEnrollment);
 
 export default router;

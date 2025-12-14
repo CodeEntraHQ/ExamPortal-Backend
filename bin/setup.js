@@ -6,6 +6,9 @@ import AdmissionForm from "../src/models/admissionForm.model.js";
 import Enrollment from "../src/models/enrollment.model.js";
 import Entity from "../src/models/entity.model.js";
 import Exam from "../src/models/exam.model.js";
+// eslint-disable-next-line no-unused-vars
+import ExamMonitoring from "../src/models/examMonitoring.model.js";
+// Required for sequelize.sync() to create the table
 import Question from "../src/models/question.model.js";
 import Result from "../src/models/result.model.js";
 import User from "../src/models/user.model.js";
@@ -115,6 +118,7 @@ const setup = async () => {
       type: EXAM_TYPE.QUIZ,
       active: true,
       results_visible: false,
+      monitoring_enabled: true,
       created_at: new Date(),
     });
     console.log("Sample quiz created successfully.");
@@ -190,6 +194,7 @@ const setup = async () => {
       type: EXAM_TYPE.QUIZ,
       active: false,
       results_visible: false,
+      monitoring_enabled: true,
       created_at: new Date(),
     });
     console.log("Sample vocabulary quiz created successfully.");
@@ -249,6 +254,7 @@ const setup = async () => {
       type: EXAM_TYPE.QUIZ,
       active: true,
       results_visible: false,
+      monitoring_enabled: true,
       created_at: new Date(),
     });
     console.log("Multiple choice quiz created successfully.");

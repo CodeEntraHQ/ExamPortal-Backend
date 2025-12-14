@@ -14,31 +14,44 @@ const ExamMonitoring = sequelize.define(
     enrollment_id: {
       type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: "Enrollments",
+        key: "id",
+      },
+      onDelete: "CASCADE",
     },
 
-    switch_tab_count: {
+    tab_switch_count: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       defaultValue: 0,
     },
 
     fullscreen_exit_count: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       defaultValue: 0,
     },
 
-    // General metadata: can store counts and arrays of media ids for snapshots
     metadata: {
       type: DataTypes.JSON,
       allowNull: true,
-    },
-
-    // Optional media reference for exam start snapshot
-    exam_start_media_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      defaultValue: {
+        snapshots: {
+          regular_interval: [], // Array of media IDs
+          multiple_face_detection: [], // Array of media IDs
+          no_face_detection: [], // Array of media IDs
+          exam_start: null, // Single media ID
+        },
+      },
     },
 
     created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+
+    updated_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -49,14 +62,22 @@ const ExamMonitoring = sequelize.define(
   }
 );
 
-ExamMonitoring.beforeCreate((m) => {
-  m.id = generateUUID();
+ExamMonitoring.beforeCreate((monitoring) => {
+  monitoring.id = generateUUID();
+  if (!monitoring.metadata) {
+    monitoring.metadata = {
+      snapshots: {
+        regular_interval: [],
+        multiple_face_detection: [],
+        no_face_detection: [],
+        exam_start: null,
+      },
+    };
+  }
 });
 
-ExamMonitoring.beforeBulkCreate((items) => {
-  items.forEach((i) => {
-    i.id = generateUUID();
-  });
+ExamMonitoring.beforeUpdate((monitoring) => {
+  monitoring.updated_at = new Date();
 });
 
 export default ExamMonitoring;

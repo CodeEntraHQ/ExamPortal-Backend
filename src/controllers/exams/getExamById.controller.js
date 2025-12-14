@@ -70,6 +70,7 @@ export const getExamById = ApiHandler(async (req, res) => {
     metadata: exam.metadata || null,
     entity_id: exam.entity_id,
     results_visible: exam.results_visible ?? false,
+    monitoring_enabled: exam.monitoring_enabled ?? true,
   };
 
   // Send response

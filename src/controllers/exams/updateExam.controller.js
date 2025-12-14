@@ -12,6 +12,7 @@ export const updateExam = ApiHandler(async (req, res) => {
   const metadata = req.body.metadata;
   const active = req.body.active;
   const results_visible = req.body.results_visible;
+  const monitoring_enabled = req.body.monitoring_enabled;
 
   // Validate exam_id
   if (!exam_id) {
@@ -55,6 +56,8 @@ export const updateExam = ApiHandler(async (req, res) => {
   if (active !== undefined) updateData.active = active;
   if (results_visible !== undefined)
     updateData.results_visible = results_visible;
+  if (monitoring_enabled !== undefined)
+    updateData.monitoring_enabled = monitoring_enabled;
 
   // Validate metadata if provided
   if (metadata) {
@@ -126,6 +129,7 @@ export const updateExam = ApiHandler(async (req, res) => {
       duration_seconds: exam.duration_seconds,
       metadata: exam.metadata,
       results_visible: exam.results_visible,
+      monitoring_enabled: exam.monitoring_enabled,
     })
   );
 });
