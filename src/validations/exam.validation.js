@@ -142,6 +142,7 @@ export const updateExamSchema = z.object({
         .optional(),
       active: z.boolean().optional(),
       results_visible: z.boolean().optional(),
+      monitoring_enabled: z.boolean().optional(),
     })
     .strict(),
   headers: authorizationValidation(),

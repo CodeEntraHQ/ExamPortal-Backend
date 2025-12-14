@@ -6,6 +6,7 @@ import Enrollment from "#models/enrollment.model.js";
 // import models
 import Entity from "#models/entity.model.js";
 import Exam from "#models/exam.model.js";
+import ExamMonitoring from "#models/examMonitoring.model.js";
 import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
 import Submission from "#models/submission.model.js";
@@ -39,6 +40,10 @@ AdmissionFormSubmission.belongsTo(Exam, {
 AdmissionFormSubmission.belongsTo(User, {
   foreignKey: "representative_id",
   as: "Representative",
+  onDelete: "CASCADE",
+});
+ExamMonitoring.belongsTo(Enrollment, {
+  foreignKey: "enrollment_id",
   onDelete: "CASCADE",
 });
 

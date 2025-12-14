@@ -65,6 +65,14 @@ export const updateEntity = ApiHandler(async (req, res) => {
 
   const updatedEntity = await entity.update(updateData);
 
+  // If monitoring is disabled at entity level, disable it for all exams in this entity
+  if (monitoring_enabled === false) {
+    await Exam.update(
+      { monitoring_enabled: false },
+      { where: { entity_id: updatedEntity.id } }
+    );
+  }
+
   // Get counts
   const total_exams = await Exam.count({
     where: { entity_id: updatedEntity.id },

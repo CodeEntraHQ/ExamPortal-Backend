@@ -40,6 +40,10 @@ const Exam = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    monitoring_enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
