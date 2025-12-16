@@ -33,6 +33,12 @@ const ExamMonitoring = sequelize.define(
       defaultValue: 0,
     },
 
+    voice_detection_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+
     metadata: {
       type: DataTypes.JSON,
       allowNull: true,
