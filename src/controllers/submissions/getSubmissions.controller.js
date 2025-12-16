@@ -44,6 +44,7 @@ export const getSubmissions = ApiHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse("SUBMISSIONS_FETCHED", {
       exam_id,
+      enrollment_id: enrollment.id, // Include enrollment_id for monitoring
       enrollment_status: enrollment.status,
       started_at: enrollment.metadata?.started_at,
       submissions: submissionsData,

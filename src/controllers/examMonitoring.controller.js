@@ -11,6 +11,7 @@ export const createOrUpdateExamMonitoring = ApiHandler(async (req, res) => {
     enrollment_id,
     tab_switch_count,
     fullscreen_exit_count,
+    voice_detection_count,
     snapshot_media_id,
     snapshot_type, // 'regular_interval' | 'multiple_face_detection' | 'no_face_detection' | 'exam_start'
   } = req.body;
@@ -64,6 +65,9 @@ export const createOrUpdateExamMonitoring = ApiHandler(async (req, res) => {
   if (fullscreen_exit_count !== undefined) {
     updateData.fullscreen_exit_count = fullscreen_exit_count;
   }
+  if (voice_detection_count !== undefined) {
+    updateData.voice_detection_count = voice_detection_count;
+  }
 
   // Add snapshot to metadata if provided
   if (snapshot_media_id && snapshot_type) {
@@ -102,6 +106,10 @@ export const createOrUpdateExamMonitoring = ApiHandler(async (req, res) => {
         fullscreen_exit_count !== undefined
           ? fullscreen_exit_count
           : monitoring.fullscreen_exit_count,
+      voice_detection_count:
+        voice_detection_count !== undefined
+          ? voice_detection_count
+          : monitoring.voice_detection_count,
     };
     await monitoring.update(finalUpdateData);
     // Reload to get updated data
@@ -113,6 +121,8 @@ export const createOrUpdateExamMonitoring = ApiHandler(async (req, res) => {
       tab_switch_count: tab_switch_count !== undefined ? tab_switch_count : 0,
       fullscreen_exit_count:
         fullscreen_exit_count !== undefined ? fullscreen_exit_count : 0,
+      voice_detection_count:
+        voice_detection_count !== undefined ? voice_detection_count : 0,
       metadata: updateData.metadata,
     });
   }
@@ -123,6 +133,7 @@ export const createOrUpdateExamMonitoring = ApiHandler(async (req, res) => {
       enrollment_id: monitoring.enrollment_id,
       tab_switch_count: monitoring.tab_switch_count,
       fullscreen_exit_count: monitoring.fullscreen_exit_count,
+      voice_detection_count: monitoring.voice_detection_count,
       metadata: monitoring.metadata,
     })
   );
@@ -152,6 +163,7 @@ export const getMonitoringByEnrollment = ApiHandler(async (req, res) => {
         enrollment_id: enrollmentId,
         tab_switch_count: 0,
         fullscreen_exit_count: 0,
+        voice_detection_count: 0,
         metadata: {
           snapshots: {
             regular_interval: [],
@@ -170,6 +182,7 @@ export const getMonitoringByEnrollment = ApiHandler(async (req, res) => {
       enrollment_id: monitoring.enrollment_id,
       tab_switch_count: monitoring.tab_switch_count,
       fullscreen_exit_count: monitoring.fullscreen_exit_count,
+      voice_detection_count: monitoring.voice_detection_count,
       metadata: monitoring.metadata,
       created_at: monitoring.created_at,
       updated_at: monitoring.updated_at,
@@ -249,6 +262,7 @@ export const getMonitoringByExam = ApiHandler(async (req, res) => {
             id: monitoring.id,
             tab_switch_count: monitoring.tab_switch_count,
             fullscreen_exit_count: monitoring.fullscreen_exit_count,
+            voice_detection_count: monitoring.voice_detection_count,
             metadata: monitoring.metadata || {
               snapshots: {
                 regular_interval: [],
@@ -263,6 +277,7 @@ export const getMonitoringByExam = ApiHandler(async (req, res) => {
         : {
             tab_switch_count: 0,
             fullscreen_exit_count: 0,
+            voice_detection_count: 0,
             metadata: {
               snapshots: {
                 regular_interval: [],
