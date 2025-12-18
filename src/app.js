@@ -13,6 +13,7 @@ import examAndQuestRouter from "#routes/exam.route.js";
 import examMonitoringRouter from "#routes/examMonitoring.route.js";
 import healthcheckRouter from "#routes/healthcheck.route.js";
 import mediaRouter from "#routes/media.route.js";
+import resumptionRequestRouter from "#routes/resumptionRequest.route.js";
 import submissionRouter from "#routes/submission.route.js";
 // routes import
 import userRouter from "#routes/user.route.js";
@@ -46,6 +47,7 @@ app.use("/v1/submissions", submissionRouter);
 app.use("/v1/checks", healthcheckRouter);
 app.use("/v1/medias", mediaRouter);
 app.use("/v1/exam-monitorings", examMonitoringRouter);
+app.use("/v1/resumption-requests", resumptionRequestRouter);
 
 app.use(errorHandler);
 

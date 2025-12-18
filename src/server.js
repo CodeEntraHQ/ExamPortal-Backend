@@ -9,6 +9,7 @@ import Exam from "#models/exam.model.js";
 import ExamMonitoring from "#models/examMonitoring.model.js";
 import Question from "#models/question.model.js";
 import Result from "#models/result.model.js";
+import ResumptionRequest from "#models/resumptionRequest.model.js";
 import Submission from "#models/submission.model.js";
 import User from "#models/user.model.js";
 
@@ -45,6 +46,15 @@ AdmissionFormSubmission.belongsTo(User, {
 ExamMonitoring.belongsTo(Enrollment, {
   foreignKey: "enrollment_id",
   onDelete: "CASCADE",
+});
+ResumptionRequest.belongsTo(Enrollment, {
+  foreignKey: "enrollment_id",
+  onDelete: "CASCADE",
+});
+ResumptionRequest.belongsTo(User, {
+  foreignKey: "approved_by",
+  as: "ApprovedBy",
+  onDelete: "SET NULL",
 });
 
 const port = process.env.PORT || 8000;
