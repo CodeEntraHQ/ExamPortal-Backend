@@ -4,6 +4,7 @@ import {
   createOrUpdateExamMonitoring,
   getMonitoringByEnrollment,
   getMonitoringByExam,
+  deleteMonitoringByEnrollment,
 } from "#controllers/examMonitoring.controller.js";
 import { verifyJWT } from "#middleware/authentication.middleware.js";
 
@@ -17,5 +18,8 @@ router.route("/exam/:examId").get(verifyJWT, getMonitoringByExam);
 
 // Get monitoring record for an enrollment
 router.route("/:enrollmentId").get(verifyJWT, getMonitoringByEnrollment);
+
+// Delete monitoring data and associated media for an enrollment
+router.route("/:enrollmentId").delete(verifyJWT, deleteMonitoringByEnrollment);
 
 export default router;

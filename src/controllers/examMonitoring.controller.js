@@ -1,5 +1,6 @@
 import Enrollment from "#models/enrollment.model.js";
 import ExamMonitoring from "#models/examMonitoring.model.js";
+import Media from "#models/media.model.js";
 import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
@@ -296,6 +297,75 @@ export const getMonitoringByExam = ApiHandler(async (req, res) => {
       enrollments: enrollmentMonitoringData,
       total_enrollments: enrollments.length,
       total_with_monitoring: monitoringRecords.length,
+    })
+  );
+});
+
+// Delete monitoring data and associated media for an enrollment
+export const deleteMonitoringByEnrollment = ApiHandler(async (req, res) => {
+  const { enrollmentId } = req.params;
+
+  if (!enrollmentId) {
+    throw new ApiError(400, "BAD_REQUEST", "enrollmentId is required");
+  }
+
+  // Find the monitoring record
+  const monitoring = await ExamMonitoring.findOne({
+    where: { enrollment_id: enrollmentId },
+  });
+
+  if (!monitoring) {
+    throw new ApiError(
+      404,
+      "MONITORING_NOT_FOUND",
+      "Monitoring record not found"
+    );
+  }
+
+  // Collect all media IDs from metadata snapshots
+  const mediaIds = [];
+  const metadata = monitoring.metadata || {};
+  const snapshots = metadata.snapshots || {};
+
+  // Collect media IDs from all snapshot types
+  if (snapshots.exam_start) {
+    mediaIds.push(snapshots.exam_start);
+  }
+  if (Array.isArray(snapshots.regular_interval)) {
+    mediaIds.push(...snapshots.regular_interval);
+  }
+  if (Array.isArray(snapshots.multiple_face_detection)) {
+    mediaIds.push(...snapshots.multiple_face_detection);
+  }
+  if (Array.isArray(snapshots.no_face_detection)) {
+    mediaIds.push(...snapshots.no_face_detection);
+  }
+
+  // Delete all associated media records
+  const deletedMediaIds = [];
+  for (const mediaId of mediaIds) {
+    if (mediaId) {
+      try {
+        const media = await Media.findByPk(mediaId);
+        if (media) {
+          await media.destroy();
+          deletedMediaIds.push(mediaId);
+        }
+      } catch (error) {
+        console.error(`Failed to delete media ${mediaId}:`, error);
+        // Continue with other media deletions even if one fails
+      }
+    }
+  }
+
+  // Delete the monitoring record
+  await monitoring.destroy();
+
+  return res.status(200).json(
+    new ApiResponse("MONITORING_DELETED", {
+      enrollment_id: enrollmentId,
+      deleted_media_count: deletedMediaIds.length,
+      deleted_media_ids: deletedMediaIds,
     })
   );
 });
