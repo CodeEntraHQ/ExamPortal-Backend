@@ -1,9 +1,11 @@
 import Enrollment from "#models/enrollment.model.js";
+import Entity from "#models/entity.model.js";
 import Exam from "#models/exam.model.js";
 import Result from "#models/result.model.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
 import { ENROLLMENT_STATUS } from "#utils/constants/model.constant.js";
+import { constructMediaLink } from "#utils/utils.js";
 
 export const getStudentEnrollments = ApiHandler(async (req, res) => {
   // Get all enrollments for the current student
@@ -57,6 +59,35 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
     ],
   });
 
+  // Fetch entity details for these exams (to include logo, signature and entity info in response)
+  const entityIds = [...new Set(exams.map((e) => e.entity_id))];
+  const entities = await Entity.findAll({
+    where: { id: entityIds },
+    attributes: [
+      "id",
+      "name",
+      "address",
+      "email",
+      "phone_number",
+      "logo_id",
+      "signature_id",
+    ],
+  });
+  const entitiesMap = new Map(
+    entities.map((entity) => [
+      entity.id,
+      {
+        id: entity.id,
+        name: entity.name,
+        address: entity.address,
+        email: entity.email,
+        phone_number: entity.phone_number,
+        logo_link: constructMediaLink(entity.logo_id),
+        signature_link: constructMediaLink(entity.signature_id),
+      },
+    ])
+  );
+
   // Fetch results for these exams and user
   // Note: Result model uses quiz_id, we'll check if it matches exam_id
   const results = await Result.findAll({
@@ -78,6 +109,7 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
       }
 
       const result = resultsMap.get(enrollment.exam_id);
+      const entity = entitiesMap.get(exam.entity_id);
 
       // Use enrollment status from database
       // Only mark as COMPLETED if enrollment status is actually COMPLETED
@@ -107,6 +139,7 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
           entity_id: exam.entity_id,
           results_visible: exam.results_visible ?? false,
         },
+        entity: entity || null,
         result: result
           ? {
               id: result.id,

@@ -13,7 +13,8 @@ export const createEntity = ApiHandler(async (req, res) => {
   const description = req.body.description?.trim();
   const email = req.body.email?.trim();
   const phone_number = req.body.phone_number?.trim();
-  const logo = req.file;
+  const logo = req.files?.logo?.[0];
+  const signature = req.files?.signature?.[0];
 
   // Check if entity exists
   const existingEntity = await Entity.findOne({ where: { name } });
@@ -25,10 +26,17 @@ export const createEntity = ApiHandler(async (req, res) => {
     );
   }
 
-  let media;
+  let logoMedia;
   if (logo) {
-    media = await Media.create({
+    logoMedia = await Media.create({
       media: logo.buffer,
+    });
+  }
+
+  let signatureMedia;
+  if (signature) {
+    signatureMedia = await Media.create({
+      media: signature.buffer,
     });
   }
 
@@ -40,7 +48,8 @@ export const createEntity = ApiHandler(async (req, res) => {
     description,
     email,
     phone_number,
-    logo_id: media?.id,
+    logo_id: logoMedia?.id,
+    signature_id: signatureMedia?.id,
   });
 
   // Send response
@@ -52,6 +61,7 @@ export const createEntity = ApiHandler(async (req, res) => {
       description: entity.description,
       email: entity.email,
       logo_link: constructMediaLink(entity.logo_id),
+      signature_link: constructMediaLink(entity.signature_id),
       name: entity.name,
       phone_number: entity.phone_number,
       status: "ACTIVE",

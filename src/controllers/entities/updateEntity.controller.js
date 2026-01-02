@@ -22,12 +22,20 @@ export const updateEntity = ApiHandler(async (req, res) => {
       ? req.body.monitoring_enabled === "true" ||
         req.body.monitoring_enabled === true
       : undefined;
-  const logo = req.file;
+  const logo = req.files?.logo?.[0];
+  const signature = req.files?.signature?.[0];
 
-  let media;
+  let logoMedia;
   if (logo) {
-    media = await Media.create({
+    logoMedia = await Media.create({
       media: logo.buffer,
+    });
+  }
+
+  let signatureMedia;
+  if (signature) {
+    signatureMedia = await Media.create({
+      media: signature.buffer,
     });
   }
 
@@ -39,7 +47,8 @@ export const updateEntity = ApiHandler(async (req, res) => {
     ...(description && { description }),
     ...(email && { email }),
     ...(phone_number && { phone_number }),
-    ...(logo && { logo_id: media.id }),
+    ...(logo && { logo_id: logoMedia.id }),
+    ...(signature && { signature_id: signatureMedia.id }),
     ...(monitoring_enabled !== undefined && { monitoring_enabled }),
   };
 
@@ -59,8 +68,12 @@ export const updateEntity = ApiHandler(async (req, res) => {
     );
   }
 
-  if (entity.logo_id) {
+  if (logo && entity.logo_id) {
     await Media.destroy({ where: { id: entity.logo_id } });
+  }
+
+  if (signature && entity.signature_id) {
+    await Media.destroy({ where: { id: entity.signature_id } });
   }
 
   const updatedEntity = await entity.update(updateData);
@@ -90,6 +103,7 @@ export const updateEntity = ApiHandler(async (req, res) => {
       description: updatedEntity.description,
       email: updatedEntity.email,
       logo_link: constructMediaLink(updatedEntity.logo_id),
+      signature_link: constructMediaLink(updatedEntity.signature_id),
       name: updatedEntity.name,
       phone_number: updatedEntity.phone_number,
       status: "ACTIVE",
