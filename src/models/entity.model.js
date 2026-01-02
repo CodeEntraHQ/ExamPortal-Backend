@@ -49,6 +49,11 @@ const Entity = sequelize.define(
       allowNull: true,
     },
 
+    signature_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     type: {
       type: DataTypes.ENUM(...Object.values(ENTITY_TYPE)),
       allowNull: false,

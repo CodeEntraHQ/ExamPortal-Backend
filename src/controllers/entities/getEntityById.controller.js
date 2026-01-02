@@ -58,6 +58,7 @@ export const getEntityById = ApiHandler(async (req, res) => {
       description: entity.description,
       email: entity.email,
       logo_link: constructMediaLink(entity.logo_id),
+      signature_link: constructMediaLink(entity.signature_id),
       name: entity.name,
       phone_number: entity.phone_number,
       status: "ACTIVE",

@@ -18,7 +18,13 @@ import {
 const router = Router();
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  fields: [
+    { name: "logo", maxCount: 1 },
+    { name: "signature", maxCount: 1 },
+  ],
+});
 
 router
   .route("/")
@@ -29,25 +35,27 @@ router
     getEntities
   );
 
-router
-  .route("/")
-  .post(
-    upload.single("logo"),
-    validate(createEntitySchema),
-    verifyJWT,
-    checkAuthorization(USER_ROLES.SUPERADMIN),
-    createEntity
-  );
+router.route("/").post(
+  upload.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "signature", maxCount: 1 },
+  ]),
+  validate(createEntitySchema),
+  verifyJWT,
+  checkAuthorization(USER_ROLES.SUPERADMIN),
+  createEntity
+);
 
-router
-  .route("/")
-  .patch(
-    upload.single("logo"),
-    validate(updateEntitySchema),
-    verifyJWT,
-    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
-    updateEntity
-  );
+router.route("/").patch(
+  upload.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "signature", maxCount: 1 },
+  ]),
+  validate(updateEntitySchema),
+  verifyJWT,
+  checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+  updateEntity
+);
 
 // Get entity by ID - allows ADMIN to get their own entity
 router
