@@ -13,6 +13,12 @@ export const updateExam = ApiHandler(async (req, res) => {
   const active = req.body.active;
   const results_visible = req.body.results_visible;
   const monitoring_enabled = req.body.monitoring_enabled;
+  const scheduled_at =
+    req.body.scheduled_at !== undefined
+      ? req.body.scheduled_at
+        ? new Date(req.body.scheduled_at)
+        : null
+      : undefined;
 
   // Validate exam_id
   if (!exam_id) {
@@ -58,6 +64,7 @@ export const updateExam = ApiHandler(async (req, res) => {
     updateData.results_visible = results_visible;
   if (monitoring_enabled !== undefined)
     updateData.monitoring_enabled = monitoring_enabled;
+  if (scheduled_at !== undefined) updateData.scheduled_at = scheduled_at;
 
   // Validate metadata if provided
   if (metadata) {
@@ -130,6 +137,7 @@ export const updateExam = ApiHandler(async (req, res) => {
       metadata: exam.metadata,
       results_visible: exam.results_visible,
       monitoring_enabled: exam.monitoring_enabled,
+      scheduled_at: exam.scheduled_at,
     })
   );
 });

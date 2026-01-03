@@ -56,6 +56,7 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
       "metadata",
       "entity_id",
       "results_visible",
+      "scheduled_at",
     ],
   });
 
@@ -138,6 +139,7 @@ export const getStudentEnrollments = ApiHandler(async (req, res) => {
           metadata: exam.metadata || null,
           entity_id: exam.entity_id,
           results_visible: exam.results_visible ?? false,
+          scheduled_at: exam.scheduled_at,
         },
         entity: entity || null,
         result: result

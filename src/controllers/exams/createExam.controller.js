@@ -11,6 +11,9 @@ export const createExam = ApiHandler(async (req, res) => {
   const duration_seconds = req.body.duration_seconds;
   const metadata = req.body.metadata;
   const results_visible = req.body.results_visible ?? false;
+  const scheduled_at = req.body.scheduled_at
+    ? new Date(req.body.scheduled_at)
+    : null;
 
   // Validate required fields
   if (!title || !type || !duration_seconds) {
@@ -74,6 +77,7 @@ export const createExam = ApiHandler(async (req, res) => {
     entity_id: entity_id || req.user.entity_id,
     active: true,
     results_visible,
+    scheduled_at,
   });
 
   // Send response
