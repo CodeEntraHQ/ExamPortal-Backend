@@ -24,6 +24,15 @@ export const updateEntity = ApiHandler(async (req, res) => {
       : undefined;
   const logo = req.files?.logo?.[0];
   const signature = req.files?.signature?.[0];
+  const subscription_years = req.body.subscription_years
+    ? parseInt(req.body.subscription_years)
+    : undefined;
+  const subscription_months = req.body.subscription_months
+    ? parseInt(req.body.subscription_months)
+    : undefined;
+  const subscription_days = req.body.subscription_days
+    ? parseInt(req.body.subscription_days)
+    : undefined;
 
   let logoMedia;
   if (logo) {
@@ -39,6 +48,27 @@ export const updateEntity = ApiHandler(async (req, res) => {
     });
   }
 
+  // Calculate subscription end date if subscription duration is provided
+  let subscription_end_date = undefined;
+  if (
+    subscription_years !== undefined ||
+    subscription_months !== undefined ||
+    subscription_days !== undefined
+  ) {
+    const endDate = new Date();
+    const years = subscription_years || 0;
+    const months = subscription_months || 0;
+    const days = subscription_days || 0;
+    if (years > 0 || months > 0 || days > 0) {
+      endDate.setFullYear(endDate.getFullYear() + years);
+      endDate.setMonth(endDate.getMonth() + months);
+      endDate.setDate(endDate.getDate() + days);
+      subscription_end_date = endDate;
+    } else {
+      subscription_end_date = null;
+    }
+  }
+
   // Update entity
   const updateData = {
     ...(name && { name }),
@@ -50,6 +80,7 @@ export const updateEntity = ApiHandler(async (req, res) => {
     ...(logo && { logo_id: logoMedia.id }),
     ...(signature && { signature_id: signatureMedia.id }),
     ...(monitoring_enabled !== undefined && { monitoring_enabled }),
+    ...(subscription_end_date !== undefined && { subscription_end_date }),
   };
 
   const entity = await Entity.findByPk(entity_id);
@@ -65,6 +96,15 @@ export const updateEntity = ApiHandler(async (req, res) => {
       403,
       "FORBIDDEN",
       "You don't have permission to update this entity"
+    );
+  }
+
+  // Block ADMIN users from updating subscription (financial security)
+  if (req.user.role === "ADMIN" && subscription_end_date !== undefined) {
+    throw new ApiError(
+      403,
+      "FORBIDDEN",
+      "ADMIN users are not allowed to update subscription information"
     );
   }
 
@@ -111,6 +151,7 @@ export const updateEntity = ApiHandler(async (req, res) => {
       total_students,
       type: updatedEntity.type,
       monitoring_enabled: updatedEntity.monitoring_enabled,
+      subscription_end_date: updatedEntity.subscription_end_date,
     })
   );
 });

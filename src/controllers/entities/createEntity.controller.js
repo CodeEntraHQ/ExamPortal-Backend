@@ -15,6 +15,15 @@ export const createEntity = ApiHandler(async (req, res) => {
   const phone_number = req.body.phone_number?.trim();
   const logo = req.files?.logo?.[0];
   const signature = req.files?.signature?.[0];
+  const subscription_years = req.body.subscription_years
+    ? parseInt(req.body.subscription_years)
+    : 0;
+  const subscription_months = req.body.subscription_months
+    ? parseInt(req.body.subscription_months)
+    : 0;
+  const subscription_days = req.body.subscription_days
+    ? parseInt(req.body.subscription_days)
+    : 0;
 
   // Check if entity exists
   const existingEntity = await Entity.findOne({ where: { name } });
@@ -40,6 +49,20 @@ export const createEntity = ApiHandler(async (req, res) => {
     });
   }
 
+  // Calculate subscription end date
+  let subscription_end_date = null;
+  if (
+    subscription_years > 0 ||
+    subscription_months > 0 ||
+    subscription_days > 0
+  ) {
+    const endDate = new Date();
+    endDate.setFullYear(endDate.getFullYear() + subscription_years);
+    endDate.setMonth(endDate.getMonth() + subscription_months);
+    endDate.setDate(endDate.getDate() + subscription_days);
+    subscription_end_date = endDate;
+  }
+
   // Create entity
   const entity = await Entity.create({
     name,
@@ -50,6 +73,7 @@ export const createEntity = ApiHandler(async (req, res) => {
     phone_number,
     logo_id: logoMedia?.id,
     signature_id: signatureMedia?.id,
+    subscription_end_date,
   });
 
   // Send response
@@ -72,6 +96,7 @@ export const createEntity = ApiHandler(async (req, res) => {
         entity.monitoring_enabled !== undefined
           ? entity.monitoring_enabled
           : true,
+      subscription_end_date: entity.subscription_end_date,
     })
   );
 });
