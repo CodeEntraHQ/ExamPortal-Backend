@@ -56,6 +56,12 @@ const setup = async () => {
     // Find or create the dummy entity
     // Note: logo_id and signature_id are optional fields and will be null by default
     // They can be updated later through the entity management interface
+    // Calculate subscription end date: 1 year, 5 months, 4 days from now
+    const subscriptionEndDate = new Date();
+    subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 1);
+    subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 5);
+    subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 4);
+
     const [entity, entityCreated] = await Entity.findOrCreate({
       where: { name: "Dummy Entity" },
       defaults: {
@@ -65,6 +71,7 @@ const setup = async () => {
         email: "dummy@example.com",
         phone_number: "9234567890",
         monitoring_enabled: true,
+        subscription_end_date: subscriptionEndDate,
         // logo_id and signature_id are optional - can be set later via entity update
       },
     });

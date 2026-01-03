@@ -33,6 +33,12 @@ export const createEntitySchema = z.object({
         9999999999
       ).optional(),
       type: z.enum([...Object.values(ENTITY_TYPE)]),
+      subscription_years: integerValidation("subscription_years", 0).optional(),
+      subscription_months: integerValidation(
+        "subscription_months",
+        0
+      ).optional(),
+      subscription_days: integerValidation("subscription_days", 0).optional(),
     })
     .strict(),
   file: imageFileValidation().optional(),
@@ -54,6 +60,12 @@ export const updateEntitySchema = z.object({
       ).optional(),
       type: z.enum([...Object.values(ENTITY_TYPE)]).optional(),
       monitoring_enabled: z.union([z.boolean(), z.string()]).optional(),
+      subscription_years: integerValidation("subscription_years", 0).optional(),
+      subscription_months: integerValidation(
+        "subscription_months",
+        0
+      ).optional(),
+      subscription_days: integerValidation("subscription_days", 0).optional(),
     })
     .refine(
       (data) =>
@@ -63,9 +75,13 @@ export const updateEntitySchema = z.object({
         data.name !== undefined ||
         data.phone_number !== undefined ||
         data.type !== undefined ||
-        data.monitoring_enabled !== undefined || {
-          message: "At least one of attribute is required",
-        }
+        data.monitoring_enabled !== undefined ||
+        data.subscription_years !== undefined ||
+        data.subscription_months !== undefined ||
+        data.subscription_days !== undefined,
+      {
+        message: "At least one of attribute is required",
+      }
     )
     .strict(),
   file: imageFileValidation().optional(),

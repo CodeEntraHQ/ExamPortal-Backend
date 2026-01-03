@@ -64,6 +64,11 @@ const Entity = sequelize.define(
       allowNull: false,
       defaultValue: true,
     },
+
+    subscription_end_date: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     timestamps: false,

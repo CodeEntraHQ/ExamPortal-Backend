@@ -40,6 +40,7 @@ export const getEntities = ApiHandler(async (req, res) => {
         entity.monitoring_enabled !== undefined
           ? entity.monitoring_enabled
           : true,
+      subscription_end_date: entity.subscription_end_date,
     }))
   );
 
