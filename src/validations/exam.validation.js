@@ -24,6 +24,7 @@ export const createExamSchema = z.object({
         .optional(),
       results_visible: z.boolean().optional(),
       entity_id: uuidValidation("entity_id").optional(),
+      scheduled_at: z.string().optional().nullable(),
     })
     .strict(),
   headers: authorizationValidation(),
@@ -143,6 +144,7 @@ export const updateExamSchema = z.object({
       active: z.boolean().optional(),
       results_visible: z.boolean().optional(),
       monitoring_enabled: z.boolean().optional(),
+      scheduled_at: z.string().datetime().optional().nullable(),
     })
     .strict(),
   headers: authorizationValidation(),
@@ -206,6 +208,15 @@ export const deleteExamEnrollmentSchema = z.object({
     .object({
       id: uuidValidation("id"),
       enrollmentId: uuidValidation("enrollmentId"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
+
+export const deleteExamSchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
     })
     .strict(),
   headers: authorizationValidation(),

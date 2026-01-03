@@ -71,6 +71,7 @@ export const getExamById = ApiHandler(async (req, res) => {
     entity_id: exam.entity_id,
     results_visible: exam.results_visible ?? false,
     monitoring_enabled: exam.monitoring_enabled ?? true,
+    scheduled_at: exam.scheduled_at,
   };
 
   // Send response

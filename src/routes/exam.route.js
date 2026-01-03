@@ -3,6 +3,7 @@ import multer from "multer";
 
 import { createExam } from "#controllers/exams/createExam.controller.js";
 import { createQuestion } from "#controllers/exams/createQuestion.controller.js";
+import { deleteExam } from "#controllers/exams/deleteExam.controller.js";
 import { deleteExamEnrollment } from "#controllers/exams/deleteExamEnrollment.controller.js";
 import { deleteQuestion } from "#controllers/exams/deleteQuestion.controller.js";
 import { getExamById } from "#controllers/exams/getExamById.controller.js";
@@ -36,6 +37,7 @@ import {
   getExamDetailStatisticsSchema,
   getExamLeaderboardSchema,
   deleteExamEnrollmentSchema,
+  deleteExamSchema,
   createQuestionSchema,
   updateQuestionSchema,
   deleteQuestionSchema,
@@ -67,6 +69,15 @@ router
   );
 
 router.route("/").get(validate(getExamsSchema), verifyJWT, getExams);
+
+router
+  .route("/:id")
+  .delete(
+    validate(deleteExamSchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
+    deleteExam
+  );
 
 // Specific routes must come before parameterized routes to avoid route conflicts
 router

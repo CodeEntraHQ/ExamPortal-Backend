@@ -69,6 +69,7 @@ export const getExams = ApiHandler(async (req, res) => {
       results_visible: exam.results_visible ?? false,
       monitoring_enabled: exam.monitoring_enabled ?? true,
       has_admission_form: examIdsWithForms.has(exam.id),
+      scheduled_at: exam.scheduled_at,
     };
   });
 

@@ -44,6 +44,10 @@ const Exam = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    scheduled_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

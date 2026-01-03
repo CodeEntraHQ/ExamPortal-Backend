@@ -100,6 +100,9 @@ const setup = async () => {
     // Create dummy exams
     const admin = await User.findOne({ where: { role: USER_ROLES.ADMIN } });
 
+    // Note: scheduled_at is an optional field and will be null by default
+    // It can be set when creating exams through the API or updated later via exam update
+
     // Create a sample quiz
     const quiz = await Exam.create({
       id: randomUUID(),
