@@ -87,3 +87,12 @@ export const updateEntitySchema = z.object({
   file: imageFileValidation().optional(),
   headers: authorizationValidation(),
 });
+
+export const deleteEntitySchema = z.object({
+  params: z
+    .object({
+      id: uuidValidation("id"),
+    })
+    .strict(),
+  headers: authorizationValidation(),
+});
