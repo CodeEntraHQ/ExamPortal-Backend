@@ -3,6 +3,7 @@ import multer from "multer";
 
 import { createEntity } from "#controllers/entities/createEntity.controller.js";
 import { createTrialEntity } from "#controllers/entities/createTrialEntity.controller.js";
+import { deleteEntity } from "#controllers/entities/deleteEntity.controller.js";
 import { getEntities } from "#controllers/entities/getEntities.controller.js";
 import { getEntityById } from "#controllers/entities/getEntityById.controller.js";
 import { updateEntity } from "#controllers/entities/updateEntity.controller.js";
@@ -14,6 +15,7 @@ import {
   getEntitiesSchema,
   createEntitySchema,
   updateEntitySchema,
+  deleteEntitySchema,
 } from "#validations/entity.validation.js";
 import { createTrialEntitySchema } from "#validations/trialEntity.validation.js";
 
@@ -76,6 +78,16 @@ router
     verifyJWT,
     checkAuthorization(USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN),
     getEntityById
+  );
+
+// Delete entity - only SUPERADMIN can delete
+router
+  .route("/:id")
+  .delete(
+    validate(deleteEntitySchema),
+    verifyJWT,
+    checkAuthorization(USER_ROLES.SUPERADMIN),
+    deleteEntity
   );
 
 export default router;
