@@ -2,6 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 
 import { createEntity } from "#controllers/entities/createEntity.controller.js";
+import { createTrialEntity } from "#controllers/entities/createTrialEntity.controller.js";
 import { getEntities } from "#controllers/entities/getEntities.controller.js";
 import { getEntityById } from "#controllers/entities/getEntityById.controller.js";
 import { updateEntity } from "#controllers/entities/updateEntity.controller.js";
@@ -14,6 +15,7 @@ import {
   createEntitySchema,
   updateEntitySchema,
 } from "#validations/entity.validation.js";
+import { createTrialEntitySchema } from "#validations/trialEntity.validation.js";
 
 const router = Router();
 
@@ -35,6 +37,16 @@ router
     getEntities
   );
 
+// Public trial entity creation endpoint (no auth required)
+router
+  .route("/trial")
+  .post(
+    upload.fields([{ name: "logo", maxCount: 1 }]),
+    validate(createTrialEntitySchema),
+    createTrialEntity
+  );
+
+// Regular entity creation (requires SUPERADMIN auth)
 router.route("/").post(
   upload.fields([
     { name: "logo", maxCount: 1 },

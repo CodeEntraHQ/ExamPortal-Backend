@@ -8,10 +8,11 @@ const getJwtToken = (payload, expiry) => {
 };
 
 const getJwtPayload = (data) => {
-  const { session_id } = asyncLocalStorage.getStore();
+  const store = asyncLocalStorage.getStore();
+  const session_id = store?.session_id || null;
   return {
     ...data,
-    session_id,
+    ...(session_id && { session_id }),
   };
 };
 
