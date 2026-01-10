@@ -7,7 +7,7 @@ import User from "#models/user.model.js";
 import { ApiError } from "#utils/api-handler/error.js";
 import { ApiHandler } from "#utils/api-handler/handler.js";
 import { ApiResponse } from "#utils/api-handler/response.js";
-import { USER_STATUS } from "#utils/constants/model.constant.js";
+import { USER_STATUS, USER_ROLES } from "#utils/constants/model.constant.js";
 import { generateUserSessionToken } from "#utils/crypto.util.js";
 import { constructMediaLink } from "#utils/utils.js";
 
@@ -108,6 +108,34 @@ export const loginUser = ApiHandler(async (req, res) => {
       "AUTHENTICATION_FAILED",
       `Authentication failed ${remaining_limit} attempts left`
     );
+  }
+
+  // Check subscription status for non-SUPERADMIN users before allowing login
+  // SUPERADMIN should not be blocked by subscription
+  if (user.role !== USER_ROLES.SUPERADMIN && user.entity_id) {
+    // Reload entity to get subscription_end_date
+    const entity = await Entity.findByPk(user.entity_id, {
+      attributes: ["id", "name", "subscription_end_date"],
+    });
+
+    if (entity && entity.subscription_end_date) {
+      const subscriptionEndDate = new Date(entity.subscription_end_date);
+      const now = new Date();
+
+      // If subscription has expired (current date > subscription end date)
+      if (now > subscriptionEndDate) {
+        // Mark user as inactive
+        await user.update({
+          status: USER_STATUS.INACTIVE,
+        });
+
+        throw new ApiError(
+          403,
+          "SUBSCRIPTION_EXPIRED",
+          "Your subscription has expired. Please contact your administrator to renew your subscription."
+        );
+      }
+    }
   }
 
   const token = generateUserSessionToken(user.id);
